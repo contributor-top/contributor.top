@@ -15,7 +15,7 @@ issue, or edit `presets/<country>.yml` directly — see [CONTRIBUTING.md](CONTRI
 
 ## Development
 
-Requires Node.js 22 (see `.nvmrc`).
+Requires Node.js 22.23.4 or newer (see `.nvmrc`); earlier releases are vulnerable to CVE-2026-111497 (Node2Shell).
 
 ```sh
 npm ci
