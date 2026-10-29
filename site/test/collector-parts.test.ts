@@ -205,6 +205,30 @@ describe("GitHub App token", () => {
     await expect(token()).rejects.toBeInstanceOf(AuthError);
   });
 
+  it("retries a token endpoint that is down instead of ending the run", async () => {
+    const { clock, fetch } = api(3_600_000);
+    let failures = 2;
+    const flaky: FetchLike = async (url, init) => {
+      if (url.endsWith("/access_tokens") && failures-- > 0) return response(json({ message: "Server Error" }, 502));
+      return fetch(url, init);
+    };
+    const token = installationToken({
+      appId: "1",
+      privateKey: pem,
+      repo: "contributors-top/contributors.top",
+      fetch: flaky,
+      clock,
+    });
+    expect(await token()).toBe("ghs_1");
+    expect(clock.sleeps).toEqual([5000, 10_000]);
+
+    const down: FetchLike = async () => response(json({}, 503));
+    const never = installationToken({ appId: "1", privateKey: pem, repo: "o/r", fetch: down, clock });
+    const error = await never().catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(Error);
+    expect(error).not.toBeInstanceOf(AuthError);
+  });
+
   it("knows its bot identity for commits", async () => {
     const { clock, fetch } = api(0);
     expect(await appBotIdentity({ appId: "1", privateKey: pem, fetch, clock })).toEqual({

@@ -20,6 +20,7 @@ import { collectCountry } from "../collector/country.ts";
 import type { CountryData } from "../collector/country-data.ts";
 import { loadCountries } from "../collector/data-dir.ts";
 import { AuthError, GitHubGraphQL, OutOfTimeError } from "../collector/github.ts";
+import { optoutHash } from "../collector/optout.ts";
 import { mentionsAny, parseHashes, purgeCountry, serializeHashes } from "../collector/optout-list.ts";
 import { loadPresets } from "../collector/preset.ts";
 import { dueCountries } from "../collector/queue.ts";
@@ -72,10 +73,46 @@ function readHashes(): Set<string> {
   }
 }
 const hashes = readHashes();
+/** What this run changed in the opt-out list; applied on top of the file, so hashes added by others survive. */
+const optoutDelta = { added: new Set<string>(), removed: new Set<string>() };
+function writeHashes(): void {
+  const merged = readHashes();
+  for (const hash of optoutDelta.added) merged.add(hash);
+  for (const hash of optoutDelta.removed) merged.delete(hash);
+  for (const hash of merged) hashes.add(hash);
+  writeFileSync(hashesFile, serializeHashes(merged));
+}
+
 const presets = loadPresets("../presets", config.reserved_slugs);
 const countries = new Map(loadCountries(dataStore.dir).map((c) => [c.slug, c]));
-const writeCountry = (data: CountryData) =>
+/** Countries this run wrote: after a rejected push they are written again on top of GitHub's version. */
+const touched = new Set<string>();
+function writeCountry(data: CountryData): void {
+  touched.add(data.slug);
   writeFileSync(join(dataStore.dir, "countries", `${data.slug}.json`), `${JSON.stringify(data)}\n`);
+}
+const rewriteCountries = () => {
+  for (const slug of touched) writeCountry(countries.get(slug) as CountryData);
+};
+
+/** Someone left the data in this run, so the previous snapshot must not stay public as data-prev. */
+let privacyChanged = false;
+function purge(slug: string, data: CountryData, ids: ReadonlySet<number>): void {
+  const purged = purgeCountry(data, ids);
+  countries.set(slug, purged);
+  writeCountry(purged);
+  privacyChanged = true;
+}
+// Everyone on the opt-out list leaves the published data now, however they were added (status, issue, by hand).
+for (const [slug, data] of countries) {
+  const ids = new Set(
+    Object.values(data.tabs)
+      .flat()
+      .map((r) => r.id)
+      .filter((id) => id > 0 && hashes.has(optoutHash(id, optoutKey))),
+  );
+  if (ids.size > 0) purge(slug, data, ids);
+}
 
 // One client per worker: each paces its own requests; the budget floor follows the shared rate limit.
 const clients = Array.from(
@@ -106,33 +143,40 @@ let updated = 0;
 let failed = 0;
 let lastDeploy = started;
 
+/** Triggers the deploy workflow; a failure is logged, never fatal (the next run deploys again). */
 async function deploy(): Promise<void> {
   if (!publish || !appToken) return;
-  const response = await fetch(`https://api.github.com/repos/${repo}/actions/workflows/deploy.yml/dispatches`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${await appToken()}`,
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-    },
-    body: JSON.stringify({ ref: "main" }),
-  });
-  if (response.status !== 204) console.log(`deploy dispatch returned ${response.status}`);
   lastDeploy = Date.now();
+  try {
+    const response = await fetch(`https://api.github.com/repos/${repo}/actions/workflows/deploy.yml/dispatches`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${await appToken()}`,
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+      body: JSON.stringify({ ref: "main" }),
+    });
+    if (response.status !== 204) console.log(`deploy dispatch returned ${response.status}`);
+  } catch (e) {
+    console.log(`deploy dispatch failed: ${scrub(e instanceof Error ? e.message : String(e))}`);
+  }
 }
 
 /** New opt-outs leave every country at once, not at each country's next update. */
 function applyOptouts(optedOut: { id: number; hash: string }[], optedIn: string[]): void {
-  for (const hash of optedIn) hashes.delete(hash);
-  if (optedOut.length === 0) return;
-  for (const { hash } of optedOut) hashes.add(hash);
-  const ids = new Set(optedOut.map((o) => o.id));
-  for (const [slug, data] of countries) {
-    if (!mentionsAny(data, ids)) continue;
-    const purged = purgeCountry(data, ids);
-    countries.set(slug, purged);
-    writeCountry(purged);
+  for (const hash of optedIn) {
+    hashes.delete(hash);
+    optoutDelta.removed.add(hash);
+    optoutDelta.added.delete(hash);
   }
+  for (const { hash } of optedOut) {
+    hashes.add(hash);
+    optoutDelta.added.add(hash);
+    optoutDelta.removed.delete(hash);
+  }
+  const ids = new Set(optedOut.map((o) => o.id));
+  for (const [slug, data] of countries) if (mentionsAny(data, ids)) purge(slug, data, ids);
 }
 
 /** Git commits and pushes run one at a time, whichever worker finishes first. */
@@ -143,15 +187,22 @@ function serially<T>(task: () => Promise<T>): Promise<T> {
   return run;
 }
 
-async function publishCountry(slug: string, stats: { optedOut: number; optedIn: number }): Promise<void> {
-  writeFileSync(hashesFile, serializeHashes(hashes));
+/**
+ * Commits and pushes the opt-out list first and the data second: a purge is never published while the hash
+ * that explains it could still be lost. Earlier failed pushes are retried here too.
+ */
+async function publishAll(label: string): Promise<void> {
+  writeHashes();
   if (!publish) return;
   await serially(async () => {
-    if (await optoutStore.commit(`optout: +${stats.optedOut} -${stats.optedIn}`)) await optoutStore.push();
-    if (await dataStore.commit(`data: ${slug}`)) await dataStore.push();
+    await optoutStore.commit(`optout: ${label}`);
+    await optoutStore.push(writeHashes, `optout: ${label}`);
+    await dataStore.commit(`data: ${label}`);
+    await dataStore.push(rewriteCountries, `data: ${label}`);
     if (Date.now() - lastDeploy > DEPLOY_EVERY_MS) await deploy();
   });
 }
+if (privacyChanged) await publishAll("remove opted-out people");
 
 let stopped = false;
 
@@ -184,7 +235,7 @@ async function collectOne(client: GitHubGraphQL, { slug, reason }: (typeof queue
     }
     const s = result.stats;
     outcome += ` · candidates ${s.candidates}, other country ${s.otherCountry}, skipped ${s.skipped}, opt-outs +${s.optedOut}/-${s.optedIn}`;
-    await publishCountry(slug, s);
+    await publishAll(slug);
     line(outcome);
   } catch (e) {
     if (e instanceof AuthError) throw e;
@@ -206,9 +257,21 @@ async function worker(client: GitHubGraphQL): Promise<void> {
 }
 await Promise.all(clients.map(worker));
 
-// One commit per run instead of one per country: the data branch stays small; data-prev keeps the last snapshot.
-if (publish) await dataStore.squash(`data: snapshot ${new Date().toISOString()}`, "data-prev");
-if (updated > 0) await deploy();
+// Retry anything a failed push left behind, then make it one commit per run instead of one per country: the data
+// branch stays small, and data-prev keeps the previous snapshot unless someone opted out in this run.
+try {
+  await publishAll("end of run");
+  if (publish) await dataStore.squash(`data: snapshot ${new Date().toISOString()}`, "data-prev", !privacyChanged);
+} catch (e) {
+  failed++;
+  report.push({
+    slug: "(publish)",
+    result: `failed: ${scrub(e instanceof Error ? e.message : String(e))}`,
+    minutes: "",
+    cost: 0,
+  });
+}
+if (updated > 0 || privacyChanged) await deploy();
 
 const sum = (pick: (c: GitHubGraphQL) => number) => clients.reduce((total, c) => total + pick(c), 0);
 const summary = [

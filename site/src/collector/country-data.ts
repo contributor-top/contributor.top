@@ -27,8 +27,8 @@ const ranking = z.array(row).superRefine((rows, ctx) => {
       ctx.addIssue({ code: "custom", path: [i, "contributions"], message: "rows must be sorted by contributions" });
     }
     const login = r.login.toLowerCase();
-    if (logins.has(login)) ctx.addIssue({ code: "custom", path: [i, "login"], message: `duplicate login ${login}` });
-    if (ids.has(r.id)) ctx.addIssue({ code: "custom", path: [i, "id"], message: `duplicate id ${r.id}` });
+    if (logins.has(login)) ctx.addIssue({ code: "custom", path: [i, "login"], message: "duplicate login" });
+    if (ids.has(r.id)) ctx.addIssue({ code: "custom", path: [i, "id"], message: "duplicate id" });
     logins.add(login);
     ids.add(r.id);
   }

@@ -75,7 +75,7 @@ async function loadBatch(client: GitHubGraphQL, batch: readonly Found[]): Promis
     if (errors.some(isHeavy) || !Array.isArray(data?.nodes)) return null;
     return data.nodes;
   } catch (e) {
-    if (e instanceof ApiError) return null;
+    if (e instanceof ApiError && e.status !== 403 && e.status !== 429) return null;
     throw e;
   }
 }

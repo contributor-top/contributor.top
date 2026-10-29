@@ -85,7 +85,8 @@ export class GitHubGraphQL {
       const outcome = await this.attempt(query, variables, attempt);
       if (outcome.kind === "done") return { data: outcome.data as T | null, errors: outcome.errors };
       lastStatus = outcome.status;
-      await this.wait(outcome.waitMs);
+      // No point waiting (possibly until the hourly reset) when there is no attempt left.
+      if (attempt < attempts - 1) await this.wait(outcome.waitMs);
     }
     throw new ApiError(`GitHub request failed after ${attempts} attempts`, lastStatus);
   }
@@ -133,6 +134,10 @@ export class GitHubGraphQL {
 
   /** Paces requests and keeps the reserve: below the floor, sleep until the hourly window resets. */
   private async beforeRequest(): Promise<void> {
+    // Checked before every request, not only before waits: a slow run must still stop in time.
+    if (this.options.deadline !== undefined && this.clock.now() > this.options.deadline) {
+      throw new OutOfTimeError("the run's time budget is used up");
+    }
     const pause = this.lastRequestAt + (this.options.pauseMs ?? 0) - this.clock.now();
     if (pause > 0) await this.wait(pause);
     const floor = (this.options.budgetFloor ?? 0) * this.usage.limit;

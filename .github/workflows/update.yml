@@ -18,8 +18,9 @@ on:
 
 permissions: {}
 
-# Every job that calls the GitHub API shares this group: secondary rate limits are per account,
-# so two collectors at once would only slow each other down. A queued run waits, it is never cancelled.
+# Every job that calls the GitHub API shares this group: secondary rate limits are per account, so two collectors
+# at once would only slow each other down. A running job is never cancelled; GitHub keeps one pending run per group,
+# so the next hourly run replaces a pending one (a manual run waiting behind a long run may need dispatching again).
 concurrency:
   group: github-api
   cancel-in-progress: false
