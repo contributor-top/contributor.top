@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/preset.schema.json
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
 # Copy this file to presets/<slug>.yml (lowercase, a-z, 0-9, _), fill it in and open a PR.
 title: Country name in English
 iso: "XX" # ISO 3166-1 alpha-2 code in quotes, or null for a region without one

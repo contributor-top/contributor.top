@@ -50,7 +50,10 @@ beforeAll(() => {
   writeFileSync(join(dataDir, "countries", "empty_land.json"), JSON.stringify(country("empty_land", "Empty Land", [])));
   const env = { ...process.env, OUT_DIR: out, DATA_DIR: dataDir, PRESETS_DIR: presetsDir };
   execFileSync(process.execPath, ["node_modules/astro/bin/astro.mjs", "build", "--silent"], { env, stdio: "pipe" });
-  execFileSync(process.execPath, ["node_modules/tsx/dist/cli.mjs", "scripts/build-badges.ts"], { env, stdio: "pipe" });
+  execFileSync(process.execPath, ["node_modules/tsx/dist/cli.mjs", "src/scripts/build-badges.ts"], {
+    env,
+    stdio: "pipe",
+  });
 }, 120_000);
 
 describe("site built from hostile data", () => {

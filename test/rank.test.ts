@@ -1,6 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { type Candidate, minFollowers, rank, TABS } from "../collector/rank.ts";
+import { type Candidate, minFollowers, rank, TABS } from "../src/collector/rank.ts";
 
 const candidateArb = fc.record({
   id: fc.integer({ min: 1, max: 1_000_000 }),

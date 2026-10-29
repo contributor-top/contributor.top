@@ -1,10 +1,10 @@
 // Deterministic tests for tie-breaking and other branches that random inputs only hit by chance.
 import { describe, expect, it } from "vitest";
-import { buildBadges } from "../collector/badges.ts";
-import type { CountryData } from "../collector/country-data.ts";
-import { freeTextLength } from "../collector/query.ts";
-import { type Candidate, rank, TABS } from "../collector/rank.ts";
-import { matchingPresets } from "../collector/stuffing.ts";
+import { buildBadges } from "../src/collector/badges.ts";
+import type { CountryData } from "../src/collector/country-data.ts";
+import { freeTextLength } from "../src/collector/query.ts";
+import { type Candidate, rank, TABS } from "../src/collector/rank.ts";
+import { matchingPresets } from "../src/collector/stuffing.ts";
 
 const c = (id: number, login: string, total: number, followers: number): Candidate => ({
   id,

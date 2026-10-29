@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { configSchema, loadConfig } from "../collector/config.ts";
-import { loadPresets, presetChecksum, presetSchema, validateSlug } from "../collector/preset.ts";
-import { ConfigError, loadYaml } from "../collector/yaml.ts";
+import { configSchema, loadConfig } from "../src/collector/config.ts";
+import { loadPresets, presetChecksum, presetSchema, validateSlug } from "../src/collector/preset.ts";
+import { ConfigError, loadYaml } from "../src/collector/yaml.ts";
 
 const preset = (body: string) => () => loadYaml("test.yml", presetSchema, body);
 

@@ -1,4 +1,4 @@
-// Validates config.yml, presets/*.yml and fixtures/presets/*.yml; prints file:line errors and exits non-zero.
+// Validates config.yml, presets/*.yml and test/fixtures/presets/*.yml; prints file:line errors and exits non-zero.
 import { loadConfig } from "../collector/config.ts";
 import { loadPresets } from "../collector/preset.ts";
 import { buildQuery, fitsSearchLimits } from "../collector/query.ts";
@@ -6,7 +6,7 @@ import { ConfigError } from "../collector/yaml.ts";
 
 try {
   const config = loadConfig();
-  for (const dir of ["presets", "fixtures/presets"]) {
+  for (const dir of ["presets", "test/fixtures/presets"]) {
     const presets = loadPresets(dir, config.reserved_slugs);
     const tooLong = [...presets].filter(([, p]) => !fitsSearchLimits(buildQuery(p))).map(([slug]) => slug);
     if (tooLong.length > 0) {

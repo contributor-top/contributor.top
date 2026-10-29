@@ -3,14 +3,14 @@ import { join } from "node:path";
 import { type CountryData, countryDataSchema } from "./country-data.ts";
 
 /** Country data lives in the `data` branch in production; CI and local builds use fixtures. */
-export const dataDir = (): string => process.env["DATA_DIR"] ?? "fixtures/data";
+export const dataDir = (): string => process.env["DATA_DIR"] ?? "test/fixtures/data";
 
 /**
  * Real presets go with real data. Without DATA_DIR the site is built from fixtures,
  * which use fictional countries so that no real person or place appears in test pages.
  */
 export const presetsDir = (): string =>
-  process.env["PRESETS_DIR"] ?? (process.env["DATA_DIR"] ? "presets" : "fixtures/presets");
+  process.env["PRESETS_DIR"] ?? (process.env["DATA_DIR"] ? "presets" : "test/fixtures/presets");
 
 export function loadCountries(dir = dataDir()): CountryData[] {
   const countriesDir = join(dir, "countries");

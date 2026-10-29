@@ -5,7 +5,7 @@ Operational notes for maintainers. Steps that depend on workflows not built yet 
 ## First setup
 
 1. Create the organization and the public repository, push the first commit.
-2. When CI on `main` is green: `npx tsx scripts/setup-repo.ts` (dry run), then add `--apply`.
+2. When CI on `main` is green: `npx tsx src/scripts/setup-repo.ts` (dry run), then add `--apply`.
 3. Organization settings: require 2FA, base permission `read`, allow GitHub-owned actions plus the allowlist in the
    project plan, default `GITHUB_TOKEN` read-only, approval for first-time contributors.
 
