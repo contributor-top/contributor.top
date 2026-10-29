@@ -245,6 +245,18 @@ describe("loading details", () => {
   });
 });
 
+describe("rate limits while loading details", () => {
+  it("does not shrink batches or skip people because of a rate limit", async () => {
+    const users = Array.from({ length: 5 }, (_, i) => user(i + 1, "Atlantis", 1));
+    const github = new FakeGitHub(users);
+    for (let i = 0; i < 5; i++) github.queued.push(json({ message: "too many" }, 429));
+    const found = users.map((u) => ({ id: u.id, nodeId: `U_${u.id}`, login: u.login, followers: 1 }));
+    const c = new GitHubGraphQL({ token: async () => "t", fetch: github.fetch, clock: fakeClock(), maxAttempts: 5 });
+    await expect(fetchPeople(c, found, { batchSize: 10, maxSkipped: 0 })).rejects.toMatchObject({ status: 429 });
+    expect(github.calls).toEqual([]);
+  });
+});
+
 // ---------------------------------------------------------------- one country
 
 describe("collecting a country", () => {

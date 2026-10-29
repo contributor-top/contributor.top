@@ -141,4 +141,24 @@ describe("GitHub GraphQL client", () => {
     await client.query(Q, vars);
     expect(seen).toEqual(["bearer token-1", "bearer token-2"]);
   });
+
+  it("does not wait after the last attempt", async () => {
+    const { github, clock, client } = setup({ maxAttempts: 3 });
+    for (let i = 0; i < 3; i++) github.queued.push(json({}, 429, { "retry-after": "1" }));
+    await expect(client.query(Q, vars)).rejects.toBeInstanceOf(ApiError);
+    expect(clock.sleeps).toEqual([60_000, 120_000]);
+  });
+
+  it("checks the deadline before every request, not only before waits", async () => {
+    const github = new FakeGitHub(people);
+    const clock = fakeClock();
+    const slow: typeof github.fetch = async (url, init) => {
+      await clock.sleep(20_000); // a slow response moves time without any wait in the client
+      return github.fetch(url, init);
+    };
+    const client = new GitHubGraphQL({ token: async () => "t", fetch: slow, clock, deadline: clock.now() + 30_000 });
+    await client.query(Q, vars);
+    await client.query(Q, vars);
+    await expect(client.query(Q, vars)).rejects.toBeInstanceOf(OutOfTimeError);
+  });
 });

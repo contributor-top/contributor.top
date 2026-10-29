@@ -18,22 +18,39 @@ export function appJwt(appId: string, privateKey: string, nowMs: number): string
 
 type AppAuth = { appId: string; privateKey: string; fetch?: FetchLike; clock?: Clock };
 
+const ATTEMPTS = 4;
+
+/**
+ * One REST call. Network errors and 5xx are retried (a token refresh in hour three must not end the run);
+ * 401/403/404 mean wrong key, App or installation and fail at once as AuthError.
+ */
+const requestInit = (method: string, bearer: string | null, body: unknown) => ({
+  method,
+  headers: {
+    ...(bearer === null ? {} : { Authorization: `Bearer ${bearer}` }),
+    Accept: "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+    "User-Agent": "contributors.top-collector",
+    ...(body === undefined ? {} : { "Content-Type": "application/json" }),
+  },
+  ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+});
+
 async function rest<T>(auth: AppAuth, method: string, path: string, bearer: string | null, body?: unknown): Promise<T> {
   const fetchFn: FetchLike = auth.fetch ?? ((url, init) => fetch(url, init));
-  const response = await fetchFn(`${API}${path}`, {
-    method,
-    headers: {
-      ...(bearer === null ? {} : { Authorization: `Bearer ${bearer}` }),
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-      "User-Agent": "contributors.top-collector",
-      ...(body === undefined ? {} : { "Content-Type": "application/json" }),
-    },
-    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-  });
-  if (response.status >= 300)
-    throw new AuthError(`GitHub App authentication failed: ${method} ${path} → ${response.status}`);
-  return JSON.parse(await response.text()) as T;
+  const clock = auth.clock ?? systemClock;
+  const init = requestInit(method, bearer, body);
+  let problem = "";
+  for (let attempt = 0; attempt < ATTEMPTS; attempt++) {
+    if (attempt > 0) await clock.sleep(5000 * 2 ** (attempt - 1));
+    const response = await fetchFn(`${API}${path}`, init).catch(() => null);
+    if (response && response.status < 300) return JSON.parse(await response.text()) as T;
+    if (response && [401, 403, 404].includes(response.status)) {
+      throw new AuthError(`GitHub App authentication failed: ${method} ${path} → ${response.status}`);
+    }
+    problem = response ? String(response.status) : "network error";
+  }
+  throw new Error(`GitHub App API unavailable: ${method} ${path} → ${problem}`);
 }
 
 /**
