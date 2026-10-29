@@ -1,19 +1,19 @@
 ---
 import { config } from "../lib/site.ts";
 
-// Small "Star · N" link. The count comes from the GitHub API in the browser (cached for the session);
-// until the repository exists, or if the API is unavailable, the link stays hidden.
+// Small "Star · N" link, rendered at once so nothing moves when the count arrives: the count comes from
+// the GitHub API in the browser (cached for the session) into a slot whose width is reserved.
 const repo = config.site.repo;
 ---
 
-<a class="stars" href={`https://github.com/${repo}`} data-repo={repo} hidden>
+<a class="stars" href={`https://github.com/${repo}`} data-repo={repo} aria-label="Star contributors.top on GitHub">
   <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
     <path
       fill="currentColor"
       d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"
     ></path>
   </svg>
-  <span>Star on GitHub</span>
+  <span class="label">Star on GitHub</span>
   <span class="count"></span>
 </a>
 
@@ -25,7 +25,6 @@ const repo = config.site.repo;
     const show = (n: number) => {
       const count = link.querySelector(".count");
       if (count) count.textContent = n.toLocaleString("en-US");
-      link.hidden = false;
     };
     let cached: string | null = null;
     try {
@@ -56,18 +55,29 @@ const repo = config.site.repo;
     font-size: 13px;
     color: var(--muted);
   }
-  .stars[hidden] {
-    display: none;
-  }
   .stars:hover {
     color: var(--fg);
     text-decoration: none;
   }
+  /* Reserved before the number arrives (and kept if it never does), so the header never shifts. */
   .count {
+    min-width: 3ch;
+    min-height: 18px;
+    box-sizing: border-box;
+    text-align: center;
     padding: 0 6px;
     border: 1px solid var(--line);
     border-radius: 10px;
     font-size: 12px;
     font-variant-numeric: tabular-nums;
+  }
+  .count:empty {
+    visibility: hidden;
+  }
+  /* Phones: the star and the number only, next to the theme switch. */
+  @media (max-width: 860px) {
+    .label {
+      display: none;
+    }
   }
 </style>
