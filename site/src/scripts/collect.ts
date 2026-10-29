@@ -11,7 +11,7 @@
 //   HEALTHCHECK_URL   pinged at the end (/fail when nothing could be collected)
 // Logs carry slugs and counts only: no logins, IDs or locations.
 import { execFileSync } from "node:child_process";
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { appBotIdentity, installationToken } from "../collector/app-token.ts";
 import { breakerReasons } from "../collector/breaker.ts";
@@ -62,7 +62,16 @@ mkdirSync(join(dataStore.dir, "countries"), { recursive: true });
 mkdirSync(optoutStore.dir, { recursive: true });
 
 const hashesFile = join(optoutStore.dir, "hashes.txt");
-const hashes = existsSync(hashesFile) ? parseHashes(readFileSync(hashesFile, "utf8")) : new Set<string>();
+/** Read without a separate existence check (no window between check and use); missing means the first run. */
+function readHashes(): Set<string> {
+  try {
+    return parseHashes(readFileSync(hashesFile, "utf8"));
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code === "ENOENT") return new Set();
+    throw e;
+  }
+}
+const hashes = readHashes();
 const presets = loadPresets("../presets", config.reserved_slugs);
 const countries = new Map(loadCountries(dataStore.dir).map((c) => [c.slug, c]));
 const writeCountry = (data: CountryData) =>

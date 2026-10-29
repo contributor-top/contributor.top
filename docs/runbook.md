@@ -11,14 +11,21 @@ Operational notes for maintainers. Steps that depend on workflows not built yet 
 
 ## Collector setup
 
-1. In `site/`: `npm run setup-collector`. It sets `OPTOUT_KEY` (and writes one backup copy: move it to a password
-   manager, delete the file), then prints a local URL: open it, press **Create on GitHub**. The App ID and private key
-   go straight into the `collector` environment.
-2. Install the App on this repository only (the script prints the link).
-3. Optional: create a healthchecks.io check (period 1 day) and store its ping URL as the `HEALTHCHECK_URL` secret of
-   the `collector` environment.
-4. Set the repository variable `COLLECT_ENABLED` to `true`. Any other value pauses collection (kill switch).
-5. Run **update** manually with one small country (for example `estonia`) and check the data branch and the site.
+The `collector` environment (usable from `main` only) holds:
+
+| Name                | Kind     | What                                                                    |
+| ------------------- | -------- | ----------------------------------------------------------------------- |
+| `COLLECTOR_APP_ID`  | variable | ID of the organization's `contributors-top-collector` GitHub App        |
+| `COLLECTOR_APP_KEY` | secret   | the App's private key (permissions: contents and actions write)         |
+| `OPTOUT_KEY`        | secret   | HMAC key of the opt-out list; a backup lives outside GitHub, never lose |
+| `HEALTHCHECK_URL`   | secret   | optional healthchecks.io ping URL (check period: 1 day)                 |
+
+The App is installed on this repository only. Collection runs while the repository variable `COLLECT_ENABLED` is
+`true`; any other value pauses it (kill switch). To test, run **update** manually with one small country (for example
+`estonia`).
+
+Rotating the App key: App settings → Private keys → Generate, then
+`gh secret set COLLECTOR_APP_KEY --env collector < key.pem`, delete the old key and the local file.
 
 A local run without publishing: `OPTOUT_KEY=<any 32+ characters> COUNTRIES=estonia npm run collect` (uses
 `gh auth token`, writes `../.data/`).
