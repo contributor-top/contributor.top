@@ -186,7 +186,8 @@ jobs:
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
         with:
           fail-on-severity: high
-          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, CC0-1.0, Unicode-3.0, BlueOak-1.0.0, Python-2.0, CC-BY-4.0
+          # MPL-2.0 is file-level copyleft (lightningcss, the build-time CSS minifier): it binds only changes to its own files.
+          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, CC0-1.0, Unicode-3.0, BlueOak-1.0.0, Python-2.0, CC-BY-4.0, MPL-2.0
           # sharp (an optional Astro dependency for image processing) ships libvips under LGPL-3.0.
           # It runs only during the build and is never distributed with the site. Listed one by one
           # so that any other LGPL/GPL package still fails the review.
