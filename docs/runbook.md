@@ -20,7 +20,9 @@ The `collector` environment (usable from `main` only) holds:
 | `OPTOUT_KEY`        | secret   | HMAC key of the opt-out list; a backup lives outside GitHub, never lose |
 | `HEALTHCHECK_URL`   | secret   | optional healthchecks.io ping URL (check period: 1 day)                 |
 
-The App is installed on this repository only. Collection runs while the repository variable `COLLECT_ENABLED` is
+The App is installed on this repository only. The `collector-branches` ruleset lets only the App create, update or
+delete the `data` and `optout` branches; `npm run setup-repo -- --apply` fills in the App ID from the environment, so
+run it again after creating or recreating the App. Collection runs while the repository variable `COLLECT_ENABLED` is
 `true`; any other value pauses it (kill switch). To test, run **update** manually with one small country (for example
 `estonia`).
 
