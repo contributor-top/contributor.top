@@ -16,6 +16,9 @@ export default defineConfig({
   outDir: process.env.OUT_DIR ?? "./dist",
   trailingSlash: "always",
   build: { format: "directory" },
+  // Pages are fetched when a link is hovered, so a click shows the next page at once. Astro's client-side
+  // router would avoid page loads entirely, but it does not work with the CSP below.
+  prefetch: { prefetchAll: true, defaultStrategy: "hover" },
   // Shiki writes inline styles that the CSP below forbids; the Markdown pages need no highlighting.
   markdown: { syntaxHighlight: false },
   security: {
