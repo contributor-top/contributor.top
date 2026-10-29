@@ -10,7 +10,7 @@ export const dataDir = (): string => process.env["DATA_DIR"] ?? "test/fixtures/d
  * which use fictional countries so that no real person or place appears in test pages.
  */
 export const presetsDir = (): string =>
-  process.env["PRESETS_DIR"] ?? (process.env["DATA_DIR"] ? "presets" : "test/fixtures/presets");
+  process.env["PRESETS_DIR"] ?? (process.env["DATA_DIR"] ? "../presets" : "test/fixtures/presets");
 
 export function loadCountries(dir = dataDir()): CountryData[] {
   const countriesDir = join(dir, "countries");

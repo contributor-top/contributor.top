@@ -69,4 +69,4 @@ export const configSchema = z
 
 export type Config = z.infer<typeof configSchema>;
 
-export const loadConfig = (file = "config.yml"): Config => loadYaml(file, configSchema);
+export const loadConfig = (file = "../config.yml"): Config => loadYaml(file, configSchema);

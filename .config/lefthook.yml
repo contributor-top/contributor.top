@@ -2,18 +2,19 @@ pre-commit:
   parallel: true
   jobs:
     - name: biome
+      root: site/
       glob: "*.{ts,mjs,json,astro}"
       run: npx --no -- biome check --no-errors-on-unmatched {staged_files}
     - name: prettier
       glob: "*.{yml,yaml,md}"
-      run: npx --no -- prettier --check {staged_files}
+      run: npm exec --prefix site --no -- prettier --check {staged_files}
     - name: validate
       glob: "{presets/*.yml,config.yml}"
-      run: npm run validate
+      run: npm --prefix site run validate
 
 pre-push:
   jobs:
     - name: typecheck
-      run: npm run typecheck
+      run: npm --prefix site run typecheck
     - name: test
-      run: npm test
+      run: npm --prefix site test

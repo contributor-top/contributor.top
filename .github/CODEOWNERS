@@ -2,5 +2,5 @@
 *                       @StanislavKozachenko
 /.github/               @StanislavKozachenko
 /config.yml             @StanislavKozachenko
-/src/site/pages/privacy.md  @StanislavKozachenko
-/src/collector/optout.ts    @StanislavKozachenko
+/site/src/web/pages/privacy.md  @StanislavKozachenko
+/site/src/collector/optout.ts   @StanislavKozachenko

@@ -77,7 +77,7 @@ describe("repository files", () => {
   it("config.yml and presets/ are valid", () => {
     const config = loadConfig();
     expect(configSchema.safeParse(config).success).toBe(true);
-    expect(loadPresets("presets", config.reserved_slugs).size).toBeGreaterThan(0);
+    expect(loadPresets("../presets", config.reserved_slugs).size).toBeGreaterThan(0);
   });
 
   it("config refinements catch inconsistent ranking settings", () => {

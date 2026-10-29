@@ -4,13 +4,13 @@ import { defineConfig } from "astro/config";
 
 // The only inline script: it must run before first paint (theme, no flash). Its hash is computed
 // from the same file the layout embeds, so the CSP and the script can never drift apart.
-const themeInit = readFileSync(new URL("./src/site/scripts/theme-init.js", import.meta.url), "utf8");
+const themeInit = readFileSync(new URL("./src/web/scripts/theme-init.js", import.meta.url), "utf8");
 const themeInitHash = `sha256-${createHash("sha256").update(themeInit).digest("base64")}`;
 
 export default defineConfig({
   site: "https://contributors.top",
   output: "static",
-  srcDir: "./src/site",
+  srcDir: "./src/web",
   publicDir: "./src/public",
   // Integration tests build into a temporary directory.
   outDir: process.env.OUT_DIR ?? "./dist",

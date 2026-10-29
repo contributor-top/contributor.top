@@ -59,7 +59,7 @@ describe("dataDir and presetsDir", () => {
     expect(presetsDir()).toBe("test/fixtures/presets");
     process.env["DATA_DIR"] = "/tmp/data";
     expect(dataDir()).toBe("/tmp/data");
-    expect(presetsDir()).toBe("presets");
+    expect(presetsDir()).toBe("../presets");
     process.env["PRESETS_DIR"] = "/tmp/presets";
     expect(presetsDir()).toBe("/tmp/presets");
   });
