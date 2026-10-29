@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Bahrain
+iso: "BH"
+include:
+  - bahrain
+  - manama
+  - muharraq
+  - riffa
+  - hamad town
+  - isa town
+exclude: []

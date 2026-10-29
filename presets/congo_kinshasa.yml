@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Democratic Republic of the Congo
+iso: "CD"
+include:
+  - congo kinshasa
+  - drc
+  - cod
+  - kinshasa
+  - lubumbashi
+  - bukavu
+  - kananga
+  - goma
+  - mbuji mayi
+  - likasi
+  - kolwezi
+  - kalemie
+  - uvira
+  - matadi
+  - moba
+  - kamina
+  - kabalo
+  - fungurume
+exclude: []

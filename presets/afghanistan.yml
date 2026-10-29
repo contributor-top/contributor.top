@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Afghanistan
+iso: "AF"
+include:
+  - afghanistan
+  - kabul
+  - kandahar
+  - herat
+  - mazar-e-sharif
+  - jalalabad
+  - ghazni
+  - nangarhar
+  - khost
+  - zabul
+  - helmand
+  - parwan
+  - farah
+  - kunar
+  - wardak
+  - baghlan
+  - kunduz
+  - takhar
+  - paktia
+  - paktika
+exclude: []

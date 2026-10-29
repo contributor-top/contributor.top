@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Benin
+iso: "DY"
+include:
+  - benin
+  - cotonou
+  - porto-novo
+  - abomey
+exclude: []

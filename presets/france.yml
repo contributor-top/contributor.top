@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: France
+iso: "FX"
+include:
+  - france
+  - paris
+  - marseille
+  - lyon
+  - toulouse
+  - nice
+  - nantes
+  - strasbourg
+  - montpellier
+  - bordeaux
+  - lille
+  - rennes
+  - reims
+  - rouen
+  - toulon
+  - le havre
+  - grenoble
+  - dijon
+  - le mans
+  - brest, france
+  - tours
+exclude: []

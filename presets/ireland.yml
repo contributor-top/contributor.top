@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Ireland
+iso: "IE"
+include:
+  - ireland
+  - dublin
+  - cork
+  - limerick
+  - galway
+  - waterford ireland
+  - drogheda
+  - dundalk
+exclude: []

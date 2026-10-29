@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: South Korea
+iso: "KR"
+include:
+  - south korea
+  - rok
+  - korea
+  - seoul
+  - busan
+  - incheon
+  - daegu
+  - daejeon
+  - gwangju
+  - 대한민국
+  - 서울
+  - 서울시
+exclude: []

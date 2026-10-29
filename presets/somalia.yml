@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Somalia
+iso: "SO"
+include:
+  - somalia
+  - mogadishu
+  - hargeisa
+  - bosaso
+  - borama
+  - garowe
+  - kismayo
+exclude: []

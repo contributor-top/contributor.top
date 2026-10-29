@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Australia
+iso: "AU"
+include:
+  - australia
+  - sydney
+  - melbourne
+  - brisbane
+  - perth
+  - adelaide
+  - canberra
+  - hobart
+exclude: []

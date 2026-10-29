@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Ukraine
+iso: "UA"
+include:
+  - ukraine
+  - kiev
+  - kyiv
+  - kharkiv
+  - dnipro
+  - odesa
+  - donetsk
+  - zaporizhia
+exclude: []

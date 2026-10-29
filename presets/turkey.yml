@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Turkey
+iso: "TR"
+include:
+  - turkey
+  - turkiye
+  - istanbul
+  - ankara
+  - izmir
+  - bursa
+  - adana
+  - gaziantep
+  - konya
+  - antalya
+  - kayseri
+  - mersin
+  - eskisehir
+  - samsun
+  - denizli
+  - malatya
+exclude: []

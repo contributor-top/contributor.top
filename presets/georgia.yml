@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Georgia
+iso: "GE"
+include:
+  - tbilisi
+  - batumi
+  - kutaisi
+  - rustavi
+  - zugdidi
+  - gori
+  - poti
+  - telavi
+  - akhaltsikhe
+  - mtskheta
+  - ozurgeti
+  - sukhumi
+  - samtredia
+  - marneuli
+exclude: []

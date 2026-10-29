@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Panama
+iso: "PA"
+include:
+  - panama
+  - panamá
+  - tocumen
+exclude: []

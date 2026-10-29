@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Malta
+iso: "MT"
+include:
+  - malta
+  - birgu
+  - bormla
+  - mdina
+  - qormi
+  - senglea
+  - siġġiewi
+  - valletta
+  - zabbar
+  - zebbuġ
+  - zejtun
+exclude: []

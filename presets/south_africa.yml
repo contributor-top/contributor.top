@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: South Africa
+iso: "ZA"
+include:
+  - south africa
+  - johannesburg
+  - cape town
+  - rsa
+  - durban
+  - port elizabeth
+  - pretoria
+  - nelspruit
+  - knysna
+exclude: []

@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Philippines
+iso: "PH"
+include:
+  - philippines
+  - pilipinas
+  - quezon
+  - manila
+  - davao
+  - caloocan
+  - cebu
+  - zamboanga
+  - bohol
+  - pasig
+  - bacolod
+  - makati
+  - baguio
+  - cavite
+exclude: []

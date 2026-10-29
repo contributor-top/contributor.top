@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Austria
+iso: "AT"
+include:
+  - austria
+  - österreich
+  - vienna
+  - wien
+  - linz
+  - salzburg
+  - graz
+  - innsbruck
+  - klagenfurt
+  - wels
+  - dornbirn
+exclude: []

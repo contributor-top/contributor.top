@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Jordan
+iso: "JO"
+include:
+  - jordan
+  - amman
+  - zarqa
+  - irbid
+exclude: []

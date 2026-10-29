@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Kenya
+iso: "KE"
+include:
+  - kenya
+  - nairobi
+  - mombasa
+  - kisumu
+  - nakuru
+  - eldoret
+  - kisii
+  - nyeri
+  - machakos
+  - embu
+exclude: []

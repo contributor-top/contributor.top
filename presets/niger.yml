@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Niger
+iso: "NE"
+include:
+  - niger
+  - niamey
+  - maradi
+  - zinder
+  - tahoua
+  - agadez
+  - arlit
+  - birni-n'konni
+  - dosso
+  - gaya
+  - tessaoua
+exclude: []

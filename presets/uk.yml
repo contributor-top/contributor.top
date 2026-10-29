@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: United Kingdom
+iso: "UK"
+include:
+  - uk
+  - england
+  - scotland
+  - wales
+  - northern ireland
+  - london
+  - birmingham
+  - leeds
+  - glasgow
+  - sheffield
+  - bradford
+  - manchester
+  - edinburgh
+  - liverpool
+  - bristol
+  - cardiff
+  - belfast
+  - leicester
+  - wakefield
+  - coventry
+  - nottingham
+  - newcastle
+exclude: []

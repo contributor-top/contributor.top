@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Spain
+iso: "ES"
+include:
+  - spain
+  - españa
+  - madrid
+  - barcelona
+  - valencia
+  - seville
+  - sevilla
+  - zaragoza
+  - malaga
+  - murcia
+  - palma
+  - bilbao
+  - alicante
+  - cordoba
+exclude: []

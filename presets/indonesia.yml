@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Indonesia
+iso: "ID"
+include:
+  - indonesia
+  - jakarta
+  - surabaya
+  - bandung
+  - medan
+  - bekasi
+  - semarang
+  - tangerang
+  - depok
+  - makassar
+  - palembang
+exclude: []

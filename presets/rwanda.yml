@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Rwanda
+iso: "RW"
+include:
+  - rwanda
+  - kigali
+  - butare
+  - muhanga
+  - ruhengeri
+  - gisenyi
+  - nyarugenge
+  - huye
+  - musanze
+  - rubavu
+  - rwamagana
+  - kirehe
+  - kibungo
+  - ngoma
+  - nyagatare
+  - gicumbi
+  - nyabihu
+  - kibuye
+  - karongi
+  - rusizi
+  - nyamasheke
+  - ruhango
+  - nyanza
+  - kamonyi
+  - kicukiro
+  - gasabo
+exclude: []

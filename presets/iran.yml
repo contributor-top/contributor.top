@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Iran
+iso: "IR"
+include:
+  - iran
+  - tehran
+  - mashhad
+  - isfahan
+  - esfahan
+  - karaj
+  - shiraz
+  - tabriz
+  - qom
+  - ahvaz
+  - ahwaz
+  - kermanshah
+  - urmia
+  - rasht
+  - kerman
+exclude: []

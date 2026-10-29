@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Tanzania
+iso: "TZ"
+include:
+  - tanzania
+  - dar es salaam
+  - mwanza
+  - arusha
+  - dodoma
+  - mbeya
+  - morogoro
+  - tanga
+  - kilimanjaro
+exclude: []

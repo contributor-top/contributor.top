@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Oman
+iso: "OM"
+include:
+  - oman
+  - ad dakhiliyah
+  - ad dhahirah
+  - batinah north
+  - batinah south
+  - al buraymi
+  - al wusta
+  - ash sharqiyah north
+  - ash sharqiyah south
+  - dhofar
+  - muscat
+  - musandam
+exclude: []

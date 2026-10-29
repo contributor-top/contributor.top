@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Laos
+iso: "LA"
+include:
+  - laos
+  - vientiane
+  - pakse
+exclude: []

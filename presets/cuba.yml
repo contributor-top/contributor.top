@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Cuba
+iso: "CU"
+include:
+  - cuba
+  - havana
+  - santiago de cuba
+  - camaguey
+  - holguin
+  - guantanamo
+  - bayamo
+exclude: []

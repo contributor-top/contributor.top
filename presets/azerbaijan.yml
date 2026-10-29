@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Azerbaijan
+iso: "AZ"
+include:
+  - azerbaijan
+  - baku
+  - sumqayit
+  - ganja
+  - lankaran
+exclude: []

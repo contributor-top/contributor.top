@@ -32,7 +32,8 @@ export const presetSchema = z
   .object({
     title: displayTitle,
     iso: z.union([z.string().regex(/^[A-Z]{2}$/, { message: "must be a 2-letter ISO code in quotes" }), z.null()]),
-    include: z.array(locationTerm).min(1).max(60),
+    // The collector splits long presets into several searches (United States has ~130 terms).
+    include: z.array(locationTerm).min(1).max(150),
     exclude: z.array(locationTerm).max(30),
     post_filter: z.record(z.string(), z.array(z.string().min(1).max(32)).min(1)).optional(),
   })

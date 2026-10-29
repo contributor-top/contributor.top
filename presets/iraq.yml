@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Iraq
+iso: "IQ"
+include:
+  - baghdad
+  - mosul
+  - basra
+  - najaf
+  - karbala
+  - al-nasiriya
+  - al-amarah
+exclude: []

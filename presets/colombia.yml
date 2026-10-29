@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Colombia
+iso: "CO"
+include:
+  - colombia
+  - bogota
+  - medellin
+  - cali
+  - barranquilla
+  - cartagena
+  - cucuta
+  - bucaramanga
+  - ibague
+  - soledad
+  - pereira
+  - santa marta
+exclude: []

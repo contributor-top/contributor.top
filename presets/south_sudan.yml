@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: South Sudan
+iso: "SS"
+include:
+  - south sudan
+  - juba
+  - yei
+  - wau
+  - aweil
+  - jonglei
+  - maridi
+exclude: []

@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Angola
+iso: "AO"
+include:
+  - angola
+  - luanda
+  - huambo
+  - lobito
+  - benguela
+exclude: []

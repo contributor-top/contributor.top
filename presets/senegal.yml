@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Senegal
+iso: "SN"
+include:
+  - senegal
+  - dakar
+  - touba
+  - thies
+  - rufisque
+  - kaolack
+  - ziguinchor
+  - tambacounda
+  - kaffrine
+  - diourbel
+exclude: []

@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Hong Kong
+iso: "HK"
+include:
+  - hong kong
+  - 香港
+  - kowloon
+  - 九龍
+exclude: []

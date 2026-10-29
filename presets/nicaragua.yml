@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Nicaragua
+iso: "NI"
+include:
+  - nicaragua
+  - managua
+  - matagalpa
+  - chinandega
+exclude: []

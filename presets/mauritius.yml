@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Mauritius
+iso: "MU"
+include:
+  - mauritius
+  - port louis
+  - curepipe
+  - quatre bornes
+  - vacoas-phoenix
+  - vacoas
+  - beau-bassin-rose-hill
+  - beau bassin
+  - rose hill
+  - mahebourg
+  - goodlands
+  - triolet
+  - bel air
+  - flacq
+  - souillac
+  - pamplemousses
+  - grand baie
+  - ebene
+exclude: []

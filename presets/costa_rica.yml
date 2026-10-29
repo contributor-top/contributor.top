@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Costa Rica
+iso: "CR"
+include:
+  - costa rica
+  - san josé
+  - alajuela
+  - cartago
+  - heredia
+  - guanacaste
+  - puntarenas
+  - limón
+exclude: []

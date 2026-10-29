@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Albania
+iso: "AL"
+include:
+  - albania
+  - tirana
+  - durres
+  - vlore
+  - elbasan
+  - shkoder
+exclude: []

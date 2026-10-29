@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Guatemala
+iso: "GT"
+include:
+  - guatemala
+  - mixco
+  - villa nueva
+  - petapa
+  - quetzaltenango
+exclude: []

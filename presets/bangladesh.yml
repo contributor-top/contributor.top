@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Bangladesh
+iso: "BD"
+include:
+  - bangladesh
+  - dhaka
+  - chittagong
+  - khulna
+  - rajshahi
+  - barisal
+  - sylhet
+  - rangpur
+  - comilla
+  - gazipur
+exclude: []

@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Poland
+iso: "PL"
+include:
+  - poland
+  - polska
+  - warsaw
+  - krakow
+  - lodz
+  - wroclaw
+  - poznan
+  - gdansk
+  - szczecin
+  - bydgoszcz
+  - lublin
+  - katowice
+  - bialystok
+exclude: []

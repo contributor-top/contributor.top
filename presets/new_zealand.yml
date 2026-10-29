@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: New Zealand
+iso: "NZ"
+include:
+  - new zealand
+  - auckland
+  - wellington
+  - christchurch
+  - hamilton
+  - tauranga
+  - napier-hastings
+  - dunedin
+  - palmerston north
+  - nelson
+  - rotorua
+  - whangarei
+  - new plymouth
+  - invercargill
+  - whanganui
+  - gisborne
+exclude: []
