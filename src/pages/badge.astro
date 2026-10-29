@@ -1,0 +1,307 @@
+---
+import { BADGE_KINDS, badgeColor } from "../../collector/badges.ts";
+import Base from "../layouts/Base.astro";
+import { countryEntries } from "../lib/site.ts";
+
+const site = (Astro.site?.href ?? "https://contributors.top/").replace(/\/$/, "");
+const styles = ["flat", "flat-square", "plastic", "for-the-badge", "social"];
+const rankings = [
+  ["public", "Public contributions"],
+  ["all", "All contributions"],
+  ["commits", "Commits"],
+  ["three", "All three"],
+] as const;
+const exampleCountry = countryEntries.find((c) => c.data)?.title ?? "Atlantis";
+const examples = [
+  [1, "public"],
+  [2, "all"],
+  [3, "commits"],
+  [42, "public"],
+] as const;
+const PLACEHOLDER = "YOUR_LOGIN";
+const labels = JSON.stringify(Object.fromEntries(Object.entries(BADGE_KINDS).map(([k, v]) => [k, v.label])));
+const suffixes = JSON.stringify(Object.fromEntries(Object.entries(BADGE_KINDS).map(([k, v]) => [k, v.suffix])));
+---
+
+<Base
+  title="Get your contributors.top badge"
+  description="Add a badge with your rank among the most active GitHub users in your country to your GitHub profile README."
+>
+  <h1>Get your badge</h1>
+  <p class="muted">
+    Show your rank in your GitHub profile README. The badge updates by itself whenever your country is updated.
+  </p>
+
+  <div id="badge-area" data-style="flat" data-site={site} data-placeholder={PLACEHOLDER} data-suffixes={suffixes} data-labels={labels}>
+    <div class="examples" aria-label="Examples">
+      {
+        examples.map(([rank, kind]) => (
+          <span class="preview">
+            <span class="label">
+              <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
+                />
+              </svg>
+              contributors.top
+            </span>
+            <span class="message" style={`--badge: #${badgeColor(rank)}`}>
+              #{rank} {exampleCountry} (<span class="kind" data-mixed={BADGE_KINDS[kind].label}>{BADGE_KINDS.public.label}</span>)
+            </span>
+          </span>
+        ))
+      }
+    </div>
+    <p class="muted">
+      One badge per ranking: public contributions, all contributions, public commits. Gold, silver and bronze for the top 3,
+      blue for everyone else.
+    </p>
+
+    <form id="badge-form" class="form">
+      <div class="field grow">
+        <label for="login">Your GitHub login <span class="muted">(optional, fills in the template)</span></label>
+        <input id="login" autocomplete="off" spellcheck="false" placeholder={PLACEHOLDER} maxlength="39" />
+      </div>
+      <div class="field">
+        <label for="ranking">Ranking</label>
+        <select id="ranking">
+          {rankings.map(([value, label]) => <option value={value}>{label}</option>)}
+        </select>
+      </div>
+      <div class="field">
+        <label for="style">Style</label>
+        <select id="style">
+          {styles.map((s) => <option value={s}>{s}</option>)}
+        </select>
+      </div>
+    </form>
+
+    <h2 class="h">Markdown</h2>
+    <div class="snippet"><code id="md"></code><button type="button" data-copy="md">Copy</button></div>
+    <h2 class="h">HTML</h2>
+    <div class="snippet"><code id="html"></code><button type="button" data-copy="html">Copy</button></div>
+
+    <p class="muted note">
+      Replace <code>{PLACEHOLDER}</code> with your login if you did not fill it in. A badge shows your rank once you
+      are in that ranking (see <a href="/methodology/">who is considered</a>); until then shields.io shows it as not
+      found. The link opens your row in your country's ranking.
+    </p>
+  </div>
+
+  <script>
+    const area = document.getElementById("badge-area");
+    const login = document.getElementById("login") as HTMLInputElement | null;
+    const ranking = document.getElementById("ranking") as HTMLSelectElement | null;
+    const style = document.getElementById("style") as HTMLSelectElement | null;
+    const md = document.getElementById("md");
+    const html = document.getElementById("html");
+    if (area && login && ranking && style && md && html) {
+      const site = area.dataset["site"] ?? "https://contributors.top";
+      const placeholder = area.dataset["placeholder"] ?? "YOUR_LOGIN";
+      let suffixes: Record<string, string> = {};
+      let labels: Record<string, string> = {};
+      try {
+        suffixes = JSON.parse(area.dataset["suffixes"] ?? "{}");
+        labels = JSON.parse(area.dataset["labels"] ?? "{}");
+      } catch {}
+      const STYLES = [...style.options].map((o) => o.value);
+      const RANKINGS = [...ranking.options].map((o) => o.value);
+      const VALID = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/;
+
+      const params = new URLSearchParams(location.search);
+      const fromUrl = params.get("login");
+      if (fromUrl && VALID.test(fromUrl)) login.value = fromUrl;
+      const styleFromUrl = params.get("style");
+      if (styleFromUrl && STYLES.includes(styleFromUrl)) style.value = styleFromUrl;
+      const rankingFromUrl = params.get("ranking");
+      if (rankingFromUrl && RANKINGS.includes(rankingFromUrl)) ranking.value = rankingFromUrl;
+
+      const render = () => {
+        const raw = login.value.trim();
+        const name = VALID.test(raw) ? raw.toLowerCase() : placeholder;
+        const chosen = STYLES.includes(style.value) ? style.value : "flat";
+        const which = RANKINGS.includes(ranking.value) ? ranking.value : "public";
+        area.dataset["style"] = chosen;
+        // Example badges follow the chosen ranking; "All three" shows one of each.
+        for (const kind of area.querySelectorAll<HTMLElement>(".examples .kind")) {
+          kind.textContent = which === "three" ? (kind.dataset["mixed"] ?? "") : (labels[which] ?? "");
+        }
+        const kinds = which === "three" ? ["public", "all", "commits"] : [which];
+        const items = kinds.map((kind) => {
+          const json = encodeURIComponent(`${site}/u/${name}${suffixes[kind] ?? ""}.json`);
+          const tab = kind === "public" ? "" : `&tab=${kind}`;
+          return {
+            image: `https://img.shields.io/endpoint?url=${json}&style=${chosen}`,
+            target: `${site}/find/?login=${name}${tab}`,
+          };
+        });
+        // textContent only: the snippets are shown as text, never parsed as HTML.
+        md.textContent = items.map((i) => `[![contributors.top](${i.image})](${i.target})`).join("\n");
+        html.textContent = items
+          .map((i) => `<a href="${i.target}"><img alt="contributors.top" src="${i.image}"></a>`)
+          .join("\n");
+        const query = new URLSearchParams({ ranking: which, style: chosen });
+        if (name !== placeholder) query.set("login", name);
+        history.replaceState(null, "", `?${query}`);
+      };
+
+      login.addEventListener("input", render);
+      ranking.addEventListener("change", render);
+      style.addEventListener("change", render);
+      for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
+        button.addEventListener("click", async () => {
+          const source = document.getElementById(button.dataset["copy"] ?? "");
+          try {
+            await navigator.clipboard.writeText(source?.textContent ?? "");
+            button.textContent = "Copied";
+            setTimeout(() => (button.textContent = "Copy"), 1500);
+          } catch {}
+        });
+      }
+      render();
+    }
+  </script>
+</Base>
+
+<style>
+  .form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .field.grow {
+    flex: 1 1 220px;
+  }
+  .field label {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  input,
+  select,
+  button {
+    font: inherit;
+    font-size: 14px;
+    color: var(--fg);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 5px 10px;
+  }
+  button {
+    background: var(--surface);
+    cursor: pointer;
+  }
+  button:hover {
+    border-color: var(--muted);
+  }
+  .h {
+    font-size: 14px;
+    margin: 24px 0 8px;
+  }
+  .note {
+    margin-top: 16px;
+  }
+  .note code {
+    font-size: 12px;
+  }
+  /* Offline imitation of shields.io styles, so the preview works before deploy. The color comes from --badge. */
+  .examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 20px 0 6px;
+  }
+  .preview {
+    display: inline-flex;
+    font:
+      11px/20px Verdana,
+      Geneva,
+      DejaVu Sans,
+      sans-serif;
+    color: #fff;
+    border-radius: 3px;
+    overflow: hidden;
+    text-shadow: 0 1px 0 #0104;
+  }
+  .label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #555;
+    padding: 0 6px;
+  }
+  .message {
+    background: var(--badge, #0969da);
+    padding: 0 6px;
+  }
+  [data-style="flat-square"] .preview {
+    border-radius: 0;
+  }
+  [data-style="plastic"] .preview {
+    line-height: 18px;
+    border-radius: 4px;
+  }
+  [data-style="plastic"] .label,
+  [data-style="plastic"] .message {
+    background-image: linear-gradient(#fff4, #fff0 55%, #0000 56%, #0002);
+  }
+  [data-style="for-the-badge"] .preview {
+    border-radius: 0;
+    font-size: 10px;
+    line-height: 28px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: none;
+  }
+  [data-style="for-the-badge"] .label,
+  [data-style="for-the-badge"] .message {
+    padding: 0 10px;
+  }
+  [data-style="social"] .preview {
+    gap: 4px;
+    overflow: visible;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    line-height: 18px;
+    color: #333;
+    text-shadow: none;
+  }
+  [data-style="social"] .label,
+  [data-style="social"] .message {
+    background: linear-gradient(#fcfcfc, #eee);
+    border: 1px solid #d5d5d5;
+    border-radius: 3px;
+  }
+  [data-style="social"] .message {
+    background: #fff;
+    font-weight: 400;
+  }
+  .snippet {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .snippet code {
+    flex: 1;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+  .snippet button {
+    flex: none;
+    font-size: 12px;
+    padding: 2px 10px;
+  }
+</style>

@@ -1,0 +1,65 @@
+---
+// One borderless icon that switches between Light and Dark. Light is the default.
+---
+
+<button type="button" class="theme needs-js" id="theme-toggle" aria-label="Switch to dark theme">
+  <svg data-icon="light" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+    <circle cx="8" cy="8" r="3" fill="currentColor"></circle>
+    <g stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M3.05 12.95l1.06-1.06M11.89 4.11l1.06-1.06"></path>
+    </g>
+  </svg>
+  <svg data-icon="dark" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+    <path fill="currentColor" d="M9.6 1.2a6.9 6.9 0 1 0 5.2 8.9A5.6 5.6 0 0 1 9.6 1.2Z"></path>
+  </svg>
+  <span class="label">Light</span>
+</button>
+
+<script>
+  const root = document.documentElement;
+  const button = document.getElementById("theme-toggle");
+  if (button) {
+    const label = button.querySelector(".label");
+    // Icons switch in CSS from html[data-theme]; the script only updates the text.
+    const sync = () => {
+      const dark = root.dataset["theme"] === "dark";
+      if (label) label.textContent = dark ? "Dark" : "Light";
+      button.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+    };
+    button.addEventListener("click", () => {
+      const next = root.dataset["theme"] === "dark" ? "light" : "dark";
+      root.dataset["theme"] = next;
+      try {
+        localStorage.setItem("theme", next);
+      } catch {}
+      sync();
+    });
+    sync();
+  }
+</script>
+
+<style>
+  .theme {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    background: none;
+    padding: 0;
+    color: var(--muted);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .theme:hover {
+    color: var(--fg);
+  }
+  /* The icon follows the theme set on <html> before first paint, so it is right even before JS runs. */
+  .theme [data-icon="dark"],
+  :global(html[data-theme="dark"]) .theme [data-icon="light"] {
+    display: none;
+  }
+  :global(html[data-theme="dark"]) .theme [data-icon="dark"] {
+    display: inline;
+  }
+</style>

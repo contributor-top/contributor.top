@@ -1,0 +1,174 @@
+---
+import type { GetStaticPaths } from "astro";
+import type { Tab } from "../../../collector/rank.ts";
+import RankingTable from "../../components/RankingTable.astro";
+import Base from "../../layouts/Base.astro";
+import { type CountryEntry, countryEntries, formatDate, formatNumber, TAB_META } from "../../lib/site.ts";
+
+export const getStaticPaths = (() =>
+  countryEntries.flatMap((entry) =>
+    (Object.keys(TAB_META) as Tab[])
+      .filter((tab) => entry.data || tab === "public")
+      .map((tab) => ({ params: { country: entry.slug, tab: TAB_META[tab].path || undefined }, props: { entry, tab } })),
+  )) satisfies GetStaticPaths;
+
+type Props = { entry: CountryEntry; tab: Tab };
+const { entry, tab } = Astro.props;
+const data = entry.data;
+const tabs = Object.entries(TAB_META) as [Tab, (typeof TAB_META)[Tab]][];
+
+const what = { public: "public contributions", all: "public and private contributions", commits: "commits" }[tab];
+const title =
+  tab === "public"
+    ? `Most active GitHub users in ${entry.title}`
+    : `Most active GitHub users in ${entry.title} by ${what}`;
+const top3 = data?.tabs[tab].slice(0, 3).map((r) => r.login) ?? [];
+const description = data
+  ? `Top ${data.tabs[tab].length} developers in ${entry.title} ranked by ${what} on GitHub over the last 12 months` +
+    (top3.length ? `: ${top3.join(", ")} and more.` : ".") +
+    ` Updated ${formatDate(data.updatedAt)}.`
+  : `The ranking of the most active GitHub users in ${entry.title} is being collected.`;
+const url = new URL(Astro.url.pathname, Astro.site).href;
+// Dataset helps Google Dataset Search; ItemList and breadcrumbs describe the page itself.
+const jsonLd = data
+  ? {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Dataset",
+          name: title,
+          description,
+          url,
+          dateModified: data.updatedAt,
+          license: "https://opensource.org/license/mit",
+          isAccessibleForFree: true,
+          spatialCoverage: { "@type": "Place", name: entry.title },
+          creator: { "@type": "Organization", name: "contributors.top", url: Astro.site?.href },
+        },
+        {
+          "@type": "ItemList",
+          name: title,
+          numberOfItems: data.tabs[tab].length,
+          itemListElement: data.tabs[tab].slice(0, 10).map((r) => ({
+            "@type": "ListItem",
+            position: r.rank,
+            url: `https://github.com/${r.login}`,
+            name: r.login,
+          })),
+        },
+        {
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Countries", item: Astro.site?.href },
+            { "@type": "ListItem", position: 2, name: entry.title, item: url },
+          ],
+        },
+      ],
+    }
+  : undefined;
+---
+
+<Base title={title} description={description} noindex={!data} {...jsonLd ? { jsonLd } : {}}>
+  <h1>{entry.title}</h1>
+  {
+    data ? (
+      <>
+        <p class="muted meta">
+          <span>Updated {formatDate(data.updatedAt)}</span>
+          <span>{formatNumber(data.totalUsers)} users with a matching location</span>
+          <span>
+            {formatNumber(data.considered)} most-followed (≥ {formatNumber(data.minFollowers)} followers) considered
+          </span>
+        </p>
+        <nav class="tabs" aria-label="Ranking">
+          {tabs.map(([key, meta]) => (
+            <a href={`/${entry.slug}/${meta.path ? `${meta.path}/` : ""}`} aria-current={key === tab ? "page" : undefined}>
+              <span class="long">{meta.label}</span>
+              <span class="short" aria-hidden="true">
+                {meta.short}
+              </span>
+            </a>
+          ))}
+          <a class="json" href={`/api/${entry.slug}.json`} aria-label={`${entry.title} ranking as JSON`}>
+            JSON
+          </a>
+        </nav>
+        <p class="muted">
+          {TAB_META[tab].note} In the list? <a href="/badge/">Add a badge to your GitHub profile →</a>
+        </p>
+        <RankingTable rows={data.tabs[tab]} breakdown={data.breakdown} tab={tab} />
+      </>
+    ) : (
+      <p class="empty">Collecting data… The first update of a country can take a day or two.</p>
+    )
+  }
+</Base>
+
+<style>
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin: 20px 0 8px;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+  }
+  .tabs a {
+    padding: 8px 12px;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .tabs a:hover {
+    text-decoration: none;
+    color: var(--fg);
+  }
+  .tabs a[aria-current="page"] {
+    border-color: var(--accent);
+    color: var(--fg);
+    font-weight: 600;
+  }
+  /* The JSON link sits at the right end of the tab bar, apart from the tabs. */
+  .tabs .json {
+    margin-left: auto;
+    align-self: center;
+    padding: 0 0 0 12px;
+    border: 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .tabs .json:hover {
+    color: var(--fg);
+    text-decoration: underline;
+  }
+  /* Separators come from CSS, so template whitespace can never shift them. */
+  .meta > * + *::before {
+    content: "·";
+    color: var(--muted);
+    padding: 0 6px;
+  }
+  .meta a::before {
+    display: inline-block;
+  }
+  .short {
+    display: none;
+  }
+  @media (max-width: 560px) {
+    .tabs a {
+      padding: 8px;
+    }
+    .long {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .short {
+      display: inline;
+    }
+  }
+  .empty {
+    padding: 32px 0;
+    color: var(--muted);
+  }
+</style>

@@ -1,0 +1,7 @@
+# yaml-language-server: $schema=../../schemas/preset.schema.json
+# Fictional country without data: shows the "collecting data" state.
+title: El Dorado
+iso: null
+include:
+  - el dorado
+exclude: []

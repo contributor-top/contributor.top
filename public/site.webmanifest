@@ -1,0 +1,13 @@
+{
+  "name": "contributors.top",
+  "short_name": "contributors.top",
+  "description": "The most active GitHub users by country",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "/apple-touch-icon.png", "type": "image/png", "sizes": "180x180" }
+  ]
+}

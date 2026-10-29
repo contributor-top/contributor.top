@@ -1,0 +1,21 @@
+name: Add a country or city
+description: Ask for a new country, or for locations that are missing from an existing one.
+labels: [add-country]
+body:
+  - type: input
+    id: country
+    attributes:
+      label: Country
+      description: Name in any language or ISO code, e.g. "Canada", "Kanada" or "CA".
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Extra names (optional)
+      description: Cities or spellings people use in their GitHub location, one per line.
+  - type: textarea
+    id: exclude
+    attributes:
+      label: Exclude (optional)
+      description: Strings that wrongly match this country, one per line (for example "new mexico" for Mexico).

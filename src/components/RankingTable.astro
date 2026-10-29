@@ -1,0 +1,263 @@
+---
+import type { CountryData, Row } from "../../collector/country-data.ts";
+import { compactNumber, isMostlyPrivate, privateShare } from "../../collector/flags.ts";
+import type { Tab } from "../../collector/rank.ts";
+import { config, formatNumber } from "../lib/site.ts";
+import LockIcon from "./LockIcon.astro";
+
+type Props = { rows: (Row & { country?: string })[]; breakdown?: CountryData["breakdown"]; tab?: Tab };
+const { rows, breakdown, tab = "public" } = Astro.props;
+
+/** Compact always-visible breakdown: label, value, full description for the tooltip. */
+const stats = (b: CountryData["breakdown"][string]) =>
+  [
+    ["C", b.commits, "public commits"],
+    ["PR", b.prs, "public pull requests"],
+    ["IS", b.issues, "public issues"],
+    ["RV", b.reviews, "public reviews"],
+    ["private", b.private, "private contributions"],
+  ] as const;
+const publicOf = (b: CountryData["breakdown"][string]) => b.commits + b.prs + b.issues + b.reviews;
+
+const choices = [...config.ranking.top_choices].sort((a, b) => a - b);
+// Offer a size only if the previous one does not already show everyone.
+const visibleChoices = choices.filter((_, i) => i === 0 || (choices[i - 1] ?? 0) < rows.length);
+const defaultTop = Math.min(config.ranking.default_top, visibleChoices.at(-1) ?? config.ranking.default_top);
+const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : rank === 3 ? "bronze" : "");
+---
+
+<div class="toolbar needs-js">
+  <span class="muted">Show top</span>
+  <div class="segmented" role="group" aria-label="Number of people shown" data-top-switch>
+    {visibleChoices.map((c) => <button type="button" data-top-value={c}>{c}</button>)}
+  </div>
+</div>
+
+<table class="ranking" data-top={defaultTop} data-choices={visibleChoices.join(",")}>
+  <thead>
+    <tr><th scope="col" class="r">#</th><th scope="col">Developer</th><th scope="col" class="c">Contributions</th></tr>
+  </thead>
+  <tbody>
+    {
+      rows.map((row) => {
+        const b = breakdown?.[String(row.id)];
+        const flagged =
+          tab === "all" && b !== undefined && isMostlyPrivate(publicOf(b), b.private, config.ranking.private_flag_share);
+        const flagText = b
+          ? `${Math.round(privateShare(publicOf(b), b.private) * 100)}% private, can't be verified`
+          : "";
+        return (
+          <tr id={row.login.toLowerCase()} data-rank={row.rank} class={medal(row.rank) ? `podium ${medal(row.rank)}-row` : undefined}>
+            <td class={`r ${medal(row.rank)}`}>{row.rank}</td>
+            <td>
+              <div class="who">
+                {row.id > 0 ? (
+                  <img loading="lazy" width="28" height="28" alt="" src={`https://avatars.githubusercontent.com/u/${row.id}?s=56`} />
+                ) : (
+                  <span class="avatar-placeholder" aria-hidden="true">{row.login.slice(0, 1).toUpperCase()}</span>
+                )}
+                <div>
+                  <a href={`https://github.com/${row.login}`}>{row.login}</a>
+                  {row.country && <span class="muted"> · {row.country}</span>}
+                  {b && (
+                    <div class="stats">
+                      {stats(b).map(([label, value, what]) => (
+                        <span tabindex="0" data-tip={`${formatNumber(value)} ${what}`} aria-label={`${formatNumber(value)} ${what}`}>
+                          {label === "private" ? <LockIcon /> : label} {compactNumber(value)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </td>
+            <td class="c">
+              {flagged && (
+                <span class="flag tip-end" tabindex="0" data-tip={flagText} aria-label={flagText} role="img">
+                  <LockIcon />
+                </span>
+              )}
+              {formatNumber(row.contributions)}
+            </td>
+          </tr>
+        );
+      })
+    }
+  </tbody>
+</table>
+
+<script>
+  // Without JS every row stays visible; the selector only hides rows below the chosen size.
+  const table = document.querySelector<HTMLTableElement>("table.ranking");
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-top-switch] button")];
+  if (table) {
+    const rows = [...table.querySelectorAll<HTMLTableRowElement>("tbody tr[data-rank]")];
+    const choices = (table.dataset["choices"] ?? "").split(",").map(Number).filter((n) => n > 0);
+    const pick = (top: number) => {
+      if (!choices.includes(top)) return;
+      for (const row of rows) row.hidden = Number(row.dataset["rank"]) > top;
+      for (const b of buttons) b.setAttribute("aria-pressed", String(Number(b.dataset["topValue"]) === top));
+    };
+    let initial = Number(new URLSearchParams(location.search).get("top"));
+    if (!choices.includes(initial)) {
+      try {
+        initial = Number(localStorage.getItem("top"));
+      } catch {}
+    }
+    if (!choices.includes(initial)) initial = Number(table.dataset["top"]);
+    // A link to #login must show that row even if it is below the chosen size.
+    let target: HTMLElement | null = null;
+    try {
+      target = location.hash ? document.getElementById(decodeURIComponent(location.hash.slice(1)).toLowerCase()) : null;
+    } catch {} // a malformed #hash must not break the page
+    const targetRank = Number(target?.dataset["rank"]);
+    if (targetRank > initial) initial = choices.find((c) => c >= targetRank) ?? initial;
+    pick(initial);
+    for (const b of buttons) {
+      b.addEventListener("click", () => {
+        const top = Number(b.dataset["topValue"]);
+        pick(top);
+        const url = new URL(location.href);
+        url.searchParams.set("top", String(top));
+        history.replaceState(null, "", url);
+        try {
+          localStorage.setItem("top", String(top));
+        } catch {}
+      });
+    }
+    target?.scrollIntoView({ block: "center" });
+  }
+</script>
+
+<style>
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  td {
+    padding: 8px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+  }
+  .r {
+    width: 56px;
+    text-align: right;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .c {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  td.c {
+    font-weight: 600;
+  }
+  .gold {
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .silver {
+    color: var(--silver);
+    font-weight: 700;
+  }
+  .bronze {
+    color: var(--bronze);
+    font-weight: 700;
+  }
+  /* A light tint for the top 3, just enough to stand out. */
+  .gold-row {
+    background: var(--gold-bg);
+  }
+  .silver-row {
+    background: var(--silver-bg);
+  }
+  .bronze-row {
+    background: var(--bronze-bg);
+  }
+  tr:target,
+  tr:target:hover {
+    background: var(--highlight);
+  }
+  /* Logins use their own token: blue in the light theme, plain text in the dark one; hover only underlines. */
+  .who a {
+    color: var(--login);
+  }
+  .who {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+    font-size: 12px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  /* Same quiet style as the stats: an informational hint, not a warning. */
+  .flag {
+    color: var(--muted);
+    font-weight: 400;
+    margin-right: 6px;
+  }
+  .stats [data-tip]:hover,
+  .flag:hover {
+    color: var(--fg);
+  }
+  img,
+  .avatar-placeholder {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    flex: none;
+  }
+  td.c {
+    white-space: nowrap;
+  }
+  .toolbar {
+    flex-wrap: wrap;
+  }
+  @media (max-width: 560px) {
+    th,
+    td {
+      padding: 6px 4px;
+    }
+    .r {
+      width: 32px;
+    }
+    .who {
+      gap: 8px;
+    }
+    .who a {
+      overflow-wrap: anywhere;
+    }
+    img,
+    .avatar-placeholder {
+      width: 24px;
+      height: 24px;
+    }
+  }
+  .avatar-placeholder {
+    display: inline-grid;
+    place-items: center;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--muted);
+  }
+</style>

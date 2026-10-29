@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=../../schemas/preset.schema.json
+# Fictional country used only by fixtures and local previews.
+title: Atlantis
+iso: null
+include:
+  - atlantis
+  - poseidonia
+exclude: []

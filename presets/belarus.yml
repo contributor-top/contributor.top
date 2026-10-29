@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../schemas/preset.schema.json
+title: Belarus
+iso: "BY"
+include:
+  - belarus
+  - minsk
+  - brest, belarus
+  - grodno
+  - gomel
+  - vitebsk
+  - mogilev
+  - slutsk
+  - borisov
+  - pinsk
+  - baranovichi
+  - bobruisk
+  - soligorsk
+exclude: []

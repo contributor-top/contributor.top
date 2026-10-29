@@ -1,0 +1,71 @@
+---
+import Base from "../layouts/Base.astro";
+import { countryEntries, formatDate } from "../lib/site.ts";
+
+const site = Astro.site?.href ?? "https://contributors.top/";
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      name: "contributors.top",
+      url: site,
+      description: "The most active GitHub users in every country, ranked by public contributions.",
+    },
+    {
+      "@type": "ItemList",
+      name: "Countries",
+      itemListElement: countryEntries
+        .filter((c) => c.data)
+        .map((c, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: c.title,
+          url: new URL(`/${c.slug}/`, site).href,
+        })),
+    },
+  ],
+};
+---
+
+<Base title="contributors.top" jsonLd={jsonLd}>
+  <h1>Most active GitHub users by country</h1>
+  <p class="muted">
+    Ranked by public contributions in the last 12 months. Each country is updated about every two days.
+  </p>
+  <ul class="countries">
+    {
+      countryEntries.map((c) => (
+        <li>
+          <a href={`/${c.slug}/`}>{c.title}</a>
+          <span class="muted">{c.data ? formatDate(c.data.updatedAt).replace(/,? \d\d:\d\d UTC$/, "") : "collecting data…"}</span>
+        </li>
+      ))
+    }
+  </ul>
+  <p class="muted"><a href="/world/">World ranking</a> · merged from all countries</p>
+</Base>
+
+<style>
+  .countries {
+    columns: 2;
+    padding-left: 18px;
+    margin: 24px 0;
+  }
+  .countries li {
+    break-inside: avoid;
+    padding: 2px 0;
+  }
+  .countries .muted {
+    margin-left: 8px;
+  }
+  /* Same as logins in the tables: blue in light, plain text in dark; hover only underlines. */
+  .countries a {
+    color: var(--login);
+  }
+  @media (max-width: 560px) {
+    .countries {
+      columns: 1;
+    }
+  }
+</style>

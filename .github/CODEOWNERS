@@ -1,0 +1,6 @@
+# Review requests only (approvals are not required); sensitive areas are listed explicitly.
+*                       @StanislavKozachenko
+/.github/               @StanislavKozachenko
+/config.yml             @StanislavKozachenko
+/src/pages/privacy.md   @StanislavKozachenko
+/collector/optout.ts    @StanislavKozachenko

@@ -1,0 +1,10 @@
+name: Remove me from the rankings
+description: Removes you everywhere. Processed automatically; the issue is moved out of the public repository.
+title: Remove me
+labels: [remove-me]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Submitting this issue is the whole request: we use only your GitHub account ID, nothing you type.
+        Prefer no issue at all? Set your GitHub status to `contributors.top opt-out` instead, see https://contributors.top/privacy/.

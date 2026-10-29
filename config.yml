@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=./schemas/config.schema.json
+# Project settings. Changes go through a PR like any other change.
+
+site:
+  repo: contributors-top/contributors.top # GitHub owner/name shown in the source block
+
+ranking:
+  top_n: 512 # people shown per country and tab
+  top_choices: [10, 50, 100, 256, 512] # sizes offered by the top selector
+  default_top: 100 # size selected by default
+  consider: 1000 # most-followed candidates examined per country
+  world_top_n: 512
+  private_flag_share: 0.9 # in "all contributions", warn when this share of contributions is private
+
+collector:
+  batch_size: 10 # users per GraphQL request
+  pause_ms: 1000 # pause between requests
+  max_skipped_per_country: 5 # users that never load; above this the country is not updated
+  budget_floor: 0.1 # below this share of the hourly limit the collector waits for reset
+
+# Measured in the PoC: ~120 API points and 5–11 min per country, 151 countries.
+# A 48 h cycle is ~9k points and ~10 h of runner time per day; the peak is ~900 points/h (18% of the App limit).
+freshness:
+  target_hours: 48 # each country is refreshed about this often
+  min_refresh_hours: 40 # never refresh a country more often than this; a run with nothing due ends right away
+  max_run_minutes: 300 # one scheduled run (two a day: 02:00 and 14:00 UTC, set in update.yml)
+  stale_days: 3 # a country older than this opens an alert
+
+circuit_breaker:
+  max_candidate_drop: 0.5
+  max_top_change: 0.6
+  max_threshold_jump: 3
+
+privacy:
+  optout_phrase: "contributors.top opt-out"
+  optin_phrase: "contributors.top opt-in"
+  dropped_stub_days: 30
+
+denylist_ids: [] # numeric GitHub IDs of bots or obvious gaming, added by PR only
+
+reserved_slugs:
+  - world
+  - methodology
+  - privacy
+  - u
+  - index
+  - "404"
+  - assets
+  - api
+  - stats
+  - _astro
+  - robots
+  - sitemap
+  - favicon
+  - cname
+  - well-known
