@@ -3,10 +3,10 @@ pre-commit:
   jobs:
     - name: biome
       glob: "*.{ts,mjs,json,astro}"
-      run: npx biome check --no-errors-on-unmatched {staged_files}
+      run: npx --no -- biome check --no-errors-on-unmatched {staged_files}
     - name: prettier
       glob: "*.{yml,yaml,md}"
-      run: npx prettier --check {staged_files}
+      run: npx --no -- prettier --check {staged_files}
     - name: validate
       glob: "{presets/*.yml,config.yml}"
       run: npm run validate
