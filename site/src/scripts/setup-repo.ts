@@ -42,7 +42,7 @@ gh("PUT", `/repos/${repo}/private-vulnerability-reporting`);
 gh("PUT", `/repos/${repo}/vulnerability-alerts`);
 
 // The ruleset is stored in the repository so it is reviewed like code.
-const ruleset = JSON.parse(readFileSync(".github/rulesets/main.json", "utf8")) as { name: string };
+const ruleset = JSON.parse(readFileSync("../.github/rulesets/main.json", "utf8")) as { name: string };
 const existing = apply
   ? (JSON.parse(gh("GET", `/repos/${repo}/rulesets`) || "[]") as { id: number; name: string }[])
   : [];

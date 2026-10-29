@@ -13,8 +13,8 @@
     "build": "astro build && tsx src/scripts/build-badges.ts",
     "preview": "astro preview",
     "lint": "biome ci .",
-    "fix": "biome check --write . && prettier --write \"**/*.{yml,yaml,md}\"",
-    "format:check": "prettier --check \"**/*.{yml,yaml,md}\"",
+    "fix": "biome check --write . && prettier --write \"**/*.{yml,yaml,md}\" \"../{presets,docs,.github,.config}/**/*.{yml,yaml,md,json}\" \"../*.{yml,yaml,md}\"",
+    "format:check": "prettier --check \"**/*.{yml,yaml,md}\" \"../{presets,docs,.github,.config}/**/*.{yml,yaml,md,json}\" \"../*.{yml,yaml,md}\"",
     "typecheck": "tsc --noEmit && astro check",
     "knip": "knip",
     "test": "vitest run --coverage",
@@ -50,20 +50,19 @@
     "fast-uri": "3.1.9",
     "undici": "8.12.3"
   },
-  "prettier": {
-    "printWidth": 120,
-    "proseWrap": "preserve"
-  },
   "knip": {
     "entry": [
       "src/scripts/*.ts",
       "test/**/*.test.ts",
-      "src/site/pages/**/*.{astro,ts,md}",
-      "src/site/layouts/Markdown.astro"
+      "src/web/pages/**/*.{astro,ts,md}",
+      "src/web/layouts/Markdown.astro"
     ],
     "project": [
       "src/**/*.{ts,astro}",
       "test/**/*.ts"
+    ],
+    "ignoreDependencies": [
+      "lefthook"
     ]
   }
 }
