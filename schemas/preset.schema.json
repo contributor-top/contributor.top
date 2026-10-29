@@ -6,7 +6,14 @@
       "type": "string",
       "minLength": 2,
       "maxLength": 64,
-      "pattern": "^[\\p{L}\\p{M}\\p{N} ,.'’()-]+$"
+      "allOf": [
+        {
+          "pattern": "^[\\p{L}\\p{M}\\p{N} ,.'’()-]+$"
+        },
+        {
+          "pattern": "[\\p{L}\\p{N}]"
+        }
+      ]
     },
     "iso": {
       "anyOf": [

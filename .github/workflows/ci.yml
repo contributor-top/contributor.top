@@ -94,9 +94,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run validate
       - name: JSON Schemas are up to date
-        run: |
-          npm run schemas
-          git diff --exit-code -- schemas
+        run: npm run schemas:check
 
   build:
     name: build
