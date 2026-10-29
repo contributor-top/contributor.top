@@ -71,6 +71,11 @@
           "minimum": 1,
           "maximum": 20
         },
+        "parallel_countries": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
         "pause_ms": {
           "type": "integer",
           "minimum": 0,
@@ -89,6 +94,7 @@
       },
       "required": [
         "batch_size",
+        "parallel_countries",
         "pause_ms",
         "max_skipped_per_country",
         "budget_floor"

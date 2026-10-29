@@ -7,6 +7,9 @@ import { join } from "node:path";
 export type Identity = { name: string; email: string };
 
 export class BranchStore {
+  /** The commit the branch pointed to when the run started; null for a branch created by this run. */
+  private startSha: string | null = null;
+
   constructor(
     readonly dir: string,
     private readonly branch: string,
@@ -60,6 +63,7 @@ export class BranchStore {
     }
     if (await this.git(["fetch", "-q", "--depth=1", "origin", this.branch], true)) {
       await this.git(["checkout", "-q", "-B", this.branch, "FETCH_HEAD"]);
+      this.startSha = this.head();
     } else {
       await this.git(["checkout", "-q", "--orphan", this.branch]);
     }
@@ -80,5 +84,31 @@ export class BranchStore {
       await this.git(["pull", "-q", "--rebase", "--depth=50", "origin", this.branch], true);
     }
     throw new Error(`could not push to ${this.branch}`);
+  }
+
+  private head(): string {
+    return execFileSync("git", ["-C", this.dir, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+  }
+
+  /**
+   * Replaces the branch history with one commit of its current files, so the repository does not grow by a
+   * full snapshot per country update. The snapshot this run started from is kept as `previous` for rollbacks.
+   * --force-with-lease refuses to overwrite anything pushed by someone else meanwhile.
+   */
+  async squash(message: string, previous: string): Promise<void> {
+    const head = this.head();
+    if (head === this.startSha) return; // nothing new in this run
+    await this.git(["checkout", "-q", "--orphan", "squashed"]);
+    await this.git(["commit", "-q", "-m", message]);
+    if (this.startSha) await this.git(["push", "-q", "--force", "origin", `${this.startSha}:refs/heads/${previous}`]);
+    await this.git([
+      "push",
+      "-q",
+      `--force-with-lease=refs/heads/${this.branch}:${head}`,
+      "origin",
+      `HEAD:refs/heads/${this.branch}`,
+    ]);
+    await this.git(["branch", "-q", "-M", this.branch]);
+    this.startSha = this.head();
   }
 }

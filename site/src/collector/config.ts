@@ -25,6 +25,7 @@ export const configSchema = z
     collector: z
       .object({
         batch_size: z.number().int().min(1).max(20),
+        parallel_countries: z.number().int().min(1).max(3),
         pause_ms: z.number().int().min(0),
         max_skipped_per_country: z.number().int().min(0),
         budget_floor: share,
