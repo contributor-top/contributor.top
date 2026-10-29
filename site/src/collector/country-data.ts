@@ -57,6 +57,11 @@ export const countryDataSchema = z
     totalUsers: z.number().int().min(0),
     considered: z.number().int().min(0),
     minFollowers: z.number().int().min(0),
+    /** presetChecksum() of the preset this data was collected with; a different one re-queues the country. */
+    presetChecksum: z
+      .string()
+      .regex(/^[0-9a-f]{64}$/)
+      .optional(),
     tabs: z.object({ public: ranking, all: ranking, commits: ranking }).strict(),
     breakdown: z.record(z.string().regex(/^-?\d+$/), breakdown),
   })

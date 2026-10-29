@@ -7,10 +7,32 @@ Operational notes for maintainers. Steps that depend on workflows not built yet 
 1. Create the organization and the public repository, push the first commit.
 2. When CI on `main` is green: in `site/`, `npm run setup-repo` (dry run), then `npm run setup-repo -- --apply`.
 3. Organization settings: require 2FA, base permission `read`, allow GitHub-owned actions plus the allowlist in the
-   project plan, default `GITHUB_TOKEN` read-only, approval for first-time contributors.
+   project plan, default `GITHUB_TOKEN` read-only, approval for all outside contributors.
 
-## The collector stopped _(planned)_
+## Collector setup
 
+The `collector` environment (usable from `main` only) holds:
+
+| Name                | Kind     | What                                                                    |
+| ------------------- | -------- | ----------------------------------------------------------------------- |
+| `COLLECTOR_APP_ID`  | variable | ID of the organization's `contributors-top-collector` GitHub App        |
+| `COLLECTOR_APP_KEY` | secret   | the App's private key (permissions: contents and actions write)         |
+| `OPTOUT_KEY`        | secret   | HMAC key of the opt-out list; a backup lives outside GitHub, never lose |
+| `HEALTHCHECK_URL`   | secret   | optional healthchecks.io ping URL (check period: 1 day)                 |
+
+The App is installed on this repository only. Collection runs while the repository variable `COLLECT_ENABLED` is
+`true`; any other value pauses it (kill switch). To test, run **update** manually with one small country (for example
+`estonia`).
+
+Rotating the App key: App settings → Private keys → Generate, then
+`gh secret set COLLECTOR_APP_KEY --env collector < key.pem`, delete the old key and the local file.
+
+A local run without publishing: `OPTOUT_KEY=<any 32+ characters> COUNTRIES=estonia npm run collect` (uses
+`gh auth token`, writes `../.data/`).
+
+## The collector stopped
+
+- The run summary (Actions → update) lists every country with its result; failures never show logins.
 - healthchecks.io emails when no successful run happened for 24 hours.
 - Scheduled workflows in public repositories are disabled after 60 days without activity: re-enable `update.yml` in
   the Actions tab.

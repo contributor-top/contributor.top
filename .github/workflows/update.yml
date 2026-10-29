@@ -1,0 +1,58 @@
+name: update
+
+on:
+  # Two runs a day; each country is refreshed about every 48 hours (config.yml: freshness).
+  schedule:
+    - cron: "0 2,14 * * *"
+  workflow_dispatch:
+    inputs:
+      countries:
+        description: Comma-separated country slugs to refresh now (empty means whatever is due)
+        type: string
+        required: false
+      force:
+        description: Publish even if the circuit breaker holds the data back
+        type: boolean
+        default: false
+
+permissions: {}
+
+# Every job that calls the GitHub API shares this group: secondary rate limits are per account,
+# so two collectors at once would only slow each other down. A queued run waits, it is never cancelled.
+concurrency:
+  group: github-api
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: site
+
+jobs:
+  collect:
+    name: collect
+    # Kill switch: set the repository variable COLLECT_ENABLED to anything but "true" to pause collection.
+    if: vars.COLLECT_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    # The App key and the opt-out key live only in this environment, which only main can use.
+    environment: collector
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: site/.nvmrc
+      - run: npm ci --ignore-scripts
+      - name: Collect
+        run: npm run collect
+        env:
+          COLLECTOR_APP_ID: ${{ vars.COLLECTOR_APP_ID }}
+          COLLECTOR_APP_KEY: ${{ secrets.COLLECTOR_APP_KEY }}
+          OPTOUT_KEY: ${{ secrets.OPTOUT_KEY }}
+          HEALTHCHECK_URL: ${{ secrets.HEALTHCHECK_URL }}
+          COUNTRIES: ${{ inputs.countries }}
+          FORCE: ${{ inputs.force }}
+          PUBLISH: "true"

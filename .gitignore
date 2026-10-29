@@ -7,3 +7,4 @@ poc/
 .vscode/
 *.log
 .data/
+.optout/

@@ -70,19 +70,25 @@ gh("PUT", `/repos/${repo}/pages`, { build_type: "workflow", cname: DOMAIN });
 // GitHub issues the certificate only after DNS points to Pages; re-run later if this step is skipped.
 attempt("PUT", `/repos/${repo}/pages`, { https_enforced: true });
 
-// Only main may deploy.
-gh("PUT", `/repos/${repo}/environments/github-pages`, {
-  deployment_branch_policy: { protected_branches: false, custom_branch_policies: true },
-});
-const policies = apply
-  ? (
-      JSON.parse(gh("GET", `/repos/${repo}/environments/github-pages/deployment-branch-policies`)) as {
-        branch_policies: { name: string }[];
-      }
-    ).branch_policies
-  : [];
-if (!policies.some((p) => p.name === "main")) {
-  gh("POST", `/repos/${repo}/environments/github-pages/deployment-branch-policies`, { name: "main", type: "branch" });
+/** Only main may use the environment: a workflow from any other branch never sees its secrets. */
+function onlyFromMain(environment: string): void {
+  gh("PUT", `/repos/${repo}/environments/${environment}`, {
+    deployment_branch_policy: { protected_branches: false, custom_branch_policies: true },
+  });
+  const path = `/repos/${repo}/environments/${environment}/deployment-branch-policies`;
+  const policies = apply
+    ? (JSON.parse(gh("GET", path)) as { branch_policies: { name: string }[] }).branch_policies
+    : [];
+  if (!policies.some((p) => p.name === "main")) gh("POST", path, { name: "main", type: "branch" });
 }
+onlyFromMain("github-pages");
+// The collector: holds COLLECTOR_APP_KEY, OPTOUT_KEY and HEALTHCHECK_URL.
+onlyFromMain("collector");
+
+// Workflows from fork pull requests run only after a maintainer approves them, for every outside contributor,
+// not only first-time ones. They never get secrets or a write token either way.
+gh("PUT", `/repos/${repo}/actions/permissions/fork-pr-contributor-approval`, {
+  approval_policy: "all_external_contributors",
+});
 
 console.log(apply ? "Done." : "Nothing changed. Re-run with --apply.");
