@@ -14,16 +14,19 @@ ranking:
 
 collector:
   batch_size: 10 # users per GraphQL request
-  pause_ms: 1000 # pause between requests
+  # Countries collected at once. Requests take 2–7 s of GitHub's server time; its secondary limit on CPU time,
+  # not the points, caps this, so more than 2–3 only slows everything down.
+  parallel_countries: 3
+  pause_ms: 250 # pause between requests (reads only: a request itself takes 2–7 s)
   max_skipped_per_country: 5 # users that never load; above this the country is not updated
-  budget_floor: 0.1 # below this share of the hourly limit the collector waits for reset
+  budget_floor: 0.2 # keep 20% of the hourly limit: the collector uses at most 80%, then waits for the reset
 
-# Measured in the PoC: ~120 API points and 5–11 min per country, 151 countries.
-# A 48 h cycle is ~9k points and ~10 h of runner time per day; the peak is ~900 points/h (18% of the App limit).
+# Measured: ~120 API points and 5–11 min per country, 150 countries, so a full cycle is ~20 h of runner time and
+# ~18k points. Runs are continuous (hourly cron, queued); one worker uses ~1200 points/h, three ~70% of the limit.
 freshness:
   target_hours: 48 # each country is refreshed about this often
   min_refresh_hours: 40 # never refresh a country more often than this; a run with nothing due ends right away
-  max_run_minutes: 300 # one scheduled run (two a day: 02:00 and 14:00 UTC, set in update.yml)
+  max_run_minutes: 300 # one run; GitHub stops a job at 6 h, the next run is queued by update.yml
   stale_days: 3 # a country older than this opens an alert
 
 circuit_breaker:

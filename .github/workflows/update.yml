@@ -1,9 +1,10 @@
 name: update
 
 on:
-  # Two runs a day; each country is refreshed about every 48 hours (config.yml: freshness).
+  # Every hour. A run lasts up to 5 hours (the job limit is 6) and the concurrency group below queues the next one,
+  # so collection is continuous; when every country is fresh (config.yml: freshness) a run ends within a minute.
   schedule:
-    - cron: "0 2,14 * * *"
+    - cron: "17 * * * *"
   workflow_dispatch:
     inputs:
       countries:

@@ -77,12 +77,17 @@ const countries = new Map(loadCountries(dataStore.dir).map((c) => [c.slug, c]));
 const writeCountry = (data: CountryData) =>
   writeFileSync(join(dataStore.dir, "countries", `${data.slug}.json`), `${JSON.stringify(data)}\n`);
 
-const client = new GitHubGraphQL({
-  token,
-  pauseMs: config.collector.pause_ms,
-  budgetFloor: config.collector.budget_floor,
-  deadline,
-});
+// One client per worker: each paces its own requests; the budget floor follows the shared rate limit.
+const clients = Array.from(
+  { length: config.collector.parallel_countries },
+  () =>
+    new GitHubGraphQL({
+      token,
+      pauseMs: config.collector.pause_ms,
+      budgetFloor: config.collector.budget_floor,
+      deadline,
+    }),
+);
 const requested = (env["COUNTRIES"] ?? "")
   .split(",")
   .map((s) => s.trim())
@@ -130,13 +135,31 @@ function applyOptouts(optedOut: { id: number; hash: string }[], optedIn: string[
   }
 }
 
-for (const { slug, reason } of queue) {
-  if (Date.now() > deadline - COUNTRY_RESERVE_MS) {
-    report.push({ slug, result: "postponed: out of time", minutes: "", cost: 0 });
-    continue;
-  }
+/** Git commits and pushes run one at a time, whichever worker finishes first. */
+let publishing: Promise<unknown> = Promise.resolve();
+function serially<T>(task: () => Promise<T>): Promise<T> {
+  const run = publishing.then(task);
+  publishing = run.catch(() => undefined);
+  return run;
+}
+
+async function publishCountry(slug: string, stats: { optedOut: number; optedIn: number }): Promise<void> {
+  writeFileSync(hashesFile, serializeHashes(hashes));
+  if (!publish) return;
+  await serially(async () => {
+    if (await optoutStore.commit(`optout: +${stats.optedOut} -${stats.optedIn}`)) await optoutStore.push();
+    if (await dataStore.commit(`data: ${slug}`)) await dataStore.push();
+    if (Date.now() - lastDeploy > DEPLOY_EVERY_MS) await deploy();
+  });
+}
+
+let stopped = false;
+
+async function collectOne(client: GitHubGraphQL, { slug, reason }: (typeof queue)[number]): Promise<void> {
   const t0 = Date.now();
   const cost0 = client.usage.cost;
+  const line = (result: string) =>
+    report.push({ slug, result, minutes: ((Date.now() - t0) / 60_000).toFixed(1), cost: client.usage.cost - cost0 });
   try {
     const result = await collectCountry(client, {
       slug,
@@ -161,39 +184,37 @@ for (const { slug, reason } of queue) {
     }
     const s = result.stats;
     outcome += ` · candidates ${s.candidates}, other country ${s.otherCountry}, skipped ${s.skipped}, opt-outs +${s.optedOut}/-${s.optedIn}`;
-    writeFileSync(hashesFile, serializeHashes(hashes));
-    if (publish) {
-      if (await optoutStore.commit(`optout: +${s.optedOut} -${s.optedIn}`)) await optoutStore.push();
-      if (await dataStore.commit(`data: ${slug}`)) await dataStore.push();
-      if (Date.now() - lastDeploy > DEPLOY_EVERY_MS) await deploy();
-    }
-    report.push({
-      slug,
-      result: outcome,
-      minutes: ((Date.now() - t0) / 60_000).toFixed(1),
-      cost: client.usage.cost - cost0,
-    });
+    await publishCountry(slug, s);
+    line(outcome);
   } catch (e) {
     if (e instanceof AuthError) throw e;
-    const message = scrub(e instanceof Error ? e.message : String(e));
-    report.push({
-      slug,
-      result: `failed: ${message}`,
-      minutes: ((Date.now() - t0) / 60_000).toFixed(1),
-      cost: client.usage.cost - cost0,
-    });
-    if (e instanceof OutOfTimeError) break;
-    failed++;
+    line(`failed: ${scrub(e instanceof Error ? e.message : String(e))}`);
+    if (e instanceof OutOfTimeError) stopped = true;
+    else failed++;
   }
   console.log(`${slug}: ${report.at(-1)?.result}`);
 }
 
+/** Workers take countries from the queue one by one until it is empty or time runs out. */
+let next = 0;
+async function worker(client: GitHubGraphQL): Promise<void> {
+  for (let item = queue[next++]; item && !stopped; item = queue[next++]) {
+    if (Date.now() > deadline - COUNTRY_RESERVE_MS)
+      report.push({ slug: item.slug, result: "postponed: out of time", minutes: "", cost: 0 });
+    else await collectOne(client, item);
+  }
+}
+await Promise.all(clients.map(worker));
+
+// One commit per run instead of one per country: the data branch stays small; data-prev keeps the last snapshot.
+if (publish) await dataStore.squash(`data: snapshot ${new Date().toISOString()}`, "data-prev");
 if (updated > 0) await deploy();
 
+const sum = (pick: (c: GitHubGraphQL) => number) => clients.reduce((total, c) => total + pick(c), 0);
 const summary = [
   `### Collector run: ${updated} updated, ${failed} failed, ${queue.length} due`,
   "",
-  `${client.usage.requests} requests, ${client.usage.cost} points, ${((Date.now() - started) / 60_000).toFixed(0)} min`,
+  `${sum((c) => c.usage.requests)} requests, ${sum((c) => c.usage.cost)} points, ${((Date.now() - started) / 60_000).toFixed(0)} min`,
   "",
   "| Country | Result | Minutes | Points |",
   "| --- | --- | --- | --- |",
