@@ -1,13 +1,11 @@
 ---
 import { config } from "../lib/site.ts";
 
+// Small "Star · N" link. The count comes from the GitHub API in the browser (cached for the session);
+// until the repository exists, or if the API is unavailable, the link stays hidden.
 const repo = config.site.repo;
 ---
 
-<!--
-  Small "Star · N" link. The count comes from the GitHub API in the browser (cached for the session);
-  until the repository exists, or if the API is unavailable, the link stays hidden.
--->
 <a class="stars" href={`https://github.com/${repo}`} data-repo={repo} hidden>
   <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
     <path
