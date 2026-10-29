@@ -87,46 +87,50 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
 </table>
 
 <script>
-  // Without JS every row stays visible; the selector only hides rows below the chosen size.
-  const table = document.querySelector<HTMLTableElement>("table.ranking");
-  const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-top-switch] button")];
-  if (table) {
-    const rows = [...table.querySelectorAll<HTMLTableRowElement>("tbody tr[data-rank]")];
-    const choices = (table.dataset["choices"] ?? "").split(",").map(Number).filter((n) => n > 0);
-    const pick = (top: number) => {
-      if (!choices.includes(top)) return;
-      for (const row of rows) row.hidden = Number(row.dataset["rank"]) > top;
-      for (const b of buttons) b.setAttribute("aria-pressed", String(Number(b.dataset["topValue"]) === top));
-    };
-    let initial = Number(new URLSearchParams(location.search).get("top"));
-    if (!choices.includes(initial)) {
-      try {
-        initial = Number(localStorage.getItem("top"));
-      } catch {}
-    }
-    if (!choices.includes(initial)) initial = Number(table.dataset["top"]);
-    // A link to #login must show that row even if it is below the chosen size.
-    let target: HTMLElement | null = null;
-    try {
-      target = location.hash ? document.getElementById(decodeURIComponent(location.hash.slice(1)).toLowerCase()) : null;
-    } catch {} // a malformed #hash must not break the page
-    const targetRank = Number(target?.dataset["rank"]);
-    if (targetRank > initial) initial = choices.find((c) => c >= targetRank) ?? initial;
-    pick(initial);
-    for (const b of buttons) {
-      b.addEventListener("click", () => {
-        const top = Number(b.dataset["topValue"]);
-        pick(top);
-        const url = new URL(location.href);
-        url.searchParams.set("top", String(top));
-        history.replaceState(null, "", url);
+  // Runs on the first load and after every client-side navigation (the page is swapped, not reloaded).
+  function init(): void {
+    // Without JS every row stays visible; the selector only hides rows below the chosen size.
+    const table = document.querySelector<HTMLTableElement>("table.ranking");
+    const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-top-switch] button")];
+    if (table) {
+      const rows = [...table.querySelectorAll<HTMLTableRowElement>("tbody tr[data-rank]")];
+      const choices = (table.dataset["choices"] ?? "").split(",").map(Number).filter((n) => n > 0);
+      const pick = (top: number) => {
+        if (!choices.includes(top)) return;
+        for (const row of rows) row.hidden = Number(row.dataset["rank"]) > top;
+        for (const b of buttons) b.setAttribute("aria-pressed", String(Number(b.dataset["topValue"]) === top));
+      };
+      let initial = Number(new URLSearchParams(location.search).get("top"));
+      if (!choices.includes(initial)) {
         try {
-          localStorage.setItem("top", String(top));
+          initial = Number(localStorage.getItem("top"));
         } catch {}
-      });
+      }
+      if (!choices.includes(initial)) initial = Number(table.dataset["top"]);
+      // A link to #login must show that row even if it is below the chosen size.
+      let target: HTMLElement | null = null;
+      try {
+        target = location.hash ? document.getElementById(decodeURIComponent(location.hash.slice(1)).toLowerCase()) : null;
+      } catch {} // a malformed #hash must not break the page
+      const targetRank = Number(target?.dataset["rank"]);
+      if (targetRank > initial) initial = choices.find((c) => c >= targetRank) ?? initial;
+      pick(initial);
+      for (const b of buttons) {
+        b.addEventListener("click", () => {
+          const top = Number(b.dataset["topValue"]);
+          pick(top);
+          const url = new URL(location.href);
+          url.searchParams.set("top", String(top));
+          history.replaceState(null, "", url);
+          try {
+            localStorage.setItem("top", String(top));
+          } catch {}
+        });
+      }
+      target?.scrollIntoView({ block: "center" });
     }
-    target?.scrollIntoView({ block: "center" });
   }
+  document.addEventListener("astro:page-load", init);
 </script>
 
 <style>

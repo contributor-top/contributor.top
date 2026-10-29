@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from "astro:transitions";
 import "../styles/global.css";
 import { jsonForScript } from "../../collector/safe-json.ts";
 import RepoCard from "../components/RepoCard.astro";
@@ -63,10 +64,12 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
     {jsonLd && <script type="application/ld+json" set:html={jsonForScript(jsonLd)} />}
     {/* Runs before paint: saved theme (light by default) and the "js" class. Its CSP hash is in astro.config.mjs. */}
     <script is:inline set:html={themeInit} />
+    {/* Links load the next page in the background and swap it in: no reload, no blank flash. */}
+    <ClientRouter />
   </head>
   <body>
     <div class="layout">
-      <aside>
+      <aside transition:persist="sidebar">
         <div class="brand">
           <a class="logo" href="/">contributors<span>.top</span></a>
           <p class="tagline muted">The most active GitHub users by country</p>
@@ -89,6 +92,19 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
   </body>
 </html>
 
+<script>
+  // The sidebar is not re-rendered on navigation, so the current page is marked here.
+  document.addEventListener("astro:page-load", () => {
+    const here = location.pathname;
+    for (const link of document.querySelectorAll<HTMLAnchorElement>('nav[aria-label="Main"] a')) {
+      const path = link.pathname;
+      const current = path === "/" ? here === "/" : here.startsWith(path);
+      if (current) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    }
+  });
+</script>
+
 <style>
   /* Fixed column widths: every page has the same geometry, so nothing jumps when navigating. */
   .layout {
@@ -100,7 +116,6 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
   }
   /* The sidebar stays in view while the ranking scrolls. */
   aside {
-    view-transition-name: sidebar;
     position: sticky;
     top: 40px;
     align-self: start;
