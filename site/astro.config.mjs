@@ -15,10 +15,13 @@ export default defineConfig({
   // Integration tests build into a temporary directory.
   outDir: process.env.OUT_DIR ?? "./dist",
   trailingSlash: "always",
-  build: { format: "directory" },
-  // Pages are fetched when a link is hovered, so a click shows the next page at once. Astro's client-side
-  // router would avoid page loads entirely, but it does not work with the CSP below.
+  // Pages are fetched when a link is hovered, so a click swaps the next one in at once.
   prefetch: { prefetchAll: true, defaultStrategy: "hover" },
+  // Astro's client-side router does not support its CSP when pages carry their own inline scripts and styles,
+  // because each page's hashes differ. Bundling all of them as files makes them 'self' on every page, and the
+  // one remaining inline script (theme-init) has the same hash everywhere.
+  build: { format: "directory", inlineStylesheets: "never" },
+  vite: { build: { assetsInlineLimit: 0 } },
   // Shiki writes inline styles that the CSP below forbids; the Markdown pages need no highlighting.
   markdown: { syntaxHighlight: false },
   security: {

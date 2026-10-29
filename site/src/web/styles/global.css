@@ -47,15 +47,12 @@
   box-sizing: border-box;
 }
 
-/* Same-site navigations keep the old page on screen until the new one is ready, then switch at once:
-   no blank flash and no animation (Chrome, Edge, Safari 18.2+; other browsers just navigate). */
-@view-transition {
-  navigation: auto;
-}
+/* Client-side navigation swaps pages at once: no transition animation. (Set here rather than with
+   transition:animate, which injects an inline style that the CSP would block.) */
 ::view-transition-group(*),
 ::view-transition-old(*),
 ::view-transition-new(*) {
-  animation: none;
+  animation: none !important;
 }
 
 /* Reserve the scrollbar's space on every page so the layout never shifts between short and long pages. */

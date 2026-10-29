@@ -1,7 +1,6 @@
 ---
 import { BADGE_KINDS, badgeColor } from "../../collector/badges.ts";
 import Base from "../layouts/Base.astro";
-import { countryEntries } from "../lib/site.ts";
 
 const site = (Astro.site?.href ?? "https://contributors.top/").replace(/\/$/, "");
 const styles = ["flat", "flat-square", "plastic", "for-the-badge", "social"];
@@ -11,7 +10,8 @@ const rankings = [
   ["commits", "Commits"],
   ["three", "All three"],
 ] as const;
-const exampleCountry = countryEntries.find((c) => c.data)?.title ?? "Atlantis";
+// A fictional country, so the example never looks like a real person's rank.
+const exampleCountry = "Atlantis";
 const examples = [
   [1, "public"],
   [2, "all"],
@@ -90,77 +90,81 @@ const suffixes = JSON.stringify(Object.fromEntries(Object.entries(BADGE_KINDS).m
   </div>
 
   <script>
-    const area = document.getElementById("badge-area");
-    const login = document.getElementById("login") as HTMLInputElement | null;
-    const ranking = document.getElementById("ranking") as HTMLSelectElement | null;
-    const style = document.getElementById("style") as HTMLSelectElement | null;
-    const md = document.getElementById("md");
-    const html = document.getElementById("html");
-    if (area && login && ranking && style && md && html) {
-      const site = area.dataset["site"] ?? "https://contributors.top";
-      const placeholder = area.dataset["placeholder"] ?? "YOUR_LOGIN";
-      let suffixes: Record<string, string> = {};
-      let labels: Record<string, string> = {};
-      try {
-        suffixes = JSON.parse(area.dataset["suffixes"] ?? "{}");
-        labels = JSON.parse(area.dataset["labels"] ?? "{}");
-      } catch {}
-      const STYLES = [...style.options].map((o) => o.value);
-      const RANKINGS = [...ranking.options].map((o) => o.value);
-      const VALID = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/;
+    // Runs on the first load and after every client-side navigation (the page is swapped, not reloaded).
+    function init(): void {
+      const area = document.getElementById("badge-area");
+      const login = document.getElementById("login") as HTMLInputElement | null;
+      const ranking = document.getElementById("ranking") as HTMLSelectElement | null;
+      const style = document.getElementById("style") as HTMLSelectElement | null;
+      const md = document.getElementById("md");
+      const html = document.getElementById("html");
+      if (area && login && ranking && style && md && html) {
+        const site = area.dataset["site"] ?? "https://contributors.top";
+        const placeholder = area.dataset["placeholder"] ?? "YOUR_LOGIN";
+        let suffixes: Record<string, string> = {};
+        let labels: Record<string, string> = {};
+        try {
+          suffixes = JSON.parse(area.dataset["suffixes"] ?? "{}");
+          labels = JSON.parse(area.dataset["labels"] ?? "{}");
+        } catch {}
+        const STYLES = [...style.options].map((o) => o.value);
+        const RANKINGS = [...ranking.options].map((o) => o.value);
+        const VALID = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/;
 
-      const params = new URLSearchParams(location.search);
-      const fromUrl = params.get("login");
-      if (fromUrl && VALID.test(fromUrl)) login.value = fromUrl;
-      const styleFromUrl = params.get("style");
-      if (styleFromUrl && STYLES.includes(styleFromUrl)) style.value = styleFromUrl;
-      const rankingFromUrl = params.get("ranking");
-      if (rankingFromUrl && RANKINGS.includes(rankingFromUrl)) ranking.value = rankingFromUrl;
+        const params = new URLSearchParams(location.search);
+        const fromUrl = params.get("login");
+        if (fromUrl && VALID.test(fromUrl)) login.value = fromUrl;
+        const styleFromUrl = params.get("style");
+        if (styleFromUrl && STYLES.includes(styleFromUrl)) style.value = styleFromUrl;
+        const rankingFromUrl = params.get("ranking");
+        if (rankingFromUrl && RANKINGS.includes(rankingFromUrl)) ranking.value = rankingFromUrl;
 
-      const render = () => {
-        const raw = login.value.trim();
-        const name = VALID.test(raw) ? raw.toLowerCase() : placeholder;
-        const chosen = STYLES.includes(style.value) ? style.value : "flat";
-        const which = RANKINGS.includes(ranking.value) ? ranking.value : "public";
-        area.dataset["style"] = chosen;
-        // Example badges follow the chosen ranking; "All three" shows one of each.
-        for (const kind of area.querySelectorAll<HTMLElement>(".examples .kind")) {
-          kind.textContent = which === "three" ? (kind.dataset["mixed"] ?? "") : (labels[which] ?? "");
+        const render = () => {
+          const raw = login.value.trim();
+          const name = VALID.test(raw) ? raw.toLowerCase() : placeholder;
+          const chosen = STYLES.includes(style.value) ? style.value : "flat";
+          const which = RANKINGS.includes(ranking.value) ? ranking.value : "public";
+          area.dataset["style"] = chosen;
+          // Example badges follow the chosen ranking; "All three" shows one of each.
+          for (const kind of area.querySelectorAll<HTMLElement>(".examples .kind")) {
+            kind.textContent = which === "three" ? (kind.dataset["mixed"] ?? "") : (labels[which] ?? "");
+          }
+          const kinds = which === "three" ? ["public", "all", "commits"] : [which];
+          const items = kinds.map((kind) => {
+            const json = encodeURIComponent(`${site}/u/${name}${suffixes[kind] ?? ""}.json`);
+            const tab = kind === "public" ? "" : `&tab=${kind}`;
+            return {
+              image: `https://img.shields.io/endpoint?url=${json}&style=${chosen}`,
+              target: `${site}/find/?login=${name}${tab}`,
+            };
+          });
+          // textContent only: the snippets are shown as text, never parsed as HTML.
+          md.textContent = items.map((i) => `[![contributors.top](${i.image})](${i.target})`).join("\n");
+          html.textContent = items
+            .map((i) => `<a href="${i.target}"><img alt="contributors.top" src="${i.image}"></a>`)
+            .join("\n");
+          const query = new URLSearchParams({ ranking: which, style: chosen });
+          if (name !== placeholder) query.set("login", name);
+          history.replaceState(null, "", `?${query}`);
+        };
+
+        login.addEventListener("input", render);
+        ranking.addEventListener("change", render);
+        style.addEventListener("change", render);
+        for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
+          button.addEventListener("click", async () => {
+            const source = document.getElementById(button.dataset["copy"] ?? "");
+            try {
+              await navigator.clipboard.writeText(source?.textContent ?? "");
+              button.textContent = "Copied";
+              setTimeout(() => (button.textContent = "Copy"), 1500);
+            } catch {}
+          });
         }
-        const kinds = which === "three" ? ["public", "all", "commits"] : [which];
-        const items = kinds.map((kind) => {
-          const json = encodeURIComponent(`${site}/u/${name}${suffixes[kind] ?? ""}.json`);
-          const tab = kind === "public" ? "" : `&tab=${kind}`;
-          return {
-            image: `https://img.shields.io/endpoint?url=${json}&style=${chosen}`,
-            target: `${site}/find/?login=${name}${tab}`,
-          };
-        });
-        // textContent only: the snippets are shown as text, never parsed as HTML.
-        md.textContent = items.map((i) => `[![contributors.top](${i.image})](${i.target})`).join("\n");
-        html.textContent = items
-          .map((i) => `<a href="${i.target}"><img alt="contributors.top" src="${i.image}"></a>`)
-          .join("\n");
-        const query = new URLSearchParams({ ranking: which, style: chosen });
-        if (name !== placeholder) query.set("login", name);
-        history.replaceState(null, "", `?${query}`);
-      };
-
-      login.addEventListener("input", render);
-      ranking.addEventListener("change", render);
-      style.addEventListener("change", render);
-      for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
-        button.addEventListener("click", async () => {
-          const source = document.getElementById(button.dataset["copy"] ?? "");
-          try {
-            await navigator.clipboard.writeText(source?.textContent ?? "");
-            button.textContent = "Copied";
-            setTimeout(() => (button.textContent = "Copy"), 1500);
-          } catch {}
-        });
+        render();
       }
-      render();
     }
+    document.addEventListener("astro:page-load", init);
   </script>
 </Base>
 

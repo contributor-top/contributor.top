@@ -11,45 +11,49 @@ const slugs = Object.fromEntries(countryEntries.map((c) => [c.title, c.slug]));
   <p id="status" class="muted" data-slugs={JSON.stringify(slugs)}>Looking up…</p>
 
   <script>
-    // Ranking → badge file suffix and page path; nothing outside these values ever reaches a URL.
-    const TABS: Record<string, { suffix: string; path: string }> = {
-      public: { suffix: "", path: "" },
-      all: { suffix: ".all", path: "all/" },
-      commits: { suffix: ".commits", path: "commits/" },
-    };
-    const status = document.getElementById("status");
-    if (status) {
-      const notFound = () => {
-        status.textContent = "This developer is not in this ranking yet. ";
-        const link = document.createElement("a");
-        link.href = "/methodology/";
-        link.textContent = "See who is considered.";
-        status.append(link);
+    // Runs on the first load and after every client-side navigation (the page is swapped, not reloaded).
+    function init(): void {
+      // Ranking → badge file suffix and page path; nothing outside these values ever reaches a URL.
+      const TABS: Record<string, { suffix: string; path: string }> = {
+        public: { suffix: "", path: "" },
+        all: { suffix: ".all", path: "all/" },
+        commits: { suffix: ".commits", path: "commits/" },
       };
-      let slugs: Record<string, string> = {};
-      try {
-        slugs = JSON.parse(status.dataset["slugs"] ?? "{}");
-      } catch {}
-      const params = new URLSearchParams(location.search);
-      const login = params.get("login") ?? "";
-      const tab = TABS[params.get("tab") ?? "public"] ?? TABS["public"];
-      // Same rule as GitHub logins.
-      if (!tab || !/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/.test(login)) {
-        notFound();
-      } else {
-        const name = login.toLowerCase();
-        fetch(`/u/${name}${tab.suffix}.json`)
-          .then((res) => (res.ok ? res.json() : null))
-          .then((badge: { message?: unknown } | null) => {
-            // "#17 Atlantis (public contributions)" → "Atlantis"
-            const title = String(badge?.message ?? "").replace(/^#\d+\s+(.+?)\s+\([^()]*\)$/, "$1");
-            const slug = slugs[title];
-            // Slugs come from validated presets (^[a-z][a-z0-9_]+$), so this stays a same-site path.
-            if (slug && /^[a-z][a-z0-9_]{1,40}$/.test(slug)) location.replace(`/${slug}/${tab.path}#${name}`);
-            else notFound();
-          })
-          .catch(notFound);
+      const status = document.getElementById("status");
+      if (status) {
+        const notFound = () => {
+          status.textContent = "This developer is not in this ranking yet. ";
+          const link = document.createElement("a");
+          link.href = "/methodology/";
+          link.textContent = "See who is considered.";
+          status.append(link);
+        };
+        let slugs: Record<string, string> = {};
+        try {
+          slugs = JSON.parse(status.dataset["slugs"] ?? "{}");
+        } catch {}
+        const params = new URLSearchParams(location.search);
+        const login = params.get("login") ?? "";
+        const tab = TABS[params.get("tab") ?? "public"] ?? TABS["public"];
+        // Same rule as GitHub logins.
+        if (!tab || !/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/.test(login)) {
+          notFound();
+        } else {
+          const name = login.toLowerCase();
+          fetch(`/u/${name}${tab.suffix}.json`)
+            .then((res) => (res.ok ? res.json() : null))
+            .then((badge: { message?: unknown } | null) => {
+              // "#17 Atlantis (public contributions)" → "Atlantis"
+              const title = String(badge?.message ?? "").replace(/^#\d+\s+(.+?)\s+\([^()]*\)$/, "$1");
+              const slug = slugs[title];
+              // Slugs come from validated presets (^[a-z][a-z0-9_]+$), so this stays a same-site path.
+              if (slug && /^[a-z][a-z0-9_]{1,40}$/.test(slug)) location.replace(`/${slug}/${tab.path}#${name}`);
+              else notFound();
+            })
+            .catch(notFound);
+        }
       }
     }
+    document.addEventListener("astro:page-load", init);
   </script>
 </Base>
