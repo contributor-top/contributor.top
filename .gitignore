@@ -6,3 +6,4 @@ poc/
 .idea/
 .vscode/
 *.log
+.data/

@@ -1,4 +1,4 @@
-// Applies repository settings and the main-branch ruleset through the GitHub CLI.
+// Applies repository settings, the main-branch ruleset and GitHub Pages through the GitHub CLI.
 // Dry run by default; pass --apply to change anything. Run once after the first commit's CI is green:
 //   npm run setup-repo -- --repo contributors-top/contributors.top --apply
 import { execFileSync } from "node:child_process";
@@ -49,5 +49,40 @@ const existing = apply
 const current = existing.find((r) => r.name === ruleset.name);
 if (current) gh("PUT", `/repos/${repo}/rulesets/${current.id}`, ruleset);
 else gh("POST", `/repos/${repo}/rulesets`, ruleset);
+
+/** gh() for calls that legitimately fail on the first run (resource missing, certificate not issued yet). */
+function attempt(method: string, path: string, body?: unknown): string | undefined {
+  try {
+    return gh(method, path, body);
+  } catch {
+    console.log(`  (not done yet: ${method} ${path})`);
+    return undefined;
+  }
+}
+
+// GitHub Pages is published by .github/workflows/deploy.yml. The domain (same as `site` in astro.config.mjs)
+// is verified at the organization level, so no other account can claim it.
+const DOMAIN = "contributors.top";
+if (apply && attempt("GET", `/repos/${repo}/pages`) === undefined) {
+  gh("POST", `/repos/${repo}/pages`, { build_type: "workflow" });
+}
+gh("PUT", `/repos/${repo}/pages`, { build_type: "workflow", cname: DOMAIN });
+// GitHub issues the certificate only after DNS points to Pages; re-run later if this step is skipped.
+attempt("PUT", `/repos/${repo}/pages`, { https_enforced: true });
+
+// Only main may deploy.
+gh("PUT", `/repos/${repo}/environments/github-pages`, {
+  deployment_branch_policy: { protected_branches: false, custom_branch_policies: true },
+});
+const policies = apply
+  ? (
+      JSON.parse(gh("GET", `/repos/${repo}/environments/github-pages/deployment-branch-policies`)) as {
+        branch_policies: { name: string }[];
+      }
+    ).branch_policies
+  : [];
+if (!policies.some((p) => p.name === "main")) {
+  gh("POST", `/repos/${repo}/environments/github-pages/deployment-branch-policies`, { name: "main", type: "branch" });
+}
 
 console.log(apply ? "Done." : "Nothing changed. Re-run with --apply.");

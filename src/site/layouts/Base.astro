@@ -61,7 +61,7 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
     <link rel="preconnect" href="https://avatars.githubusercontent.com" crossorigin />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     {jsonLd && <script type="application/ld+json" set:html={jsonForScript(jsonLd)} />}
-    <!-- Runs before paint: saved theme (light by default) and the "js" class. Its CSP hash is in astro.config.mjs. -->
+    {/* Runs before paint: saved theme (light by default) and the "js" class. Its CSP hash is in astro.config.mjs. */}
     <script is:inline set:html={themeInit} />
   </head>
   <body>

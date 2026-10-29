@@ -57,6 +57,12 @@ beforeAll(() => {
 }, 120_000);
 
 describe("site built from hostile data", () => {
+  it("ships no source comments", () => {
+    for (const page of files(out).filter((f) => f.endsWith(".html"))) {
+      expect(readFileSync(page, "utf8"), page).not.toContain("<!--");
+    }
+  });
+
   it("renders every page without undefined, NaN or [object Object]", () => {
     const pages = files(out).filter((f) => f.endsWith(".html"));
     expect(pages.length).toBeGreaterThan(8);
