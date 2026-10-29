@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Burkina Faso
+iso: "HV"
+include:
+  - burkina faso
+  - ouagadougou
+  - bobo-dioulasso
+  - koudougou
+  - banfora
+  - ouahigouya
+  - pouytenga
+  - kaya
+  - tenkodogo
+  - fada n'gourma
+  - houndé
+exclude: []

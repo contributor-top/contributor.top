@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Greece
+iso: "GR"
+include:
+  - greece
+  - ελλάδα
+  - athens
+  - thessaloniki
+  - patras
+  - heraklion
+  - larissa
+  - volos
+  - rhodes
+  - ioannina
+  - chania
+  - crete
+exclude:
+  - ga

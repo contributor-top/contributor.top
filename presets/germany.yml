@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Germany
+iso: "DE"
+include:
+  - germany
+  - deutschland
+  - berlin
+  - frankfurt
+  - munich
+  - münchen
+  - hamburg
+  - cologne
+  - köln
+exclude: []

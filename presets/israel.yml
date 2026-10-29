@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Israel
+iso: "IL"
+include:
+  - israel
+  - tel aviv
+  - jerusalem
+  - beer sheva
+  - beersheva
+  - netanya
+  - ramat gan
+  - haifa
+  - herzliya
+  - rishon
+exclude: []

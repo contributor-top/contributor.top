@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Croatia
+iso: "HR"
+include:
+  - croatia
+  - hrvatska
+  - zagreb
+  - split
+  - rijeka
+  - osijek
+  - zadar
+  - pula
+exclude: []

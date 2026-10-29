@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Saudi Arabia
+iso: "SA"
+include:
+  - saudi
+  - ksa
+  - riyadh
+  - mecca
+  - jeddah
+  - dammam
+exclude: []

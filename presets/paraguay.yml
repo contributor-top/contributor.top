@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Paraguay
+iso: "PY"
+include:
+  - paraguay
+  - asunción
+  - asuncion
+  - ciudad del este
+  - san lorenzo
+  - luque
+  - capiata
+exclude: []

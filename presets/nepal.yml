@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Nepal
+iso: "NP"
+include:
+  - nepal
+  - kathmandu
+  - pokhara
+  - lalitpur
+  - bharatpur
+  - birgunj
+  - biratnagar
+  - janakpur
+  - ghorahi
+exclude: []

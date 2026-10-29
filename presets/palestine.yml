@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Palestine
+iso: "PS"
+include:
+  - palestine
+  - jerusalem
+  - gaza
+  - hebron
+  - jenin
+  - nablus
+  - ramallah
+  - rafah
+exclude: []

@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Ecuador
+iso: "EC"
+include:
+  - ecuador
+  - guayaquil
+  - quito
+  - cuenca
+  - machala
+exclude: []

@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Romania
+iso: "RO"
+include:
+  - romania
+  - bucharest
+  - cluj
+  - iasi
+  - timisoara
+  - craiova
+  - brasov
+  - sibiu
+  - constanta
+  - oradea
+  - galati
+  - ploesti
+  - pitesti
+  - arad
+  - bacau
+exclude: []

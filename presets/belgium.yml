@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Belgium
+iso: "BE"
+include:
+  - belgium
+  - antwerp
+  - ghent
+  - charleroi
+  - liege
+  - brussels
+  - belgique
+exclude: []

@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Switzerland
+iso: "CH"
+include:
+  - switzerland
+  - zurich
+  - zürich
+  - geneva
+  - basel
+  - lausanne
+  - bern
+  - winterthur
+  - lucerne
+  - gallen
+  - lugano
+  - biel
+  - thun
+exclude: []

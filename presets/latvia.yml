@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Latvia
+iso: "LV"
+include:
+  - latvia
+  - latvija
+  - riga
+  - rīga
+  - kuldiga
+  - kuldīga
+  - ventspils
+  - liepaja
+  - liepāja
+  - daugavpils
+  - jelgava
+  - jurmala
+  - jūrmala
+exclude: []

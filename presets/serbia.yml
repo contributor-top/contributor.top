@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Serbia
+iso: "YU"
+include:
+  - serbia
+  - belgrade
+  - novi sad
+  - nis
+  - kragujevac
+  - subotica
+  - zrenjanin
+  - pancevo
+  - cacak
+  - novi pazar
+  - kraljevo
+  - smederevo
+exclude: []

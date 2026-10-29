@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Mexico
+iso: "MX"
+include:
+  - mexico
+  - mexico city
+  - guadalajara
+  - puebla
+  - tijuana
+  - mexicali
+  - monterrey
+  - hermosillo
+  - zapopan
+  - ciudad juarez
+  - chihuahua
+  - aguascalientes
+  - mx
+exclude: []

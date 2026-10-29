@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Cyprus
+iso: "CY"
+include:
+  - cyprus
+  - nicosia
+  - lefkosia
+  - limassol
+  - lemessos
+  - larnaka
+  - paphos
+exclude: []

@@ -1,0 +1,6 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: El Salvador
+iso: "SV"
+include:
+  - el salvador
+exclude: []

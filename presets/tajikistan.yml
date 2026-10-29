@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Tajikistan
+iso: "TJ"
+include:
+  - tajikistan
+  - dushanbe
+  - khujand
+  - kulob
+  - bokhtar
+  - khorugh
+  - panjakent
+  - isfara
+  - hisor
+  - ghissar
+  - rasht
+exclude: []

@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Kyrgyzstan
+iso: "KG"
+include:
+  - kyrgyzstan
+  - bishkek
+  - osh
+  - jalal-abad
+  - karakol
+  - tokmok
+exclude: []

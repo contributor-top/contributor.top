@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Botswana
+iso: "BW"
+include:
+  - botswana
+  - gaborone
+  - francistown
+exclude: []

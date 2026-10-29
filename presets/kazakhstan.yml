@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Kazakhstan
+iso: "KZ"
+include:
+  - kazakhstan
+  - almaty
+  - shymkent
+  - karagandy
+  - taraz
+  - nur-sultan
+  - pavlodar
+  - oskemen
+  - semey
+exclude: []

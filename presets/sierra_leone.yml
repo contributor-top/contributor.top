@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Sierra Leone
+iso: "SL"
+include:
+  - sierra leone
+  - freetown
+  - makeni
+  - koidu
+exclude: []

@@ -1,0 +1,6 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: The Bahamas
+iso: "BS"
+include:
+  - bahamas
+exclude: []

@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: North Macedonia
+iso: "MK"
+include:
+  - macedonia
+  - fyrom
+  - north macedonia
+  - mk
+  - mkd
+  - ohd
+  - skp
+  - skopje
+  - bitola
+  - kumanovo
+  - prilep
+  - tetovo
+  - veles
+  - shtip
+  - ohrid
+  - gostivar
+  - strumica
+  - kavadarci
+  - negotino
+  - berovo
+  - kratovo
+  - struga
+  - valandovo
+  - demir kapija
+  - demir hisar
+  - krusheve
+  - gevgelija
+exclude: []

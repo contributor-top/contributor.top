@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Syria
+iso: "SY"
+include:
+  - syria
+  - سوريا
+  - damascus
+  - hama
+  - aleppo
+  - homs
+  - rif dimashq
+  - tartus
+  - latakia
+  - idlib
+  - raqqa
+  - daraa
+  - alhasakah
+  - dierezzor
+  - quneitra
+  - alsuwayda
+exclude: []

@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Sweden
+iso: "SE"
+include:
+  - sweden
+  - sverige
+  - stockholm
+  - malmö
+  - uppsala
+  - göteborg
+  - gothenburg
+exclude: []

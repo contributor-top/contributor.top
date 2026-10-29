@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Uzbekistan
+iso: "UZ"
+include:
+  - uzbekistan
+  - tashkent
+  - namangan
+  - samarkand
+  - andijan
+  - nukus
+  - bukhara
+  - qarshi
+  - fergana
+exclude: []

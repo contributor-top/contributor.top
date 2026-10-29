@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Papua New Guinea
+iso: "PG"
+include:
+  - papua new guinea
+  - port moresby
+  - lae
+exclude: []

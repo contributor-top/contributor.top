@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Luxembourg
+iso: "LU"
+include:
+  - luxembourg
+  - esch-sur-alzette
+  - differdange
+  - dudelange
+  - ettelbruck
+  - diekirch
+  - wiltz
+  - echternach
+  - rumelange
+  - grevenmacher
+  - bertrange
+  - mamer
+  - capellen
+  - strassen
+exclude: []

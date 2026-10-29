@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Sri Lanka
+iso: "LK"
+include:
+  - sri lanka
+  - balangoda
+  - ratnapura
+  - colombo
+  - moratuwa
+  - negombo
+  - galle
+  - jaffna
+exclude: []

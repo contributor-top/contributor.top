@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Chad
+iso: "TD"
+include:
+  - chad
+  - tchad
+  - n'djamena
+  - moundou
+exclude: []

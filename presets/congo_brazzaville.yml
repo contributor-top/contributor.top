@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Republic of the Congo
+iso: "CG"
+include:
+  - congo brazza
+  - cog
+  - brazzaville
+  - djambala
+  - pointe noire
+  - sibiti
+  - owando
+  - madingou
+  - loango
+  - kinkala
+  - impfondo
+  - dolisie
+exclude: []

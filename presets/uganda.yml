@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Uganda
+iso: "UG"
+include:
+  - uganda
+  - kampala
+  - mbarara
+  - mukono
+  - jinja
+  - arua
+  - gulu
+  - masaka
+exclude: []

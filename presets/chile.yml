@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Chile
+iso: "CL"
+include:
+  - chile
+  - santiago
+  - valparaíso
+  - concepción
+  - la serena
+  - antofagasta
+  - temuco
+  - rancagua
+  - talca
+  - arica
+  - chillán
+exclude: []

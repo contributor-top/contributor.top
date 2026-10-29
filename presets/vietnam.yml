@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Vietnam
+iso: "VN"
+include:
+  - vietnam
+  - viet nam
+  - ho chi minh
+  - hanoi
+  - ha noi
+  - hai phong
+  - da nang
+  - can tho
+  - bien hoa
+  - nha trang
+  - vinh
+exclude: []

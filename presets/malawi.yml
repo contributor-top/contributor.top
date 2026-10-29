@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Malawi
+iso: "MW"
+include:
+  - malawi
+  - lilongwe
+  - blantyre
+  - mzuzu
+  - zomba
+  - karonga
+  - kasungu
+  - mangochi
+  - salima
+  - liwonde
+  - balaka
+exclude: []

@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Lebanon
+iso: "LB"
+include:
+  - lebanon
+  - beirut
+  - sidon
+  - tyre
+  - tripoli
+  - byblos
+  - bekaa
+  - jounieh
+  - zahle
+  - baalbek
+  - nabatieh
+  - jbeil
+  - batroun
+  - achrafieh
+  - hamra
+exclude: []

@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Dominican Republic
+iso: "DO"
+include:
+  - dominican republic
+  - republica dominicana
+  - santo domingo
+  - la vega
+  - macoris
+exclude: []

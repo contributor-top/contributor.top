@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Netherlands
+iso: "NL"
+include:
+  - netherlands
+  - nederland
+  - amsterdam
+  - rotterdam
+  - hague
+  - utrecht
+  - holland
+  - delft
+exclude: []

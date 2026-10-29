@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Lithuania
+iso: "LT"
+include:
+  - lithuania
+  - vilnius
+  - kaunas
+  - klaipeda
+  - siauliai
+  - panevezys
+  - alytus
+exclude: []

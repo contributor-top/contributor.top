@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Norway
+iso: "NO"
+include:
+  - norway
+  - norge
+  - oslo
+  - bergen
+  - trondheim
+  - stavanger
+  - drammen
+  - fredrikstad
+  - kristiansand
+  - tromsø
+  - sandnes
+  - ålesund
+  - bodø
+  - skien
+  - haugesund
+  - tønsberg
+  - arendal
+  - porsgrunn
+  - hamar
+  - larvik
+  - moss
+  - sandefjord
+  - halden
+  - harstad
+  - lillehammer
+  - molde
+  - gjøvik
+  - mo i rana
+  - steinkjer
+  - alta
+  - lommedalen
+exclude: []

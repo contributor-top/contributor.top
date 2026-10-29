@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: India
+iso: "IN"
+include:
+  - india
+  - mumbai
+  - delhi
+  - bangalore
+  - hyderabad
+  - ahmedabad
+  - chennai
+  - kolkata
+  - jaipur
+  - pune
+  - gurgaon
+  - noida
+exclude: []

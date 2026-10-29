@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Finland
+iso: "FI"
+include:
+  - finland
+  - suomi
+  - helsinki
+  - tampere
+  - oulu
+  - espoo
+  - vantaa
+  - turku
+  - rovaniemi
+  - jyväskylä
+  - lahti
+  - kuopio
+  - pori
+  - lappeenranta
+  - vaasa
+exclude: []

@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Russia
+iso: "SU"
+include:
+  - russia
+  - moscow
+  - saint petersburg
+  - novosibirsk
+  - yekaterinburg
+  - nizhny novgorod
+  - samara
+  - omsk
+  - kazan
+  - chelyabinsk
+  - rostov-on-don
+  - ufa
+  - volgograd
+exclude: []

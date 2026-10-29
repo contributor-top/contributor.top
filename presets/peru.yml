@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Peru
+iso: "PE"
+include:
+  - peru
+  - lima
+  - cusco
+  - cuzco
+  - ica
+  - arequipa
+  - trujillo
+  - chiclayo
+  - huancayo
+  - piura
+  - chimbote
+  - iquitos
+  - juliaca
+  - cajamarca
+exclude: []

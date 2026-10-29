@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Bulgaria
+iso: "BG"
+include:
+  - bulgaria
+  - sofia
+  - plovdiv
+  - varna
+  - burgas
+  - ruse
+  - stara zagora
+  - pleven
+exclude: []

@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Pakistan
+iso: "PK"
+include:
+  - pakistan
+  - karachi
+  - lahore
+  - faisalabad
+  - rawalpindi
+  - peshawar
+  - islamabad
+exclude: []

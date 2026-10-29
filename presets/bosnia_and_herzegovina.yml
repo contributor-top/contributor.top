@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Bosnia and Herzegovina
+iso: "BA"
+include:
+  - sarajevo
+  - banja luka
+  - tuzla
+  - zenica
+  - bijeljina
+  - mostar
+  - prijedor
+  - brcko
+  - doboj
+  - cazin
+exclude: []

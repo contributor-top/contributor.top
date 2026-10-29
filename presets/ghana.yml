@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Ghana
+iso: "GH"
+include:
+  - ghana
+  - accra
+  - kumasi
+  - sekondi
+  - ashaiman
+  - sunyani
+  - tamale
+  - tema
+exclude: []

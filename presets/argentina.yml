@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Argentina
+iso: "AR"
+include:
+  - argentina
+  - buenos aires
+  - cordoba
+  - rosario
+  - mendoza
+  - la plata
+  - tucuman
+  - mar del plata
+  - salta
+  - resistencia
+exclude: []

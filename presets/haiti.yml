@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Haiti
+iso: "HT"
+include:
+  - haiti
+  - port-au-prince
+  - cap-haitien
+  - carrefour
+  - delmas
+  - petion-ville
+exclude: []

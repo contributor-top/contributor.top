@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Tunisia
+iso: "TN"
+include:
+  - tunisia
+  - tunis
+  - sfax
+  - sousse
+  - kairouan
+  - ariana
+  - gabes
+  - bizerte
+exclude: []

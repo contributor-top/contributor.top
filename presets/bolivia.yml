@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Bolivia
+iso: "BO"
+include:
+  - bolivia
+  - santa cruz de la sierra
+  - el alto
+  - la paz
+  - cochabamba
+  - oruro
+  - sucre
+exclude: []

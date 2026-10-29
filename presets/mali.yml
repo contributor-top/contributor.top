@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Mali
+iso: "ML"
+include:
+  - mali
+  - bamako
+  - sikasso
+  - kalabancoro
+  - koutiala
+  - ségou
+  - kayes
+  - kati
+  - mopti
+  - niono
+exclude: []

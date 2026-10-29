@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Ivory Coast
+iso: "CI"
+include:
+  - ivory
+  - abidjan
+  - bouaké
+  - daloa
+  - yamoussoukro
+exclude: []

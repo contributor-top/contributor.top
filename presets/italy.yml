@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Italy
+iso: "IT"
+include:
+  - italy
+  - italia
+  - rome
+  - roma
+  - milan
+  - naples
+  - napoli
+  - turin
+  - torino
+  - palermo
+  - genoa
+  - genova
+  - bologna
+  - florence
+  - firenze
+  - bari
+  - catania
+  - venice
+  - verona
+exclude: []

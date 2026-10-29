@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Mozambique
+iso: "MZ"
+include:
+  - mozambique
+  - maputo
+  - matola
+  - nampula
+  - beira
+  - sofala
+  - chimoio
+  - tete
+  - quelimane
+exclude: []

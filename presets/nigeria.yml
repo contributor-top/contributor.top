@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Nigeria
+iso: "NG"
+include:
+  - nigeria
+  - lagos
+  - kano
+  - ibadan
+  - benin city
+  - port harcourt
+  - jos
+  - ilorin
+  - kaduna
+exclude: []

@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Madagascar
+iso: "MG"
+include:
+  - madagascar
+  - antananarivo
+  - toamasina
+  - antsiranana
+  - mahajanga
+  - fianarantsoa
+  - toliara
+  - antsirabe
+  - ambositra
+  - ambatondrazaka
+  - manakara
+  - sambava
+  - morondava
+  - ambanja
+  - farafangana
+  - maintirano
+  - antsalova
+  - isoa
+  - mampikony
+  - ambatolampy
+  - ambatofinandrahana
+  - mandritsara
+  - marovoay
+  - moramanga
+  - vangaindrano
+  - soaindrana
+  - ikongo
+  - tamatave
+  - diego suarez
+  - mananjary
+  - vohemar
+  - amparafaravola
+exclude: []

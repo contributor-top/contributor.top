@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Gabon
+iso: "GA"
+include:
+  - gabon
+  - libreville
+  - port-gentil
+  - franceville
+  - oyem
+  - moanda
+exclude: []

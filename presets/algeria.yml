@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Algeria
+iso: "DZ"
+include:
+  - algeria
+  - algiers
+  - oran
+  - constantine
+  - annaba
+  - blida
+  - batna
+  - djelfa
+  - setif
+  - sidi bel abbes
+  - biskra
+  - tiaret
+  - relizane
+  - mostaganem
+  - tlemcen
+  - chlef
+  - jijel
+exclude: []

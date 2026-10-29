@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Kurdistan
+iso: null
+include:
+  - kurdistan
+  - erbil
+  - hawler
+  - sulaymaniyah
+  - slemani
+  - duhok
+  - halabja
+  - kirkuk
+exclude: []

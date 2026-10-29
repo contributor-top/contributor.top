@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Venezuela
+iso: "VE"
+include:
+  - venezuela
+  - caracas
+  - maracaibo
+  - barquisimeto
+  - guayana
+  - maturín
+  - zulia
+  - bolivar
+exclude: []

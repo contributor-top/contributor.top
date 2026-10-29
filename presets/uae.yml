@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: United Arab Emirates
+iso: "AE"
+include:
+  - uae
+  - emirates
+  - dubai
+  - abu dhabi
+  - sharjah
+  - al ain
+  - ajman
+exclude: []

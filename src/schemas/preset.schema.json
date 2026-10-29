@@ -28,7 +28,7 @@
     },
     "include": {
       "minItems": 1,
-      "maxItems": 60,
+      "maxItems": 150,
       "type": "array",
       "items": {
         "type": "string",

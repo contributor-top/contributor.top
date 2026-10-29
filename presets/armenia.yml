@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Armenia
+iso: "AM"
+include:
+  - armenia
+  - yerevan
+  - gyumri
+  - vanadzor
+  - vagharshapat
+  - abovyan
+  - kapan
+  - hrazdan
+  - armavir
+  - artashat
+  - ijevan
+  - gavar
+  - goris
+  - dilijan
+  - stepanakert
+  - martuni
+  - sisian
+  - alaverdi
+  - stepanavan
+  - berd
+exclude: []

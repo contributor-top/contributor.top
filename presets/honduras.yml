@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Honduras
+iso: "HN"
+include:
+  - honduras
+  - tegucigalpa
+  - san pedro sula
+  - choloma
+  - la ceiba
+  - el progreso
+  - choluteca
+  - comayagua
+exclude: []

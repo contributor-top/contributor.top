@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Zimbabwe
+iso: "ZW"
+include:
+  - zimbabwe
+  - harare
+  - bulawayo
+  - mutare
+  - gweru
+  - kwekwe
+exclude: []

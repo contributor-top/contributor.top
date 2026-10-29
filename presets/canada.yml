@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Canada
+iso: "CA"
+include:
+  - canada
+  - ottawa
+  - edmonton
+  - winnipeg
+  - vancouver
+  - toronto
+  - quebec
+  - montreal
+  - mississauga
+  - calgary
+exclude: []

@@ -4,7 +4,10 @@
 
 The location lists in `presets/` are derived from
 [most-active-github-users-counter](https://github.com/lauripiispanen/most-active-github-users-counter)
-and its continuation [committers.top](https://github.com/ashkulz/committers.top).
+and its continuation [committers.top](https://github.com/ashkulz/committers.top)
+(`presets.go` at commit [`53237a3`](https://github.com/ashkulz/committers.top/blob/53237a3/presets.go)).
+Changes on import: `+` replaced with spaces, terms lowercased and de-duplicated, slugs use `_` instead of spaces,
+ISO 3166-1 codes added, the `worldwide` preset dropped.
 
 ```
 MIT License

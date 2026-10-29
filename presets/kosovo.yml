@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Kosovo
+iso: "XK"
+include:
+  - kosovo
+  - kosove
+  - prishtine
+  - prizren
+  - peja
+  - gjakova
+  - ferizaj
+  - gjilan
+  - mitrovica
+  - podujev
+  - vushtrri
+  - suhareke
+  - rahovec
+  - lipjan
+  - skenderaj
+  - kamenice
+  - malisheve
+  - decan
+  - istog
+  - kline
+  - fushe kosove
+exclude: []

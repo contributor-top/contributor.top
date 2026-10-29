@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Ethiopia
+iso: "ET"
+include:
+  - ethiopia
+  - addis ababa
+  - gondar
+  - adama
+  - hawassa
+  - bahir dar
+exclude: []

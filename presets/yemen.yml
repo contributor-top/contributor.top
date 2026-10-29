@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Yemen
+iso: "YE"
+include:
+  - yemen
+  - sana'a
+  - taiz
+  - aden
+  - mukalla
+  - ibb
+exclude: []

@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Hungary
+iso: "HU"
+include:
+  - hungary
+  - magyarország
+  - budapest
+  - szeged
+  - miskolc
+exclude: []

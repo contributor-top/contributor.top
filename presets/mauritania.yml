@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Mauritania
+iso: "MR"
+include:
+  - mauritania
+  - mauritanie
+  - nouakchott
+  - nouadhibou
+exclude: []

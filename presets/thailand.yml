@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../src/schemas/preset.schema.json
+title: Thailand
+iso: "TH"
+include:
+  - thailand
+  - bangkok
+  - nonthaburi
+  - nakhon
+  - phuket
+  - pattaya
+  - chiang mai
+exclude: []
