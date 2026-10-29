@@ -1,9 +1,9 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { buildBadges } from "../collector/badges.ts";
-import { type CountryData, countryDataSchema } from "../collector/country-data.ts";
-import { displayTitle, presetSchema } from "../collector/preset.ts";
-import { jsonForScript } from "../collector/safe-json.ts";
+import { buildBadges } from "../src/collector/badges.ts";
+import { type CountryData, countryDataSchema } from "../src/collector/country-data.ts";
+import { displayTitle, presetSchema } from "../src/collector/preset.ts";
+import { jsonForScript } from "../src/collector/safe-json.ts";
 
 const LS = String.fromCharCode(0x2028);
 const PS = String.fromCharCode(0x2029);

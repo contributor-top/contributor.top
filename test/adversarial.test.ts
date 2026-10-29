@@ -4,17 +4,17 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { configSchema, loadConfig } from "../collector/config.ts";
-import { countryDataSchema } from "../collector/country-data.ts";
-import { loadCountries } from "../collector/data-dir.ts";
-import { compactNumber, isMostlyPrivate, privateShare } from "../collector/flags.ts";
-import { decide, statusMatches } from "../collector/optout.ts";
-import { loadPresets, presetSchema } from "../collector/preset.ts";
-import { type Candidate, minFollowers, rank, TABS } from "../collector/rank.ts";
-import { scrub } from "../collector/scrub.ts";
-import { countsFor, matchingPresets } from "../collector/stuffing.ts";
-import { type CountFn, findThreshold, splitRanges } from "../collector/threshold.ts";
-import { loadYaml } from "../collector/yaml.ts";
+import { configSchema, loadConfig } from "../src/collector/config.ts";
+import { countryDataSchema } from "../src/collector/country-data.ts";
+import { loadCountries } from "../src/collector/data-dir.ts";
+import { compactNumber, isMostlyPrivate, privateShare } from "../src/collector/flags.ts";
+import { decide, statusMatches } from "../src/collector/optout.ts";
+import { loadPresets, presetSchema } from "../src/collector/preset.ts";
+import { type Candidate, minFollowers, rank, TABS } from "../src/collector/rank.ts";
+import { scrub } from "../src/collector/scrub.ts";
+import { countsFor, matchingPresets } from "../src/collector/stuffing.ts";
+import { type CountFn, findThreshold, splitRanges } from "../src/collector/threshold.ts";
+import { loadYaml } from "../src/collector/yaml.ts";
 
 const tmp = () => mkdtempSync(join(tmpdir(), "ct-adv-"));
 

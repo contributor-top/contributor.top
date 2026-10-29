@@ -1,6 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { compactNumber, isMostlyPrivate, privateShare } from "../collector/flags.ts";
+import { compactNumber, isMostlyPrivate, privateShare } from "../src/collector/flags.ts";
 
 describe("privateShare", () => {
   it("is the private part of all contributions, 0 when there are none", () => {

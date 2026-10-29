@@ -1,6 +1,6 @@
 // Applies repository settings and the main-branch ruleset through the GitHub CLI.
 // Dry run by default; pass --apply to change anything. Run once after the first commit's CI is green:
-//   npx tsx scripts/setup-repo.ts --repo contributors-top/contributors.top --apply
+//   npx tsx src/scripts/setup-repo.ts --repo contributors-top/contributors.top --apply
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { loadConfig } from "../collector/config.ts";

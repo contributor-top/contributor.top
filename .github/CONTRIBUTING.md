@@ -9,7 +9,7 @@ issue. To edit presets yourself:
 
 1. Copy `presets/_template.yml` to `presets/<slug>.yml` (lowercase letters, digits and `_`), or open the existing file.
 2. Fill in `title`, `iso` (two-letter code in quotes, or `null`), `include` and `exclude`. Your editor autocompletes
-   the fields from `schemas/preset.schema.json`.
+   the fields from `src/schemas/preset.schema.json`.
 3. Open a pull request with `Closes #<issue>`. CI validates the file and shows which locations conflict with other
    countries.
 
@@ -24,7 +24,7 @@ npm run fix     # formats code, YAML and Markdown
 - The PR title becomes the commit message, so use [Conventional Commits](https://www.conventionalcommits.org/):
   `feat: …`, `fix: …`, `docs: …`, `chore: …`.
 - Keep tests for collector logic; coverage below 90% fails CI.
-- Never add personal data beyond what the schemas allow (`collector/country-data.ts`); CI checks this.
+- Never add personal data beyond what the schemas allow (`src/collector/country-data.ts`); CI checks this.
 
 ## Security
 

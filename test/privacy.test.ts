@@ -1,9 +1,9 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { decide, optoutHash, statusMatches } from "../collector/optout.ts";
-import type { Preset } from "../collector/preset.ts";
-import { scrub } from "../collector/scrub.ts";
-import { countsFor, matchingPresets } from "../collector/stuffing.ts";
+import { decide, optoutHash, statusMatches } from "../src/collector/optout.ts";
+import type { Preset } from "../src/collector/preset.ts";
+import { scrub } from "../src/collector/scrub.ts";
+import { countsFor, matchingPresets } from "../src/collector/stuffing.ts";
 
 const KEY = "k".repeat(32);
 

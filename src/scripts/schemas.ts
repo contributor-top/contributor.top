@@ -10,6 +10,6 @@ for (const [name, schema] of [
   ["preset", presetSchema],
 ] as const) {
   const json = z.toJSONSchema(schema, { unrepresentable: "any" });
-  writeFileSync(`schemas/${name}.schema.json`, `${JSON.stringify(json, null, 2)}\n`);
+  writeFileSync(`src/schemas/${name}.schema.json`, `${JSON.stringify(json, null, 2)}\n`);
 }
-console.log("schemas/*.schema.json written");
+console.log("src/schemas/*.schema.json written");

@@ -1,7 +1,7 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { buildQuery, fitsSearchLimits, freeTextLength, withFollowers } from "../collector/query.ts";
-import { type CountFn, findThreshold, SEARCH_CAP, splitRanges } from "../collector/threshold.ts";
+import { buildQuery, fitsSearchLimits, freeTextLength, withFollowers } from "../src/collector/query.ts";
+import { type CountFn, findThreshold, SEARCH_CAP, splitRanges } from "../src/collector/threshold.ts";
 
 /** A fake search index: follower counts of every user matching the location. */
 const counter = (followers: readonly number[]): CountFn => {

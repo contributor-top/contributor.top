@@ -11,6 +11,6 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": [".astro/types.d.ts", "src", "collector", "scripts", "test", "*.config.ts"],
+  "include": [".astro/types.d.ts", "src", "test", "*.config.ts"],
   "exclude": ["dist", "node_modules", "poc"]
 }

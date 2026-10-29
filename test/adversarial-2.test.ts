@@ -3,12 +3,12 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { configSchema, loadConfig } from "../collector/config.ts";
-import { decide } from "../collector/optout.ts";
-import { displayTitle, loadPresets, presetSchema } from "../collector/preset.ts";
-import { type Candidate, rank, TABS } from "../collector/rank.ts";
-import { jsonForScript } from "../collector/safe-json.ts";
-import { type CountFn, findThreshold, splitRanges } from "../collector/threshold.ts";
+import { configSchema, loadConfig } from "../src/collector/config.ts";
+import { decide } from "../src/collector/optout.ts";
+import { displayTitle, loadPresets, presetSchema } from "../src/collector/preset.ts";
+import { type Candidate, rank, TABS } from "../src/collector/rank.ts";
+import { jsonForScript } from "../src/collector/safe-json.ts";
+import { type CountFn, findThreshold, splitRanges } from "../src/collector/threshold.ts";
 
 describe("garbage from the search API", () => {
   for (const bad of [Number.NaN, -1, 1.5, Number.POSITIVE_INFINITY]) {

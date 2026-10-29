@@ -2,9 +2,9 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { badgeColor, buildBadges } from "../collector/badges.ts";
-import { type CountryData, countryDataSchema } from "../collector/country-data.ts";
-import { dataDir, loadCountries, presetsDir } from "../collector/data-dir.ts";
+import { badgeColor, buildBadges } from "../src/collector/badges.ts";
+import { type CountryData, countryDataSchema } from "../src/collector/country-data.ts";
+import { dataDir, loadCountries, presetsDir } from "../src/collector/data-dir.ts";
 
 const row = (rank: number, login: string, id: number) => ({ rank, login, id, contributions: 100 - rank });
 const country = (slug: string, title: string, rows: ReturnType<typeof row>[]): CountryData => ({
@@ -20,7 +20,7 @@ const country = (slug: string, title: string, rows: ReturnType<typeof row>[]): C
 
 describe("country data schema", () => {
   it("accepts fixtures and rejects extra personal fields", () => {
-    expect(loadCountries("fixtures/data").length).toBeGreaterThan(0);
+    expect(loadCountries("test/fixtures/data").length).toBeGreaterThan(0);
     const leaking = {
       ...country("x", "X", [row(1, "a", 1)]),
       tabs: { public: [{ ...row(1, "a", 1), name: "A" }], all: [], commits: [] },
@@ -55,8 +55,8 @@ describe("dataDir and presetsDir", () => {
   it("uses fixtures (fictional countries) unless real data is given", () => {
     delete process.env["DATA_DIR"];
     delete process.env["PRESETS_DIR"];
-    expect(dataDir()).toBe("fixtures/data");
-    expect(presetsDir()).toBe("fixtures/presets");
+    expect(dataDir()).toBe("test/fixtures/data");
+    expect(presetsDir()).toBe("test/fixtures/presets");
     process.env["DATA_DIR"] = "/tmp/data";
     expect(dataDir()).toBe("/tmp/data");
     expect(presetsDir()).toBe("presets");

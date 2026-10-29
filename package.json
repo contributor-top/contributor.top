@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && tsx scripts/build-badges.ts",
+    "build": "astro build && tsx src/scripts/build-badges.ts",
     "preview": "astro preview",
     "lint": "biome ci .",
     "fix": "biome check --write . && prettier --write \"**/*.{yml,yaml,md}\"",
@@ -19,10 +19,10 @@
     "knip": "knip",
     "test": "vitest run --coverage",
     "test:watch": "vitest",
-    "validate": "tsx scripts/validate.ts",
-    "schemas": "tsx scripts/schemas.ts",
-    "schemas:check": "npm run schemas && git diff --exit-code -- schemas",
-    "privacy-check": "tsx scripts/privacy-check.ts",
+    "validate": "tsx src/scripts/validate.ts",
+    "schemas": "tsx src/scripts/schemas.ts",
+    "schemas:check": "npm run schemas && git diff --exit-code -- src/schemas",
+    "privacy-check": "tsx src/scripts/privacy-check.ts",
     "supply-chain": "lockfile-lint --path package-lock.json --type npm --allowed-hosts npm --validate-https --validate-integrity && npm audit signatures",
     "check": "npm run lint && npm run format:check && npm run typecheck && npm run knip && npm run validate && npm run schemas:check && npm test && npm run build && npm run privacy-check"
   },
@@ -48,5 +48,21 @@
   "overrides": {
     "fast-uri": "3.1.9",
     "undici": "8.12.3"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "proseWrap": "preserve"
+  },
+  "knip": {
+    "entry": [
+      "src/scripts/*.ts",
+      "test/**/*.test.ts",
+      "src/site/pages/**/*.{astro,ts,md}",
+      "src/site/layouts/Markdown.astro"
+    ],
+    "project": [
+      "src/**/*.{ts,astro}",
+      "test/**/*.ts"
+    ]
   }
 }
