@@ -60,6 +60,9 @@
     "project": [
       "src/**/*.{ts,astro}",
       "test/**/*.ts"
+    ],
+    "ignoreDependencies": [
+      "lefthook"
     ]
   }
 }
