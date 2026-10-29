@@ -1,0 +1,8 @@
+{
+  "name": "collector-branches",
+  "target": "branch",
+  "enforcement": "active",
+  "bypass_actors": [{ "actor_id": "COLLECTOR_APP_ID", "actor_type": "Integration", "bypass_mode": "always" }],
+  "conditions": { "ref_name": { "include": ["refs/heads/data", "refs/heads/optout"], "exclude": [] } },
+  "rules": [{ "type": "creation" }, { "type": "update" }, { "type": "deletion" }]
+}

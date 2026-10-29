@@ -1,8 +1,10 @@
-// Applies repository settings, the main-branch ruleset and GitHub Pages through the GitHub CLI.
-// Dry run by default; pass --apply to change anything. Run once after the first commit's CI is green:
+// Applies repository settings, rulesets, environments and GitHub Pages through the GitHub CLI.
+// Dry run by default; pass --apply to change anything. Run once after the first commit's CI is green,
+// and again after the collector App exists (its ruleset needs the App ID):
 //   npm run setup-repo -- --repo contributors-top/contributors.top --apply
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { loadConfig } from "../collector/config.ts";
 
 const args = process.argv.slice(2);
@@ -41,14 +43,28 @@ gh("PATCH", `/repos/${repo}`, {
 gh("PUT", `/repos/${repo}/private-vulnerability-reporting`);
 gh("PUT", `/repos/${repo}/vulnerability-alerts`);
 
-// The ruleset is stored in the repository so it is reviewed like code.
-const ruleset = JSON.parse(readFileSync("../.github/rulesets/main.json", "utf8")) as { name: string };
+// Rulesets are stored in the repository so they are reviewed like code. A bypass actor written as
+// "COLLECTOR_APP_ID" is the collector App, whose ID lives in the collector environment.
+type Ruleset = { name: string; bypass_actors: { actor_id: number | string }[] };
 const existing = apply
   ? (JSON.parse(gh("GET", `/repos/${repo}/rulesets`) || "[]") as { id: number; name: string }[])
   : [];
-const current = existing.find((r) => r.name === ruleset.name);
-if (current) gh("PUT", `/repos/${repo}/rulesets/${current.id}`, ruleset);
-else gh("POST", `/repos/${repo}/rulesets`, ruleset);
+for (const file of readdirSync("../.github/rulesets").filter((f) => f.endsWith(".json"))) {
+  const ruleset = JSON.parse(readFileSync(join("../.github/rulesets", file), "utf8")) as Ruleset;
+  for (const actor of ruleset.bypass_actors) {
+    if (actor.actor_id !== "COLLECTOR_APP_ID") continue;
+    actor.actor_id = apply
+      ? Number(
+          execFileSync("gh", ["variable", "get", "COLLECTOR_APP_ID", "--env", "collector", "--repo", repo], {
+            encoding: "utf8",
+          }),
+        )
+      : 0;
+  }
+  const current = existing.find((r) => r.name === ruleset.name);
+  if (current) gh("PUT", `/repos/${repo}/rulesets/${current.id}`, ruleset);
+  else gh("POST", `/repos/${repo}/rulesets`, ruleset);
+}
 
 /** gh() for calls that legitimately fail on the first run (resource missing, certificate not issued yet). */
 function attempt(method: string, path: string, body?: unknown): string | undefined {
