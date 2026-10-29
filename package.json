@@ -21,9 +21,10 @@
     "test:watch": "vitest",
     "validate": "tsx scripts/validate.ts",
     "schemas": "tsx scripts/schemas.ts",
+    "schemas:check": "npm run schemas && git diff --exit-code -- schemas",
     "privacy-check": "tsx scripts/privacy-check.ts",
     "supply-chain": "lockfile-lint --path package-lock.json --type npm --allowed-hosts npm --validate-https --validate-integrity && npm audit signatures",
-    "check": "npm run lint && npm run format:check && npm run typecheck && npm run knip && npm run validate && npm test && npm run build && npm run privacy-check"
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm run knip && npm run validate && npm run schemas:check && npm test && npm run build && npm run privacy-check"
   },
   "dependencies": {
     "astro": "7.3.8",
