@@ -18,12 +18,13 @@ function walk(dir: string): string[] {
   });
 }
 
+// Every text file is scanned whole, scripts included: JSON-LD inside <script> carries data too.
+const TEXT = new Set([".html", ".json", ".js", ".css", ".txt", ".xml", ".svg", ".webmanifest"]);
 for (const file of walk("dist")) {
   const ext = extname(file);
-  if (ext !== ".html" && ext !== ".json") continue;
+  if (!TEXT.has(ext)) continue;
   const text = readFileSync(file, "utf8");
-  const visible = ext === ".html" ? text.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, "") : text;
-  if (EMAIL.test(visible)) problems.push(`${file}: contains an email-like string`);
+  if (EMAIL.test(text)) problems.push(`${file}: contains an email-like string`);
   if (ext === ".json") {
     for (const key of FORBIDDEN_JSON_KEYS) if (text.includes(`"${key}":`)) problems.push(`${file}: has "${key}" field`);
   }

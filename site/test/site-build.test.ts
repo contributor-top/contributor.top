@@ -67,8 +67,8 @@ describe("site built from hostile data", () => {
     const pages = files(out).filter((f) => f.endsWith(".html"));
     expect(pages.length).toBeGreaterThan(8);
     for (const page of pages) {
-      const visible = readFileSync(page, "utf8").replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, "");
-      expect(visible, page).not.toMatch(/\bundefined\b|\bNaN\b|\[object Object\]/);
+      // The whole page, scripts included: JSON-LD and inline data must not carry these either.
+      expect(readFileSync(page, "utf8"), page).not.toMatch(/\bundefined\b|\bNaN\b|\[object Object\]/);
     }
   });
 
