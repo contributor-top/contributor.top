@@ -45,12 +45,15 @@
   box-sizing: border-box;
 }
 
-/* Same-site navigations cross-fade instead of flashing a blank page (Chrome, Edge, Safari 18.2+);
-   the sidebar keeps its own transition name, so it stays put. Others just navigate. */
-@media (prefers-reduced-motion: no-preference) {
-  @view-transition {
-    navigation: auto;
-  }
+/* Same-site navigations keep the old page on screen until the new one is ready, then switch at once:
+   no blank flash and no animation (Chrome, Edge, Safari 18.2+; other browsers just navigate). */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation: none;
 }
 
 /* Reserve the scrollbar's space on every page so the layout never shifts between short and long pages. */
