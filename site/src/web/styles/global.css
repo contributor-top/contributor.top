@@ -5,6 +5,7 @@
   --muted: #59636e;
   --line: #d1d9e0;
   --surface: #f6f8fa;
+  --skeleton: #eaeef2; /* where an avatar will appear while it loads */
   --accent: #0969da;
   --login: #0969da;
   --highlight: #fff8c5;
@@ -26,6 +27,7 @@
   --muted: #8b949e;
   --line: #30363d;
   --surface: #161b22;
+  --skeleton: #21262d;
   --accent: #3fb950;
   --login: #e6edf3;
   --highlight: #bb80092e;

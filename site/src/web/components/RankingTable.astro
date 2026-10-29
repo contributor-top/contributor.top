@@ -226,6 +226,10 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
     border-radius: 50%;
     flex: none;
   }
+  /* A quiet circle holds the avatar's place until the photo arrives, then the photo covers it. */
+  img {
+    background: var(--skeleton);
+  }
   td.c {
     white-space: nowrap;
   }
