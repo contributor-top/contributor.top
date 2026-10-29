@@ -7,6 +7,9 @@ const words = (s: string) =>
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim()} `;
 
+/** Whether the location contains the term as whole words ("Minsk, Belarus" mentions "belarus", "Belarusian" does not). */
+export const mentions = (location: string, term: string): boolean => words(location).includes(words(term));
+
 /**
  * Presets with at least one include term that appears as whole words in the location,
  * ordered by where the first matching term starts (the country mentioned first comes first).

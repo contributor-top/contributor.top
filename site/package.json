@@ -24,6 +24,8 @@
     "schemas:check": "npm run schemas && git diff --exit-code -- src/schemas",
     "privacy-check": "tsx src/scripts/privacy-check.ts",
     "setup-repo": "tsx src/scripts/setup-repo.ts",
+    "collect": "tsx src/scripts/collect.ts",
+    "setup-collector": "tsx src/scripts/setup-collector.ts",
     "supply-chain": "lockfile-lint --path package-lock.json --type npm --allowed-hosts npm --validate-https --validate-integrity && npm audit signatures",
     "check": "npm run lint && npm run format:check && npm run typecheck && npm run knip && npm run validate && npm run schemas:check && npm test && npm run build && npm run privacy-check"
   },
