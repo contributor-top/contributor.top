@@ -1,5 +1,5 @@
-Contact: https://github.com/contributors-top/contributors.top/security/advisories/new
+Contact: https://github.com/contributors-top/contributor.top/security/advisories/new
 Expires: 2027-10-29T00:00:00.000Z
 Preferred-Languages: en, ru
-Canonical: https://contributors.top/.well-known/security.txt
-Policy: https://github.com/contributors-top/contributors.top/security/policy
+Canonical: https://contributor.top/.well-known/security.txt
+Policy: https://github.com/contributors-top/contributor.top/security/policy

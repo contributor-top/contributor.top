@@ -250,17 +250,17 @@ describe("country assignment", () => {
 });
 
 describe("opt-out phrases", () => {
-  const out = "contributors.top opt-out";
-  const inn = "contributors.top opt-in";
+  const out = "contributor.top opt-out";
+  const inn = "contributor.top opt-in";
 
   it("matches lookalike full-width text and line breaks", () => {
-    expect(statusMatches("ｃｏｎｔｒｉｂｕｔｏｒｓ．ｔｏｐ ｏｐｔ－ｏｕｔ", out)).toBe(true);
-    expect(statusMatches("contributors.top\nopt-out", out)).toBe(true);
+    expect(statusMatches("ｃｏｎｔｒｉｂｕｔｏｒ．ｔｏｐ ｏｐｔ－ｏｕｔ", out)).toBe(true);
+    expect(statusMatches("contributor.top\nopt-out", out)).toBe(true);
   });
 
   it("does not opt out on a different word", () => {
-    expect(decide("contributors.top opt-outlet", out, inn)).toBe("opt-out"); // contains: deliberate, documented
-    expect(decide("contributors.top optout", out, inn)).toBe("none");
+    expect(decide("contributor.top opt-outlet", out, inn)).toBe("opt-out"); // contains: deliberate, documented
+    expect(decide("contributor.top optout", out, inn)).toBe("none");
   });
 });
 

@@ -100,7 +100,7 @@ export class GitHubGraphQL {
         headers: {
           Authorization: `bearer ${await this.options.token()}`,
           "Content-Type": "application/json",
-          "User-Agent": "contributors.top-collector",
+          "User-Agent": "contributor.top-collector",
         },
         body: JSON.stringify({ query, variables }),
       });

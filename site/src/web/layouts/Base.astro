@@ -21,7 +21,7 @@ const {
   noindex = false,
   jsonLd,
 } = Astro.props;
-const fullTitle = title === "contributors.top" ? title : `${title} | contributors.top`;
+const fullTitle = title === "contributor.top" ? title : `${title} | contributor.top`;
 // Canonical URL: always the clean path (no ?top=…), with the trailing slash the site uses.
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = new URL("/og.png", Astro.site).href;
@@ -45,7 +45,7 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
     <meta name="description" content={description} />
     {noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="contributors.top" />
+    <meta property="og:site_name" content="contributor.top" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
@@ -72,7 +72,7 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
     <div class="layout">
       <aside transition:persist="sidebar">
         <div class="brand">
-          <a class="logo" href="/">contributors<span>.top</span></a>
+          <a class="logo" href="/">contributor<span>.top</span></a>
           <p class="tagline muted">The most active GitHub users by country</p>
         </div>
         <nav aria-label="Main">

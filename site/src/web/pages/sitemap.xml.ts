@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import type { Tab } from "../../collector/rank.ts";
 import { countryEntries, TAB_META } from "../lib/site.ts";
 
-const SITE = "https://contributors.top";
+const SITE = "https://contributor.top";
 
 /** All indexable pages; country pages carry their own update time as lastmod. */
 export const GET: APIRoute = () => {

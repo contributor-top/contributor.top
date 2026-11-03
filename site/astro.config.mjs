@@ -36,7 +36,7 @@ const cspFirst = {
 
 export default defineConfig({
   integrations: [cspFirst],
-  site: "https://contributors.top",
+  site: "https://contributor.top",
   output: "static",
   srcDir: "./src/web",
   publicDir: "./src/public",

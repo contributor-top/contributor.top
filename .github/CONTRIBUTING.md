@@ -4,7 +4,7 @@ Thanks for helping! Every change starts with an issue and lands through a pull r
 
 ## Add a country or city
 
-The easiest way is an [Add a country](https://github.com/contributors-top/contributors.top/issues/new?template=add-country.yml)
+The easiest way is an [Add a country](https://github.com/contributors-top/contributor.top/issues/new?template=add-country.yml)
 issue. To edit presets yourself:
 
 1. Copy `presets/_template.yml` to `presets/<slug>.yml` (lowercase letters, digits and `_`), or open the existing file.

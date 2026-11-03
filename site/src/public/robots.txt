@@ -4,4 +4,4 @@ Allow: /
 Disallow: /u/
 Disallow: /api/
 
-Sitemap: https://contributors.top/sitemap.xml
+Sitemap: https://contributor.top/sitemap.xml

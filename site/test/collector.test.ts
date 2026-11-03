@@ -100,8 +100,8 @@ function oracle(users: FakeUser[], slug: string, cfg: Config, optedOutIds: Set<n
   const statusSays = (u: FakeUser, phrase: string) => (u.status ?? "").toLowerCase().includes(phrase);
   const kept = matches.filter((u) => {
     if (u.followers < threshold || cfg.denylist_ids.includes(u.id)) return false;
-    if (optedOutIds.has(u.id) && !statusSays(u, "contributors.top opt-in")) return false;
-    if (statusSays(u, "contributors.top opt-out")) return false;
+    if (optedOutIds.has(u.id) && !statusSays(u, "contributor.top opt-in")) return false;
+    if (statusSays(u, "contributor.top opt-out")) return false;
     return owns(slug, u.location as string);
   });
   const order = (score: (u: FakeUser) => number) =>
@@ -265,9 +265,9 @@ describe("collecting a country", () => {
       ...Array.from({ length: 60 }, (_, i) => user(i + 1, i % 3 ? "Atlantis" : "Poseidonia", 5 + i)),
       user(100, "El Dorado / Atlantis", 500), // belongs to El Dorado: mentioned first
       user(101, "Atlantis, then El Dorado", 400), // belongs to Atlantis
-      user(102, "Atlantis", 300, { status: "contributors.top opt-out 🙏" }), // opts out now
+      user(102, "Atlantis", 300, { status: "contributor.top opt-out 🙏" }), // opts out now
       user(103, "Atlantis", 200), // opted out before, silent
-      user(104, "Atlantis", 199, { status: "Contributors.top OPT-IN" }), // opted out before, comes back
+      user(104, "Atlantis", 199, { status: "Contributor.top OPT-IN" }), // opted out before, comes back
       user(105, "Atlantis", 198), // denylisted
       user(106, "Atlantis", 197, { total: 50, restricted: 80 }), // API glitch: never negative
     ];
@@ -356,7 +356,7 @@ describe("collecting a country", () => {
       "Manoa, Atlantis",
       "Nowhere",
     ];
-    const statuses = [null, "contributors.top opt-out", "contributors.top opt-in", "hello"];
+    const statuses = [null, "contributor.top opt-out", "contributor.top opt-in", "hello"];
     const arbUser = fc.record({
       place: fc.constantFrom(...places),
       followers: fc.nat(40),

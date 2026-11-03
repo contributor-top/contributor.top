@@ -14,7 +14,7 @@ export const GET: APIRoute<{ entry: CountryEntry }> = ({ props, site }) => {
   const { entry } = props;
   const data = entry.data;
   if (!data) return new Response(null, { status: 404 });
-  const base = (site?.href ?? "https://contributors.top/").replace(/\/$/, "");
+  const base = (site?.href ?? "https://contributor.top/").replace(/\/$/, "");
   return Response.json({
     country: entry.title,
     slug: entry.slug,

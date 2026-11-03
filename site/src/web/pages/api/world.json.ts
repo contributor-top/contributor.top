@@ -3,7 +3,7 @@ import { countryEntries, worldRows } from "../../lib/site.ts";
 
 /** Machine-readable world ranking: merged from every country, public contributions. */
 export const GET: APIRoute = ({ site }) => {
-  const base = (site?.href ?? "https://contributors.top/").replace(/\/$/, "");
+  const base = (site?.href ?? "https://contributor.top/").replace(/\/$/, "");
   const updated = countryEntries
     .map((c) => c.data?.updatedAt)
     .filter((d): d is string => d !== undefined)

@@ -1,14 +1,14 @@
 ---
 layout: ../layouts/Markdown.astro
 title: Methodology
-description: How contributors.top selects and ranks GitHub users.
+description: How contributor.top selects and ranks GitHub users.
 ---
 
 # Methodology
 
 ## Who is considered
 
-1. For every country we search GitHub for users whose profile **location** matches the country or one of its cities. The list of location strings for each country lives in [`presets/`](https://github.com/contributors-top/contributors.top/tree/main/presets) and is open to pull requests.
+1. For every country we search GitHub for users whose profile **location** matches the country or one of its cities. The list of location strings for each country lives in [`presets/`](https://github.com/contributors-top/contributor.top/tree/main/presets) and is open to pull requests.
 2. GitHub search cannot sort by contributions, so among everyone who matches we take the **1000 most-followed users** and rank only them. Each country page shows the actual follower count of the least-followed person considered.
 3. Organizations and bots are excluded.
 4. Everyone belongs to exactly **one** country: the first one their profile location mentions. If several countries are listed, only the first counts.
