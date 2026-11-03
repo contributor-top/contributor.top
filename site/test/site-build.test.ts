@@ -43,7 +43,13 @@ beforeAll(() => {
   );
   writeFileSync(join(presetsDir, "empty_land.yml"), "title: Empty Land\niso: null\ninclude: [nowhere]\nexclude: []\n");
   writeFileSync(join(presetsDir, "no_data.yml"), "title: No Data\niso: null\ninclude: [nodata]\nexclude: []\n");
-  const ci = country("cote_divoire", "Côte d'Ivoire", [row(1, "Octo-Cat", 11, 50), row(2, "zed", 12, 40)]);
+  const ci = country("cote_divoire", "Côte d'Ivoire", [
+    row(1, "farm-bot", 13, 900000),
+    row(2, "Octo-Cat", 11, 50),
+    row(3, "zed", 12, 40),
+  ]);
+  // A commit farm: almost nothing but commits. It stays in its country, marked, and is left out of the world.
+  ci.breakdown["13"] = { commits: 900000, prs: 1, issues: 0, reviews: 0, private: 0 };
   const cd = country("congo_kinshasa", "Congo (Kinshasa)", [row(1, "octo-cat", 11, 90)]);
   writeFileSync(join(dataDir, "countries", "cote_divoire.json"), JSON.stringify(ci));
   writeFileSync(join(dataDir, "countries", "congo_kinshasa.json"), JSON.stringify(cd));
@@ -134,6 +140,13 @@ describe("site built from hostile data", () => {
     expect(world).toMatch(/id="octo-cat" data-rank="1"/);
     expect(world).toMatch(/id="zed" data-rank="2"/);
     expect(world).not.toContain("ghost");
+    expect(world).not.toContain("farm-bot");
+    expect(existsSync(join(out, "u", "farm-bot.world.json"))).toBe(false);
+    expect(existsSync(join(out, "u", "farm-bot.json"))).toBe(true);
+    const country = readFileSync(join(out, "cote_divoire", "index.html"), "utf8");
+    const farmRow = country.slice(country.indexOf('id="farm-bot"'), country.indexOf('id="octo-cat"'));
+    expect(farmRow).toContain("likely automated");
+    expect(country.slice(country.indexOf('id="octo-cat"'))).not.toContain("likely automated");
     expect(existsSync(join(out, "u", "ghost.json"))).toBe(false);
     expect(existsSync(join(out, "u", "ghost.world.json"))).toBe(false);
   });

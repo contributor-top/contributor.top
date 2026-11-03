@@ -51,6 +51,25 @@
           "type": "number",
           "exclusiveMinimum": 0,
           "exclusiveMaximum": 1
+        },
+        "automated": {
+          "type": "object",
+          "properties": {
+            "min_commits": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "ratio": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "required": [
+            "min_commits",
+            "ratio"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -59,7 +78,8 @@
         "default_top",
         "consider",
         "world_top_n",
-        "private_flag_share"
+        "private_flag_share",
+        "automated"
       ],
       "additionalProperties": false
     },

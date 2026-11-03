@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { badgeColor, buildBadges } from "../src/collector/badges.ts";
 import { type CountryData, countryDataSchema } from "../src/collector/country-data.ts";
 import { dataDir, loadCountries, presetsDir } from "../src/collector/data-dir.ts";
+import { isLikelyAutomated } from "../src/collector/flags.ts";
 import { worldRanking } from "../src/collector/world.ts";
 
 const row = (rank: number, login: string, id: number) => ({ rank, login, id, contributions: 100 - rank });
@@ -143,5 +144,36 @@ describe("world ranking", () => {
     const data = [country("a", "Alpha", [row(1, "a", 1), row(2, "b", 2), row(3, "c", 3)])];
     expect(worldRanking(data, 2).map((r) => r.login)).toEqual(["a", "b"]);
     expect(worldRanking(data, -1)).toEqual([]);
+  });
+});
+
+describe("commit farms", () => {
+  const rule = { min_commits: 20000, ratio: 50 };
+  const activity = (commits: number, other = 0) => ({ commits, prs: other, issues: 0, reviews: 0, private: 0 });
+
+  it("are a huge number of commits with almost nothing else", () => {
+    expect(isLikelyAutomated(activity(1_567_142, 56), rule)).toBe(true);
+    expect(isLikelyAutomated(activity(20_000, 0), rule)).toBe(true);
+    // Heavy contributors with real pull request and review work are not.
+    expect(isLikelyAutomated(activity(102_976, 13_126), rule)).toBe(false);
+    expect(isLikelyAutomated(activity(55_596, 2_179), rule)).toBe(false);
+    // Few commits are never a farm, however lopsided.
+    expect(isLikelyAutomated(activity(19_999, 0), rule)).toBe(false);
+  });
+
+  it("are left out of the world ranking and the world badges, but keep their country badges", () => {
+    const data: CountryData = {
+      ...country("a", "Alpha", [
+        { rank: 1, login: "farm", id: 1, contributions: 900_000 },
+        { rank: 2, login: "human", id: 2, contributions: 5_000 },
+      ]),
+      breakdown: { "1": activity(900_000, 3), "2": activity(3_000, 400) },
+    };
+    expect(worldRanking([data], 10, rule).map((r) => `${r.rank}:${r.login}`)).toEqual(["1:human"]);
+    expect(worldRanking([data], 10).map((r) => r.login)).toEqual(["farm", "human"]);
+    const badges = buildBadges([data], 10, rule);
+    expect(badges.has("farm.world")).toBe(false);
+    expect(badges.get("human.world")?.message).toBe("#1 World (public contributions)");
+    expect(badges.get("farm")?.message).toBe("#1 Alpha (public contributions)");
   });
 });

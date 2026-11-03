@@ -14,6 +14,7 @@ export const configSchema = z
         consider: z.number().int().positive(),
         world_top_n: z.number().int().positive(),
         private_flag_share: share,
+        automated: z.object({ min_commits: z.number().int().positive(), ratio: z.number().positive() }).strict(),
       })
       .strict()
       .refine((r) => r.top_choices.every((c, i, all) => i === 0 || c > (all[i - 1] as number)), {

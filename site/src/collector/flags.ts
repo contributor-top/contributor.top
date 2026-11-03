@@ -11,6 +11,21 @@ export function privateShare(publicCount: number, privateCount: number): number 
 export const isMostlyPrivate = (publicCount: number, privateCount: number, threshold: number): boolean =>
   privateCount > 0 && privateShare(publicCount, privateCount) >= threshold;
 
+export type Activity = {
+  readonly commits: number;
+  readonly prs: number;
+  readonly issues: number;
+  readonly reviews: number;
+};
+export type AutomatedRule = { readonly min_commits: number; readonly ratio: number };
+
+/**
+ * A commit farm: a huge number of commits and almost nothing else. People who really work that much also open pull
+ * requests, file issues and review others' work; a script that commits all day does none of that.
+ */
+export const isLikelyAutomated = (a: Activity, rule: AutomatedRule): boolean =>
+  a.commits >= rule.min_commits && a.commits >= rule.ratio * Math.max(1, a.prs + a.issues + a.reviews);
+
 const UNITS: readonly [number, string][] = [
   [1_000_000_000, "B"],
   [1_000_000, "M"],
