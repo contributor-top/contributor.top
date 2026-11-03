@@ -8,7 +8,9 @@
   --skeleton: #eaeef2; /* where an avatar will appear while it loads */
   --accent: #0969da;
   --login: #0969da;
-  --highlight: #fff8c5;
+  --highlight: #fff8c5; /* the row a badge link opens */
+  --highlight-edge: #d4a72c;
+  --highlight-flash: #fae17d;
   --warn: #9a6700;
   --gold: #9a6700;
   --silver: #6e7781;
@@ -31,6 +33,8 @@
   --accent: #3fb950;
   --login: #e6edf3;
   --highlight: #bb80092e;
+  --highlight-edge: #d29922;
+  --highlight-flash: #bb800966;
   --warn: #d29922;
   --gold: #e3b341;
   --silver: #b1bac4;

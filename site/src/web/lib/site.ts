@@ -1,8 +1,9 @@
 import { loadConfig } from "../../collector/config.ts";
-import type { CountryData, Row } from "../../collector/country-data.ts";
+import type { CountryData } from "../../collector/country-data.ts";
 import { loadCountries, presetsDir } from "../../collector/data-dir.ts";
 import { loadPresets } from "../../collector/preset.ts";
 import type { Tab } from "../../collector/rank.ts";
+import { type WorldRow, worldRanking } from "../../collector/world.ts";
 
 export const config = loadConfig();
 const presets = loadPresets(presetsDir(), config.reserved_slugs);
@@ -31,22 +32,12 @@ export const TAB_META: Record<Tab, { label: string; short: string; path: string;
   commits: { label: "Commits", short: "Commits", path: "commits", note: "Public commits in the last 12 months." },
 };
 
-export type WorldRow = Row & { country: string };
-
-export function worldRows(): WorldRow[] {
-  const best = new Map<number, WorldRow>();
-  for (const { data } of countryEntries) {
-    if (!data) continue;
-    for (const row of data.tabs.public) {
-      const current = best.get(row.id);
-      if (!current || row.contributions > current.contributions) best.set(row.id, { ...row, country: data.title });
-    }
-  }
-  return [...best.values()]
-    .sort((a, b) => b.contributions - a.contributions || a.login.toLowerCase().localeCompare(b.login.toLowerCase()))
-    .slice(0, config.ranking.world_top_n)
-    .map((row, i) => ({ ...row, rank: i + 1 }));
-}
+/** The world ranking from every listed country; the same function builds the world badges. */
+export const worldRows = (): WorldRow[] =>
+  worldRanking(
+    countryEntries.flatMap((c) => (c.data ? [c.data] : [])),
+    config.ranking.world_top_n,
+  );
 
 export const formatDate = (iso: string): string =>
   `${new Date(iso).toLocaleString("en-GB", {

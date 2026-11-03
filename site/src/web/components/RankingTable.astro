@@ -87,6 +87,39 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
 </table>
 
 <script>
+  /**
+   * The row a link points to (#login, e.g. from a badge): case-insensitive, unlike :target, and also after a
+   * client-side navigation, which never updates :target. A malformed #hash must not break the page.
+   */
+  function targetRow(table: HTMLTableElement): HTMLTableRowElement | null {
+    try {
+      const id = decodeURIComponent(location.hash.slice(1)).toLowerCase();
+      if (!/^[a-z0-9](?:[a-z0-9-]{0,38})$/.test(id)) return null;
+      return table.querySelector<HTMLTableRowElement>(`tbody tr[id="${id}"]`);
+    } catch {
+      return null;
+    }
+  }
+
+  /** Marks the linked row; the CSS gives it a quiet tint and a brief flash on arrival. */
+  function markTarget(table: HTMLTableElement): HTMLTableRowElement | null {
+    for (const row of table.querySelectorAll("tr.is-target")) row.classList.remove("is-target");
+    const row = targetRow(table);
+    row?.classList.add("is-target");
+    return row;
+  }
+
+  // Same page, new #login (a typed or followed hash link): move the mark there. Registered once for the document.
+  function onHashChange(): void {
+    const table = document.querySelector<HTMLTableElement>("table.ranking");
+    const row = table ? markTarget(table) : null;
+    if (row) {
+      row.hidden = false;
+      row.scrollIntoView({ block: "center" });
+    }
+  }
+  window.addEventListener("hashchange", onHashChange);
+
   // Runs on the first load and after every client-side navigation (the page is swapped, not reloaded).
   function init(): void {
     // Without JS every row stays visible; the selector only hides rows below the chosen size.
@@ -108,10 +141,7 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
       }
       if (!choices.includes(initial)) initial = Number(table.dataset["top"]);
       // A link to #login must show that row even if it is below the chosen size.
-      let target: HTMLElement | null = null;
-      try {
-        target = location.hash ? document.getElementById(decodeURIComponent(location.hash.slice(1)).toLowerCase()) : null;
-      } catch {} // a malformed #hash must not break the page
+      const target = markTarget(table);
       const targetRank = Number(target?.dataset["rank"]);
       if (targetRank > initial) initial = choices.find((c) => c >= targetRank) ?? initial;
       pick(initial);
@@ -192,9 +222,29 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
   .bronze-row {
     background: var(--bronze-bg);
   }
+  /* The row a badge link opens: a quiet tint with a thin edge, so it stays findable after scrolling without
+     shouting; a brief brighter flash on arrival says "this is you". :target covers pages without JS. */
   tr:target,
-  tr:target:hover {
+  tr.is-target {
     background: var(--highlight);
+  }
+  tr:target > td:first-child,
+  tr.is-target > td:first-child {
+    box-shadow: inset 3px 0 0 var(--highlight-edge);
+  }
+  tr.is-target {
+    animation: arrive 1.6s ease-out;
+  }
+  @keyframes arrive {
+    0%,
+    25% {
+      background: var(--highlight-flash);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    tr.is-target {
+      animation: none;
+    }
   }
   /* Logins use their own token: blue in the light theme, plain text in the dark one; hover only underlines. */
   .who a {
