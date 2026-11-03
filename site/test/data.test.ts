@@ -97,7 +97,7 @@ describe("badges", () => {
     expect(badges.get("solo.all")).toMatchObject({ message: "#2 Alpha (all contributions)", color: "a0a8b0" });
     expect(badges.get("solo.commits")?.message).toBe("#9 Alpha (public commits)");
     expect(badges.get("solo.world")).toMatchObject({
-      message: "#1 in the world (public contributions)",
+      message: "#1 World (public contributions)",
       color: "d4a72c",
     });
   });
@@ -111,8 +111,8 @@ describe("badges", () => {
     // contributions = 100 - rank: "b" (#1 in Beta, 99) is ahead of "a" (#2 in Alpha, 98).
     const countries = [country("a", "Alpha", [row(2, "a", 1)]), country("b", "Beta", [row(1, "b", 2), row(3, "c", 3)])];
     const badges = buildBadges(countries, 2);
-    expect(badges.get("b.world")?.message).toBe("#1 in the world (public contributions)");
-    expect(badges.get("a.world")).toMatchObject({ message: "#2 in the world (public contributions)", color: "a0a8b0" });
+    expect(badges.get("b.world")?.message).toBe("#1 World (public contributions)");
+    expect(badges.get("a.world")).toMatchObject({ message: "#2 World (public contributions)", color: "a0a8b0" });
     expect(badges.has("c.world")).toBe(false);
     expect(badges.has("c")).toBe(true);
   });

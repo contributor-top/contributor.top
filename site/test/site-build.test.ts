@@ -126,9 +126,9 @@ describe("site built from hostile data", () => {
   it("writes world badges that match the world page, and none for countries without a page", () => {
     // octo-cat: 90 in Congo (Kinshasa) beats 50 in Côte d'Ivoire; zed has 40.
     const octo = JSON.parse(readFileSync(join(out, "u", "octo-cat.world.json"), "utf8"));
-    expect(octo.message).toBe("#1 in the world (public contributions)");
+    expect(octo.message).toBe("#1 World (public contributions)");
     expect(JSON.parse(readFileSync(join(out, "u", "zed.world.json"), "utf8")).message).toBe(
-      "#2 in the world (public contributions)",
+      "#2 World (public contributions)",
     );
     const world = readFileSync(join(out, "world", "index.html"), "utf8");
     expect(world).toMatch(/id="octo-cat" data-rank="1"/);
