@@ -10,7 +10,7 @@ transparent methodology and a simple way to opt out.
 
 ## Add your country or city
 
-Open an [Add a country](https://github.com/contributors-top/contributor.top/issues/new?template=add-country.yml)
+Open an [Add a country](https://github.com/contributor-top/contributor.top/issues/new?template=add-country.yml)
 issue, or edit `presets/<country>.yml` directly — see [CONTRIBUTING.md](.github/CONTRIBUTING.md).
 
 ## Development

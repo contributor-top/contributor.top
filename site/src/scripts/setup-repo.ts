@@ -1,7 +1,7 @@
 // Applies repository settings, rulesets, environments and GitHub Pages through the GitHub CLI.
 // Dry run by default; pass --apply to change anything. Run once after the first commit's CI is green,
 // and again after the collector App exists (its ruleset needs the App ID):
-//   npm run setup-repo -- --repo contributors-top/contributor.top --apply
+//   npm run setup-repo -- --repo contributor-top/contributor.top --apply
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";

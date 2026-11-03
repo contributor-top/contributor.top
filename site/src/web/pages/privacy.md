@@ -24,4 +24,4 @@ Copies made before removal: old commits of the public repository, web archives, 
 
 ## Contact
 
-Questions about this page: [open an issue](https://github.com/contributors-top/contributor.top/issues).
+Questions about this page: [open an issue](https://github.com/contributor-top/contributor.top/issues).

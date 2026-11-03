@@ -2,7 +2,7 @@
 # Project settings. Changes go through a PR like any other change.
 
 site:
-  repo: contributors-top/contributor.top # GitHub owner/name shown in the source block
+  repo: contributor-top/contributor.top # GitHub owner/name shown in the source block
 
 ranking:
   top_n: 512 # people shown per country and tab

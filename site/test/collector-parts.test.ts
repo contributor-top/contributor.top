@@ -188,7 +188,7 @@ describe("GitHub App token", () => {
     const token = installationToken({
       appId: "1",
       privateKey: pem,
-      repo: "contributors-top/contributor.top",
+      repo: "contributor-top/contributor.top",
       fetch,
       clock,
     });
@@ -198,7 +198,7 @@ describe("GitHub App token", () => {
     await clock.sleep(15 * 60_000);
     expect(await token()).toBe("ghs_2"); // 5 minutes left: refreshed
     expect(calls.filter((c) => c.startsWith("POST"))).toHaveLength(2);
-    expect(calls[0]).toBe("GET /repos/contributors-top/contributor.top/installation");
+    expect(calls[0]).toBe("GET /repos/contributor-top/contributor.top/installation");
   });
 
   it("fails loudly when the App is not installed or the key is wrong", async () => {
@@ -218,7 +218,7 @@ describe("GitHub App token", () => {
     const token = installationToken({
       appId: "1",
       privateKey: pem,
-      repo: "contributors-top/contributor.top",
+      repo: "contributor-top/contributor.top",
       fetch: flaky,
       clock,
     });
