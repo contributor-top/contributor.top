@@ -63,8 +63,8 @@ describe("badge file names", () => {
       breakdown: {},
     });
     for (const login of ["../../etc/passwd", "a/b", "a\\b", ".hidden", "-x", ""]) {
-      expect(() => buildBadges([country(login)])).toThrow(/invalid login/);
+      expect(() => buildBadges([country(login)], 512)).toThrow(/invalid login/);
     }
-    expect(buildBadges([country("Octo-Cat")]).has("octo-cat")).toBe(true);
+    expect(buildBadges([country("Octo-Cat")], 512).has("octo-cat")).toBe(true);
   });
 });

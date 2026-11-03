@@ -48,6 +48,11 @@ beforeAll(() => {
   writeFileSync(join(dataDir, "countries", "cote_divoire.json"), JSON.stringify(ci));
   writeFileSync(join(dataDir, "countries", "congo_kinshasa.json"), JSON.stringify(cd));
   writeFileSync(join(dataDir, "countries", "empty_land.json"), JSON.stringify(country("empty_land", "Empty Land", [])));
+  // Data left over from a removed preset: no page, so no badge may link to it.
+  writeFileSync(
+    join(dataDir, "countries", "orphan.json"),
+    JSON.stringify(country("orphan", "Orphan", [row(1, "ghost", 99, 999)])),
+  );
   const env = { ...process.env, OUT_DIR: out, DATA_DIR: dataDir, PRESETS_DIR: presetsDir };
   execFileSync(process.execPath, ["node_modules/astro/bin/astro.mjs", "build", "--silent"], { env, stdio: "pipe" });
   execFileSync(process.execPath, ["node_modules/tsx/dist/cli.mjs", "src/scripts/build-badges.ts"], {
@@ -104,6 +109,21 @@ describe("site built from hostile data", () => {
     expect(badge.message).toBe("#1 Congo (Kinshasa) (public contributions)");
     expect(readdirSync(join(out, "u"))).not.toContain("Octo-Cat.json");
     expect(existsSync(join(out, "u", "zed.commits.json"))).toBe(true);
+  });
+
+  it("writes world badges that match the world page, and none for countries without a page", () => {
+    // octo-cat: 90 in Congo (Kinshasa) beats 50 in Côte d'Ivoire; zed has 40.
+    const octo = JSON.parse(readFileSync(join(out, "u", "octo-cat.world.json"), "utf8"));
+    expect(octo.message).toBe("#1 in the world (public contributions)");
+    expect(JSON.parse(readFileSync(join(out, "u", "zed.world.json"), "utf8")).message).toBe(
+      "#2 in the world (public contributions)",
+    );
+    const world = readFileSync(join(out, "world", "index.html"), "utf8");
+    expect(world).toMatch(/id="octo-cat" data-rank="1"/);
+    expect(world).toMatch(/id="zed" data-rank="2"/);
+    expect(world).not.toContain("ghost");
+    expect(existsSync(join(out, "u", "ghost.json"))).toBe(false);
+    expect(existsSync(join(out, "u", "ghost.world.json"))).toBe(false);
   });
 
   it("keeps the CSP: every inline script is hashed", () => {

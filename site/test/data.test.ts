@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { badgeColor, buildBadges } from "../src/collector/badges.ts";
 import { type CountryData, countryDataSchema } from "../src/collector/country-data.ts";
 import { dataDir, loadCountries, presetsDir } from "../src/collector/data-dir.ts";
+import { worldRanking } from "../src/collector/world.ts";
 
 const row = (rank: number, login: string, id: number) => ({ rank, login, id, contributions: 100 - rank });
 const country = (slug: string, title: string, rows: ReturnType<typeof row>[]): CountryData => ({
@@ -71,10 +72,10 @@ describe("badges", () => {
   });
 
   it("keys by lowercase login and keeps the best rank across countries", () => {
-    const badges = buildBadges([
-      country("a", "Alpha", [row(5, "Octo", 1), row(1, "solo", 2)]),
-      country("b", "Beta", [row(2, "octo", 1)]),
-    ]);
+    const badges = buildBadges(
+      [country("a", "Alpha", [row(5, "Octo", 1), row(1, "solo", 2)]), country("b", "Beta", [row(2, "octo", 1)])],
+      512,
+    );
     expect(badges.get("octo")?.message).toBe("#2 Beta (public contributions)");
     expect(badges.get("solo")).toMatchObject({
       schemaVersion: 1,
@@ -85,19 +86,62 @@ describe("badges", () => {
     expect(badges.has("Octo")).toBe(false);
   });
 
-  it("writes one badge per ranking: public, all and commits", () => {
+  it("writes one badge per ranking: public, all, commits and world", () => {
     const data = country("a", "Alpha", [row(1, "solo", 2)]);
-    const badges = buildBadges([
-      { ...data, tabs: { public: [row(4, "solo", 2)], all: [row(2, "solo", 2)], commits: [row(9, "solo", 2)] } },
-    ]);
-    expect([...badges.keys()].sort()).toEqual(["solo", "solo.all", "solo.commits"]);
+    const badges = buildBadges(
+      [{ ...data, tabs: { public: [row(4, "solo", 2)], all: [row(2, "solo", 2)], commits: [row(9, "solo", 2)] } }],
+      512,
+    );
+    expect([...badges.keys()].sort()).toEqual(["solo", "solo.all", "solo.commits", "solo.world"]);
     expect(badges.get("solo")?.message).toBe("#4 Alpha (public contributions)");
     expect(badges.get("solo.all")).toMatchObject({ message: "#2 Alpha (all contributions)", color: "a0a8b0" });
     expect(badges.get("solo.commits")?.message).toBe("#9 Alpha (public commits)");
+    expect(badges.get("solo.world")).toMatchObject({
+      message: "#1 in the world (public contributions)",
+      color: "d4a72c",
+    });
   });
 
   it("breaks equal ranks by country title", () => {
-    const badges = buildBadges([country("b", "Beta", [row(3, "x", 1)]), country("a", "Alpha", [row(3, "x", 1)])]);
+    const badges = buildBadges([country("b", "Beta", [row(3, "x", 1)]), country("a", "Alpha", [row(3, "x", 1)])], 512);
     expect(badges.get("x")?.message).toBe("#3 Alpha (public contributions)");
+  });
+
+  it("ranks the world badge across countries and writes it only for the world top", () => {
+    // contributions = 100 - rank: "b" (#1 in Beta, 99) is ahead of "a" (#2 in Alpha, 98).
+    const countries = [country("a", "Alpha", [row(2, "a", 1)]), country("b", "Beta", [row(1, "b", 2), row(3, "c", 3)])];
+    const badges = buildBadges(countries, 2);
+    expect(badges.get("b.world")?.message).toBe("#1 in the world (public contributions)");
+    expect(badges.get("a.world")).toMatchObject({ message: "#2 in the world (public contributions)", color: "a0a8b0" });
+    expect(badges.has("c.world")).toBe(false);
+    expect(badges.has("c")).toBe(true);
+  });
+});
+
+describe("world ranking", () => {
+  it("counts each person once, with their best country, re-ranked", () => {
+    const rows = worldRanking(
+      [country("a", "Alpha", [row(5, "Octo", 1)]), country("b", "Beta", [row(2, "octo", 1), row(3, "zed", 2)])],
+      10,
+    );
+    expect(rows).toEqual([
+      { rank: 1, login: "octo", id: 1, contributions: 98, country: "Beta" },
+      { rank: 2, login: "zed", id: 2, contributions: 97, country: "Beta" },
+    ]);
+  });
+
+  it("is the same whatever order the countries come in (the page and the badges load them differently)", () => {
+    const alpha = country("a", "Alpha", [row(3, "x", 1), row(4, "B", 2)]);
+    const beta = country("b", "Beta", [row(3, "x", 1), row(4, "a", 3)]);
+    const forward = worldRanking([alpha, beta], 10);
+    expect(worldRanking([beta, alpha], 10)).toEqual(forward);
+    // Equal counts: the alphabetically first country; equal contributions: lowercase login order.
+    expect(forward.map((r) => `${r.login}:${r.country}`)).toEqual(["x:Alpha", "a:Beta", "B:Alpha"]);
+  });
+
+  it("keeps at most topN rows and never a negative slice", () => {
+    const data = [country("a", "Alpha", [row(1, "a", 1), row(2, "b", 2), row(3, "c", 3)])];
+    expect(worldRanking(data, 2).map((r) => r.login)).toEqual(["a", "b"]);
+    expect(worldRanking(data, -1)).toEqual([]);
   });
 });

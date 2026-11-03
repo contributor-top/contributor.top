@@ -2,7 +2,8 @@
 import Base from "../layouts/Base.astro";
 import { countryEntries } from "../lib/site.ts";
 
-// Badge links point here: /find/?login=…&tab=… opens that person's row in their best country ranking.
+// Badge links point here: /find/?login=…&tab=… opens that person's row in their best country ranking,
+// or, with tab=world, in the world ranking.
 const slugs = Object.fromEntries(countryEntries.map((c) => [c.title, c.slug]));
 ---
 
@@ -14,10 +15,12 @@ const slugs = Object.fromEntries(countryEntries.map((c) => [c.title, c.slug]));
     // Runs on the first load and after every client-side navigation (the page is swapped, not reloaded).
     function init(): void {
       // Ranking → badge file suffix and page path; nothing outside these values ever reaches a URL.
-      const TABS: Record<string, { suffix: string; path: string }> = {
+      // "world" has one page, so its badge file is only checked for existence, never parsed for a country.
+      const TABS: Record<string, { suffix: string; path: string; world?: true }> = {
         public: { suffix: "", path: "" },
         all: { suffix: ".all", path: "all/" },
         commits: { suffix: ".commits", path: "commits/" },
+        world: { suffix: ".world", path: "", world: true },
       };
       const status = document.getElementById("status");
       if (status) {
@@ -43,6 +46,11 @@ const slugs = Object.fromEntries(countryEntries.map((c) => [c.title, c.slug]));
           fetch(`/u/${name}${tab.suffix}.json`)
             .then((res) => (res.ok ? res.json() : null))
             .then((badge: { message?: unknown } | null) => {
+              if (tab.world) {
+                if (badge) location.replace(`/world/#${name}`);
+                else notFound();
+                return;
+              }
               // "#17 Atlantis (public contributions)" → "Atlantis"
               const title = String(badge?.message ?? "").replace(/^#\d+\s+(.+?)\s+\([^()]*\)$/, "$1");
               const slug = slugs[title];

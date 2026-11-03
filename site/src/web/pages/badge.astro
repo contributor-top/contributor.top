@@ -1,5 +1,5 @@
 ---
-import { BADGE_KINDS, badgeColor } from "../../collector/badges.ts";
+import { BADGE_KINDS, badgeColor, WORLD_BADGE } from "../../collector/badges.ts";
 import Base from "../layouts/Base.astro";
 
 const site = (Astro.site?.href ?? "https://contributors.top/").replace(/\/$/, "");
@@ -8,19 +8,25 @@ const rankings = [
   ["public", "Public contributions"],
   ["all", "All contributions"],
   ["commits", "Commits"],
-  ["three", "All three"],
+  ["world", "World"],
+  ["every", "All four"],
 ] as const;
 // A fictional country, so the example never looks like a real person's rank.
 const exampleCountry = "Atlantis";
+// "All four" shows one of each; a single ranking shows all four ranks in it.
 const examples = [
   [1, "public"],
   [2, "all"],
   [3, "commits"],
-  [42, "public"],
+  [42, "world"],
 ] as const;
+/** Per ranking: the badge file suffix, the place ("Atlantis" or "in the world") and the label. */
+const kinds = {
+  ...Object.fromEntries(Object.entries(BADGE_KINDS).map(([k, v]) => [k, { ...v, place: exampleCountry }])),
+  world: { suffix: WORLD_BADGE.suffix, label: WORLD_BADGE.label, place: WORLD_BADGE.place },
+} as Record<string, { suffix: string; label: string; place: string }>;
+const exampleOf = (kind: string) => kinds[kind] ?? { suffix: "", label: "", place: "" };
 const PLACEHOLDER = "YOUR_LOGIN";
-const labels = JSON.stringify(Object.fromEntries(Object.entries(BADGE_KINDS).map(([k, v]) => [k, v.label])));
-const suffixes = JSON.stringify(Object.fromEntries(Object.entries(BADGE_KINDS).map(([k, v]) => [k, v.suffix])));
 ---
 
 <Base
@@ -32,7 +38,7 @@ const suffixes = JSON.stringify(Object.fromEntries(Object.entries(BADGE_KINDS).m
     Show your rank in your GitHub profile README. The badge updates by itself whenever your country is updated.
   </p>
 
-  <div id="badge-area" data-style="flat" data-site={site} data-placeholder={PLACEHOLDER} data-suffixes={suffixes} data-labels={labels}>
+  <div id="badge-area" data-style="flat" data-site={site} data-placeholder={PLACEHOLDER} data-kinds={JSON.stringify(kinds)}>
     <div class="examples" aria-label="Examples">
       {
         examples.map(([rank, kind]) => (
@@ -47,15 +53,17 @@ const suffixes = JSON.stringify(Object.fromEntries(Object.entries(BADGE_KINDS).m
               contributors.top
             </span>
             <span class="message" style={`--badge: #${badgeColor(rank)}`}>
-              #{rank} {exampleCountry} (<span class="kind" data-mixed={BADGE_KINDS[kind].label}>{BADGE_KINDS.public.label}</span>)
+              #{rank} <span class="place" data-mixed={exampleOf(kind).place}>{exampleCountry}</span> (<span
+                class="kind"
+                data-mixed={exampleOf(kind).label}>{BADGE_KINDS.public.label}</span>)
             </span>
           </span>
         ))
       }
     </div>
     <p class="muted">
-      One badge per ranking: public contributions, all contributions, public commits. Gold, silver and bronze for the top 3,
-      blue for everyone else.
+      One badge per ranking: public contributions, all contributions and public commits in your country, and your
+      place in the world ranking. Gold, silver and bronze for the top 3, blue for everyone else.
     </p>
 
     <form id="badge-form" class="form">
@@ -85,7 +93,7 @@ const suffixes = JSON.stringify(Object.fromEntries(Object.entries(BADGE_KINDS).m
     <p class="muted note">
       Replace <code>{PLACEHOLDER}</code> with your login if you did not fill it in. A badge shows your rank once you
       are in that ranking (see <a href="/methodology/">who is considered</a>); until then shields.io shows it as not
-      found. The link opens your row in your country's ranking.
+      found. The link opens your country's ranking (or the world ranking) with your row highlighted.
     </p>
   </div>
 
@@ -101,11 +109,9 @@ const suffixes = JSON.stringify(Object.fromEntries(Object.entries(BADGE_KINDS).m
       if (area && login && ranking && style && md && html) {
         const site = area.dataset["site"] ?? "https://contributors.top";
         const placeholder = area.dataset["placeholder"] ?? "YOUR_LOGIN";
-        let suffixes: Record<string, string> = {};
-        let labels: Record<string, string> = {};
+        let kinds: Record<string, { suffix: string; label: string; place: string }> = {};
         try {
-          suffixes = JSON.parse(area.dataset["suffixes"] ?? "{}");
-          labels = JSON.parse(area.dataset["labels"] ?? "{}");
+          kinds = JSON.parse(area.dataset["kinds"] ?? "{}");
         } catch {}
         const STYLES = [...style.options].map((o) => o.value);
         const RANKINGS = [...ranking.options].map((o) => o.value);
@@ -116,7 +122,8 @@ const suffixes = JSON.stringify(Object.fromEntries(Object.entries(BADGE_KINDS).m
         if (fromUrl && VALID.test(fromUrl)) login.value = fromUrl;
         const styleFromUrl = params.get("style");
         if (styleFromUrl && STYLES.includes(styleFromUrl)) style.value = styleFromUrl;
-        const rankingFromUrl = params.get("ranking");
+        // "three" was the "all of them" choice before the world badge; old links still work.
+        const rankingFromUrl = params.get("ranking") === "three" ? "every" : params.get("ranking");
         if (rankingFromUrl && RANKINGS.includes(rankingFromUrl)) ranking.value = rankingFromUrl;
 
         const render = () => {
@@ -125,13 +132,17 @@ const suffixes = JSON.stringify(Object.fromEntries(Object.entries(BADGE_KINDS).m
           const chosen = STYLES.includes(style.value) ? style.value : "flat";
           const which = RANKINGS.includes(ranking.value) ? ranking.value : "public";
           area.dataset["style"] = chosen;
-          // Example badges follow the chosen ranking; "All three" shows one of each.
-          for (const kind of area.querySelectorAll<HTMLElement>(".examples .kind")) {
-            kind.textContent = which === "three" ? (kind.dataset["mixed"] ?? "") : (labels[which] ?? "");
+          // Example badges follow the chosen ranking; "All four" shows one of each.
+          const every = which === "every";
+          for (const place of area.querySelectorAll<HTMLElement>(".examples .place")) {
+            place.textContent = every ? (place.dataset["mixed"] ?? "") : (kinds[which]?.place ?? "");
           }
-          const kinds = which === "three" ? ["public", "all", "commits"] : [which];
-          const items = kinds.map((kind) => {
-            const json = encodeURIComponent(`${site}/u/${name}${suffixes[kind] ?? ""}.json`);
+          for (const kind of area.querySelectorAll<HTMLElement>(".examples .kind")) {
+            kind.textContent = every ? (kind.dataset["mixed"] ?? "") : (kinds[which]?.label ?? "");
+          }
+          const chosenKinds = every ? ["public", "all", "commits", "world"] : [which];
+          const items = chosenKinds.map((kind) => {
+            const json = encodeURIComponent(`${site}/u/${name}${kinds[kind]?.suffix ?? ""}.json`);
             const tab = kind === "public" ? "" : `&tab=${kind}`;
             return {
               image: `https://img.shields.io/endpoint?url=${json}&style=${chosen}`,

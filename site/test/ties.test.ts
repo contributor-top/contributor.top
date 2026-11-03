@@ -65,7 +65,7 @@ describe("other branches", () => {
       [country("a", "Alpha"), country("b", "Beta")],
       [country("b", "Beta"), country("a", "Alpha")],
     ]) {
-      expect(buildBadges(input).get("x")?.message).toBe("#2 Alpha (public contributions)");
+      expect(buildBadges(input, 512).get("x")?.message).toBe("#2 Alpha (public contributions)");
     }
   });
 });
