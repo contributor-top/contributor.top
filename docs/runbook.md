@@ -46,7 +46,9 @@ Restore the previous data with the `data-prev` branch, then run the collector fo
 ## Manual removal request
 
 1. Check that the request comes from the account owner.
-2. `npm run optout:hash -- <login>` locally (needs the backup of `OPTOUT_KEY`) _(planned)_.
+2. `npm run optout:hash -- <login>` locally (needs the backup of `OPTOUT_KEY`) _(planned)_. The list on the `optout`
+   branch (`list.enc`) is encrypted with a key derived from `OPTOUT_KEY`: without the key backup it cannot be read or
+   edited, and the collector stops rather than start from an empty list.
 3. Run `optout-manual` with the hash only — never the login or ID: workflow inputs are public.
 
 ## Spam wave

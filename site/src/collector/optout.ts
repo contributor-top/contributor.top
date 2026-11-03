@@ -1,8 +1,8 @@
 import { createHmac } from "node:crypto";
 
 /**
- * The opt-out list stores HMAC-SHA256(id) with a secret key, so the public file
- * does not reveal who asked to be removed.
+ * The opt-out list stores HMAC-SHA256(id) with a secret key, so it does not reveal who asked to be removed;
+ * the list itself is encrypted as well (optout-list.ts), so it does not reveal how many or when either.
  */
 export function optoutHash(githubId: number, key: string): string {
   if (!Number.isSafeInteger(githubId) || githubId <= 0) throw new RangeError("githubId must be a positive integer");

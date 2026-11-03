@@ -12,7 +12,7 @@
 //   HEALTHCHECK_URL   pinged at the end (/fail when nothing could be collected)
 // Logs carry slugs and counts only: no logins, IDs or locations.
 import { execFileSync } from "node:child_process";
-import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { appBotIdentity, installationToken } from "../collector/app-token.ts";
 import { breakerReasons } from "../collector/breaker.ts";
@@ -20,12 +20,22 @@ import { loadConfig } from "../collector/config.ts";
 import { collectCountry } from "../collector/country.ts";
 import type { CountryData } from "../collector/country-data.ts";
 import { loadCountries } from "../collector/data-dir.ts";
+import { olderThan } from "../collector/freshness.ts";
 import { AuthError, GitHubGraphQL, OutOfTimeError } from "../collector/github.ts";
 import { optoutHash } from "../collector/optout.ts";
-import { mentionsAny, parseHashes, purgeCountry, serializeHashes } from "../collector/optout-list.ts";
+import {
+  decryptHashes,
+  encryptHashes,
+  LEGACY_FILE,
+  LIST_FILE,
+  mentionsAny,
+  parseHashes,
+  purgeCountry,
+} from "../collector/optout-list.ts";
 import { loadPresets } from "../collector/preset.ts";
 import { dueCountries } from "../collector/queue.ts";
 import { scrub } from "../collector/scrub.ts";
+import { optedOutByStatus, publishedPeople } from "../collector/sweep.ts";
 import { fitsBefore, parseTimings, reserveMs, serializeTimings, shouldContinue } from "../collector/timing.ts";
 import { BranchStore, type Identity } from "./branch-store.ts";
 
@@ -62,15 +72,28 @@ if (publish) await Promise.all([dataStore.prepare(), optoutStore.prepare()]);
 mkdirSync(join(dataStore.dir, "countries"), { recursive: true });
 mkdirSync(optoutStore.dir, { recursive: true });
 
-const hashesFile = join(optoutStore.dir, "hashes.txt");
-/** Read without a separate existence check (no window between check and use); missing means the first run. */
-function readHashes(): Set<string> {
+const listFile = join(optoutStore.dir, LIST_FILE);
+const legacyFile = join(optoutStore.dir, LEGACY_FILE);
+/** Read without a separate existence check (no window between check and use); missing means absent. */
+function readOptional(file: string): string | null {
   try {
-    return parseHashes(readFileSync(hashesFile, "utf8"));
+    return readFileSync(file, "utf8");
   } catch (e) {
-    if ((e as NodeJS.ErrnoException).code === "ENOENT") return new Set();
+    if ((e as NodeJS.ErrnoException).code === "ENOENT") return null;
     throw e;
   }
+}
+/**
+ * The encrypted list, plus the plain list it replaced while that still exists. Neither one means the first run;
+ * a list that cannot be read stops the run instead of counting as empty.
+ */
+function readHashes(): Set<string> {
+  const hashes = new Set<string>();
+  const list = readOptional(listFile);
+  if (list !== null) for (const hash of decryptHashes(list, optoutKey)) hashes.add(hash);
+  const legacy = readOptional(legacyFile);
+  if (legacy !== null) for (const hash of parseHashes(legacy)) hashes.add(hash);
+  return hashes;
 }
 const hashes = readHashes();
 /** What this run changed in the opt-out list; applied on top of the file, so hashes added by others survive. */
@@ -80,7 +103,9 @@ function writeHashes(): void {
   for (const hash of optoutDelta.added) merged.add(hash);
   for (const hash of optoutDelta.removed) merged.delete(hash);
   for (const hash of merged) hashes.add(hash);
-  writeFileSync(hashesFile, serializeHashes(merged));
+  // A fresh nonce every time: the file changes on every write, whether anyone opted out or not.
+  writeFileSync(listFile, encryptHashes(merged, optoutKey));
+  rmSync(legacyFile, { force: true });
 }
 
 const presets = loadPresets("../presets", config.reserved_slugs);
@@ -221,7 +246,46 @@ async function publishAll(label: string): Promise<void> {
     if (Date.now() - lastDeploy > DEPLOY_EVERY_MS) await deploy();
   });
 }
-if (privacyChanged) await publishAll("remove opted-out people");
+// Neutral labels: commit messages must not say that someone left.
+if (privacyChanged) await publishAll("start of run");
+
+// A country's collection reads its people's statuses; one that keeps failing never would. So the people still
+// shown in overdue countries are checked here, by status only, at the start of every run.
+{
+  const listed = [...countries.values()].filter((c) => presets.has(c.slug));
+  const overdue = olderThan(listed, new Date(), config.freshness.target_hours).map(
+    (s) => countries.get(s.slug) as CountryData,
+  );
+  if (overdue.length > 0) {
+    const client = clients[0] as GitHubGraphQL;
+    const t0 = Date.now();
+    const cost0 = client.usage.cost;
+    const people = publishedPeople(overdue, (id) => hashes.has(optoutHash(id, optoutKey)));
+    let result = `checked ${people.length} people shown in ${overdue.length} overdue countries`;
+    try {
+      const { optout_phrase: optout, optin_phrase: optin } = config.privacy;
+      const ids = await optedOutByStatus(client, people, { optout, optin });
+      if (ids.length > 0) {
+        applyOptouts(
+          ids.map((id) => ({ id, hash: optoutHash(id, optoutKey) })),
+          [],
+        );
+        await publishAll("status check");
+      }
+    } catch (e) {
+      if (e instanceof AuthError) throw e;
+      result = `failed: ${scrub(e instanceof Error ? e.message : String(e))}`;
+    }
+    // Counts of people checked only: how many opted out stays out of the public log.
+    report.push({
+      slug: "(statuses)",
+      result,
+      minutes: ((Date.now() - t0) / 60_000).toFixed(1),
+      cost: client.usage.cost - cost0,
+    });
+    console.log(`(statuses): ${result}`);
+  }
+}
 
 let stopped = false;
 /** Countries this run is done with, collected or not; the rest of the queue is left for the next run. */
@@ -258,7 +322,8 @@ async function collectOne(client: GitHubGraphQL, { slug, reason }: (typeof queue
     writeTimings();
     finished.add(slug);
     const s = result.stats;
-    outcome += ` · candidates ${s.candidates}, other country ${s.otherCountry}, skipped ${s.skipped}, opt-outs +${s.optedOut}/-${s.optedIn}`;
+    // No opt-out counts: next to the data's history they would tell who left (#52).
+    outcome += ` · candidates ${s.candidates}, other country ${s.otherCountry}, skipped ${s.skipped}`;
     await publishAll(slug);
     line(outcome);
   } catch (e) {
@@ -291,7 +356,11 @@ await Promise.all(clients.map(worker));
 // branch stays small, and data-prev keeps the previous snapshot unless someone opted out in this run.
 try {
   await publishAll("end of run");
-  if (publish) await dataStore.squash(`data: snapshot ${new Date().toISOString()}`, "data-prev", !privacyChanged);
+  if (publish) {
+    await dataStore.squash(`data: snapshot ${new Date().toISOString()}`, "data-prev", !privacyChanged);
+    // The opt-out branch keeps no history either: one commit of the encrypted list.
+    await optoutStore.squash(`optout: snapshot ${new Date().toISOString()}`, null, false);
+  }
 } catch (e) {
   failed++;
   report.push({
