@@ -183,24 +183,29 @@ let updated = 0;
 let failed = 0;
 let lastDeploy = started;
 
-/** Starts a workflow on main; a failure is logged, never fatal (the next run or the cron tries again). */
-async function dispatch(workflow: "deploy.yml" | "update.yml"): Promise<void> {
+type Workflow = "deploy.yml" | "update.yml";
+
+/** One call to a workflow's Actions API; a failure is logged, never fatal (the next run or the cron tries again). */
+async function workflowApi(workflow: Workflow, action: "dispatches" | "enable"): Promise<void> {
   if (!publish || !appToken) return;
   try {
-    const response = await fetch(`https://api.github.com/repos/${repo}/actions/workflows/${workflow}/dispatches`, {
-      method: "POST",
+    const response = await fetch(`https://api.github.com/repos/${repo}/actions/workflows/${workflow}/${action}`, {
+      method: action === "dispatches" ? "POST" : "PUT",
       headers: {
         Authorization: `Bearer ${await appToken()}`,
         Accept: "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
       },
-      body: JSON.stringify({ ref: "main" }),
+      ...(action === "dispatches" ? { body: JSON.stringify({ ref: "main" }) } : {}),
     });
-    if (response.status !== 204) console.log(`${workflow} dispatch returned ${response.status}`);
+    if (response.status !== 204) console.log(`${workflow} ${action} returned ${response.status}`);
   } catch (e) {
-    console.log(`${workflow} dispatch failed: ${scrub(e instanceof Error ? e.message : String(e))}`);
+    console.log(`${workflow} ${action} failed: ${scrub(e instanceof Error ? e.message : String(e))}`);
   }
 }
+
+/** Starts a workflow on main. */
+const dispatch = (workflow: Workflow) => workflowApi(workflow, "dispatches");
 
 async function deploy(): Promise<void> {
   lastDeploy = Date.now();
@@ -382,6 +387,10 @@ const left = dueCountries({
 }).filter((item) => !finished.has(item.slug)).length;
 const continuing = publish && shouldContinue({ left, updated });
 if (continuing) await dispatch("update.yml");
+// GitHub disables a public repository's scheduled workflows after 60 days without activity. Once every country is
+// fresh, only the hourly cron starts the next cycle, so a disabled schedule would stop collection silently (and the
+// stale-data alert, which runs after collection, with it). Enabling it again after every run keeps it alive.
+await workflowApi("update.yml", "enable");
 
 const sum = (pick: (c: GitHubGraphQL) => number) => clients.reduce((total, c) => total + pick(c), 0);
 const summary = [
