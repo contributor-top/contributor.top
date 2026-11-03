@@ -19,14 +19,16 @@ collector:
   parallel_countries: 3
   pause_ms: 250 # pause between requests (reads only: a request itself takes 2–7 s)
   max_skipped_per_country: 5 # users that never load; above this the country is not updated
-  budget_floor: 0.2 # keep 20% of the hourly limit: the collector uses at most 80%, then waits for the reset
+  budget_floor: 0.2 # a ceiling, not a target: below 20% of the hourly limit left, wait for the reset
 
-# Measured: ~120 API points and 5–11 min per country, 150 countries, so a full cycle is ~20 h of runner time and
-# ~18k points. Runs are continuous (hourly cron, queued); one worker uses ~1200 points/h, three ~70% of the limit.
+# Measured (3 runs, Oct 2026, three workers): ~113 points and ~17 min per country on average, up to 35 min for the
+# biggest; ~10 countries and ~1150 points per hour in total, about 23% of the limit: the secondary limit, not the
+# points, sets the pace. A full cycle of 150 countries is ~15 h of runs, well within target_hours. A run that runs
+# out of time starts the next one itself; the hourly cron is the fallback (GitHub drops many scheduled runs).
 freshness:
   target_hours: 48 # each country is refreshed about this often
   min_refresh_hours: 40 # never refresh a country more often than this; a run with nothing due ends right away
-  max_run_minutes: 300 # one run; GitHub stops a job at 6 h, the next run is queued by update.yml
+  max_run_minutes: 300 # one run; GitHub stops a job at 6 h. A country starts only if its last time (+50%) fits
   stale_days: 3 # a country older than this opens an alert
 
 circuit_breaker:
