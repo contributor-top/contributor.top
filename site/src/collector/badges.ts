@@ -24,10 +24,11 @@ export const BADGE_KINDS: Readonly<Record<Tab, { suffix: string; label: string }
 };
 
 /**
- * The world badge, u/<login>.world.json: "#7 in the world (public contributions)". Its place is a fixed phrase,
- * never a country title, so a country can never be mistaken for the world ranking or the other way round.
+ * The world badge, u/<login>.world.json: "#7 World (public contributions)", worded like the country badges.
+ * /find/ tells it apart by tab=world and its own file, never by this text, so a country titled "World" could
+ * not be mistaken for it.
  */
-export const WORLD_BADGE = { suffix: ".world", place: "in the world", label: "public contributions" } as const;
+export const WORLD_BADGE = { suffix: ".world", place: "World", label: "public contributions" } as const;
 
 type Best = { rank: number; title: string };
 

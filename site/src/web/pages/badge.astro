@@ -20,7 +20,7 @@ const examples = [
   [3, "commits"],
   [42, "world"],
 ] as const;
-/** Per ranking: the badge file suffix, the place ("Atlantis" or "in the world") and the label. */
+/** Per ranking: the badge file suffix, the place ("Atlantis" or "World") and the label. */
 const kinds = {
   ...Object.fromEntries(Object.entries(BADGE_KINDS).map(([k, v]) => [k, { ...v, place: exampleCountry }])),
   world: { suffix: WORLD_BADGE.suffix, label: WORLD_BADGE.label, place: WORLD_BADGE.place },
