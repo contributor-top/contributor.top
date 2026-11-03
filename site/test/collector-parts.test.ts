@@ -165,7 +165,10 @@ describe("GitHub App token", () => {
       calls.push(`${init.method} ${url.replace("https://api.github.com", "")}`);
       if (url.endsWith("/installation")) return response(json({ id: 42 }));
       if (url.endsWith("/access_tokens")) {
-        expect(JSON.parse(init.body ?? "{}")).toEqual({ repositories: ["contributors.top"] });
+        expect(JSON.parse(init.body ?? "{}")).toEqual({
+          repositories: ["contributors.top"],
+          permissions: { contents: "write", actions: "write" },
+        });
         return response(
           json({ token: `ghs_${++issued}`, expires_at: new Date(clock.now() + expiresInMs).toISOString() }),
         );
@@ -180,7 +183,7 @@ describe("GitHub App token", () => {
     return { clock, calls, fetch };
   }
 
-  it("issues a repository-scoped installation token, caches it and refreshes it before it expires", async () => {
+  it("issues a repository- and permission-scoped installation token, caches it and refreshes it before it expires", async () => {
     const { clock, calls, fetch } = api(3_600_000);
     const token = installationToken({
       appId: "1",

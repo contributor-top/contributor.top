@@ -103,7 +103,7 @@ function purge(slug: string, data: CountryData, ids: ReadonlySet<number>): void 
   writeCountry(purged);
   privacyChanged = true;
 }
-// Everyone on the opt-out list leaves the published data now, however they were added (status, issue, by hand).
+// Everyone on the opt-out list leaves the published data now, however they were added (status or by hand).
 for (const [slug, data] of countries) {
   const ids = new Set(
     Object.values(data.tabs)

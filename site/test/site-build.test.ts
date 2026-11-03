@@ -111,6 +111,18 @@ describe("site built from hostile data", () => {
     expect(existsSync(join(out, "u", "zed.commits.json"))).toBe(true);
   });
 
+  it("puts the CSP first in <head>: a meta policy covers only what comes after it", () => {
+    for (const page of files(out).filter((f) => f.endsWith(".html"))) {
+      const html = readFileSync(page, "utf8");
+      const csp = html.search(/<meta http-equiv="content-security-policy"/i);
+      expect(csp, page).toBeGreaterThan(-1);
+      expect(html.match(/content-security-policy/gi), page).toHaveLength(1);
+      expect(csp, page).toBe(html.indexOf('<meta charset="utf-8">') + '<meta charset="utf-8">'.length);
+      expect(csp, page).toBeLessThan(html.indexOf("<script"));
+      expect(csp, page).toBeLessThan(html.indexOf("<title>"));
+    }
+  });
+
   it("writes world badges that match the world page, and none for countries without a page", () => {
     // octo-cat: 90 in Congo (Kinshasa) beats 50 in Côte d'Ivoire; zed has 40.
     const octo = JSON.parse(readFileSync(join(out, "u", "octo-cat.world.json"), "utf8"));
