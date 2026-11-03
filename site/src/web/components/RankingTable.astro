@@ -1,8 +1,9 @@
 ---
 import type { CountryData, Row } from "../../collector/country-data.ts";
-import { compactNumber, isMostlyPrivate, privateShare } from "../../collector/flags.ts";
+import { compactNumber, isLikelyAutomated, isMostlyPrivate, privateShare } from "../../collector/flags.ts";
 import type { Tab } from "../../collector/rank.ts";
 import { config, formatNumber } from "../lib/site.ts";
+import BotIcon from "./BotIcon.astro";
 import LockIcon from "./LockIcon.astro";
 
 type Props = { rows: (Row & { country?: string })[]; breakdown?: CountryData["breakdown"]; tab?: Tab };
@@ -43,6 +44,9 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
         const b = breakdown?.[String(row.id)];
         const flagged =
           tab === "all" && b !== undefined && isMostlyPrivate(publicOf(b), b.private, config.ranking.private_flag_share);
+        // Commit farms stay in country rankings, marked; the world ranking leaves them out.
+        const automated = b !== undefined && isLikelyAutomated(b, config.ranking.automated);
+        const automatedText = "Almost only commits: likely automated, not in the world ranking";
         const flagText = b
           ? `${Math.round(privateShare(publicOf(b), b.private) * 100)}% private, can't be verified`
           : "";
@@ -72,6 +76,11 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
               </div>
             </td>
             <td class="c">
+              {automated && (
+                <span class="flag tip-end" tabindex="0" data-tip={automatedText} aria-label={automatedText} role="img">
+                  <BotIcon />
+                </span>
+              )}
               {flagged && (
                 <span class="flag tip-end" tabindex="0" data-tip={flagText} aria-label={flagText} role="img">
                   <LockIcon />

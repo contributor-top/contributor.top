@@ -25,6 +25,8 @@ Ties are broken by follower count, then by login.
 
 Under every name: `C` public commits, `PR` pull requests, `IS` issues, `RV` reviews and a lock for private contributions (hover for exact numbers). GitHub reports private activity as a single number that cannot be split or verified, so in the **All contributions** ranking a small lock next to the total marks people whose contributions are almost entirely (90% or more) private. They are not removed: many people work on closed-source code. The main ranking uses public contributions only.
 
+Some accounts report an enormous number of commits and almost no other activity: no pull requests, issues or reviews. That is what a script committing to the same repository all day looks like. Such accounts are marked with a small robot in country rankings and are left out of the world ranking and the world badges.
+
 ## Why am I not listed?
 
 - Your profile location does not match any string in your country's preset. Location is free text: add your city or country, or open a pull request to the preset.

@@ -12,6 +12,7 @@ const presets = loadPresets(presetsDir(), config.reserved_slugs);
 const countries = loadCountries().filter((c) => presets.has(c.slug));
 const out = join(process.env["OUT_DIR"] ?? "dist", "u");
 mkdirSync(out, { recursive: true });
-const badges = buildBadges(countries, config.ranking.world_top_n);
+// The same world ranking as the /world/ page: commit farms are left out of both.
+const badges = buildBadges(countries, config.ranking.world_top_n, config.ranking.automated);
 for (const [name, badge] of badges) writeFileSync(join(out, `${name}.json`), JSON.stringify(badge));
 console.log(`${badges.size} badges written to ${out}`);

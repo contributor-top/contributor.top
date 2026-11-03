@@ -32,11 +32,12 @@ export const TAB_META: Record<Tab, { label: string; short: string; path: string;
   commits: { label: "Commits", short: "Commits", path: "commits", note: "Public commits in the last 12 months." },
 };
 
-/** The world ranking from every listed country; the same function builds the world badges. */
+/** The world ranking from every listed country, without commit farms; the same function builds the world badges. */
 export const worldRows = (): WorldRow[] =>
   worldRanking(
     countryEntries.flatMap((c) => (c.data ? [c.data] : [])),
     config.ranking.world_top_n,
+    config.ranking.automated,
   );
 
 export const formatDate = (iso: string): string =>

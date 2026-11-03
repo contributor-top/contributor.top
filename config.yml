@@ -11,6 +11,13 @@ ranking:
   consider: 1000 # most-followed candidates examined per country
   world_top_n: 512
   private_flag_share: 0.9 # in "all contributions", warn when this share of contributions is private
+  # Commit farms (a script committing all day): at least this many commits a year, and at least `ratio` times as many
+  # commits as pull requests, issues and reviews together. Measured Nov 2026: 74 of 72,884 people, all in a country
+  # top 10, while heavy contributors with real PR and review work stay well below. Left out of the world ranking and
+  # the world badges, marked in country rankings.
+  automated:
+    min_commits: 20000
+    ratio: 50
 
 collector:
   batch_size: 10 # users per GraphQL request

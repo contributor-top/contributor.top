@@ -1,4 +1,5 @@
 import { type CountryData, LOGIN } from "./country-data.ts";
+import type { AutomatedRule } from "./flags.ts";
 import type { Tab } from "./rank.ts";
 import { worldRanking } from "./world.ts";
 
@@ -68,14 +69,18 @@ const badge = (rank: number, message: string): Badge => ({
  * File names are lowercase: GitHub logins are case-insensitive, GitHub Pages paths are not. Pass only countries
  * that have a page, so that every badge links to a ranking that exists.
  */
-export function buildBadges(countries: readonly CountryData[], worldTopN: number): Map<string, Badge> {
+export function buildBadges(
+  countries: readonly CountryData[],
+  worldTopN: number,
+  automated?: AutomatedRule,
+): Map<string, Badge> {
   const badges = new Map<string, Badge>();
   for (const [tab, kind] of Object.entries(BADGE_KINDS) as [Tab, (typeof BADGE_KINDS)[Tab]][]) {
     for (const [login, { rank, title }] of bestRanks(countries, tab)) {
       badges.set(`${login}${kind.suffix}`, badge(rank, `#${rank} ${title} (${kind.label})`));
     }
   }
-  for (const row of worldRanking(countries, worldTopN)) {
+  for (const row of worldRanking(countries, worldTopN, automated)) {
     const login = checkLogin(row.login, "the world ranking");
     badges.set(
       `${login}${WORLD_BADGE.suffix}`,
