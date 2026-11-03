@@ -53,9 +53,13 @@ async function rest<T>(auth: AppAuth, method: string, path: string, bearer: stri
   throw new Error(`GitHub App API unavailable: ${method} ${path} → ${problem}`);
 }
 
+const TOKEN_PERMISSIONS = { contents: "write", actions: "write" } as const;
+
 /**
  * Token source for one repository, from the App's ID and private key: finds the installation,
- * issues a token limited to that repository and re-issues it before it expires.
+ * issues a token limited to that repository and re-issues it before it expires. The token is also limited to the
+ * two permissions the collector uses (pushing the data branches, dispatching the deploy), so it stays that narrow
+ * even if the App is later granted more.
  */
 export function installationToken(auth: AppAuth & { repo: string }): () => Promise<string> {
   const clock = auth.clock ?? systemClock;
@@ -70,7 +74,7 @@ export function installationToken(auth: AppAuth & { repo: string }): () => Promi
       "POST",
       `/app/installations/${id}/access_tokens`,
       jwt,
-      { repositories: [name] },
+      { repositories: [name], permissions: TOKEN_PERMISSIONS },
     );
     cached = { token: issued.token, expiresAt: Date.parse(issued.expires_at) };
     return issued.token;
