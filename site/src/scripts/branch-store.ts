@@ -120,17 +120,20 @@ export class BranchStore {
   /**
    * Replaces the branch history with one commit of its current files, so the repository does not grow by a
    * full snapshot per country update. The snapshot this run started from becomes `previous` for rollbacks,
-   * unless `keepPrevious` is false (someone opted out: the old snapshot must not stay public).
+   * unless `keepPrevious` is false (someone opted out: the old snapshot must not stay public); with `previous`
+   * null, no rollback branch is written at all.
    * --force-with-lease refuses to overwrite anything pushed by someone else meanwhile.
    */
-  async squash(message: string, previous: string, keepPrevious: boolean): Promise<void> {
+  async squash(message: string, previous: string | null, keepPrevious: boolean): Promise<void> {
     const head = this.head();
     if (head === this.startSha) return; // nothing new in this run
     await this.git(["checkout", "-q", "--orphan", "squashed"]);
     await this.git(["commit", "-q", "-m", message]);
     const squashed = this.head();
-    const prev = keepPrevious && this.startSha ? this.startSha : squashed;
-    await this.git(["push", "-q", "--force", "origin", `${prev}:refs/heads/${previous}`]);
+    if (previous !== null) {
+      const prev = keepPrevious && this.startSha ? this.startSha : squashed;
+      await this.git(["push", "-q", "--force", "origin", `${prev}:refs/heads/${previous}`]);
+    }
     await this.git([
       "push",
       "-q",
