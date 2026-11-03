@@ -2,7 +2,7 @@
 # Project settings. Changes go through a PR like any other change.
 
 site:
-  repo: contributors-top/contributors.top # GitHub owner/name shown in the source block
+  repo: contributors-top/contributor.top # GitHub owner/name shown in the source block
 
 ranking:
   top_n: 512 # people shown per country and tab
@@ -38,8 +38,8 @@ circuit_breaker:
   max_threshold_jump: 3
 
 privacy:
-  optout_phrase: "contributors.top opt-out"
-  optin_phrase: "contributors.top opt-in"
+  optout_phrase: "contributor.top opt-out"
+  optin_phrase: "contributor.top opt-in"
   dropped_stub_days: 30
 
 denylist_ids: [] # numeric GitHub IDs of bots or obvious gaming, added by PR only

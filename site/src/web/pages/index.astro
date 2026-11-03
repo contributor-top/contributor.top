@@ -2,13 +2,13 @@
 import Base from "../layouts/Base.astro";
 import { countryEntries, formatDate } from "../lib/site.ts";
 
-const site = Astro.site?.href ?? "https://contributors.top/";
+const site = Astro.site?.href ?? "https://contributor.top/";
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
     {
       "@type": "WebSite",
-      name: "contributors.top",
+      name: "contributor.top",
       url: site,
       description: "The most active GitHub users in every country, ranked by public contributions.",
     },
@@ -28,7 +28,7 @@ const jsonLd = {
 };
 ---
 
-<Base title="contributors.top" jsonLd={jsonLd}>
+<Base title="contributor.top" jsonLd={jsonLd}>
   <h1>Most active GitHub users by country</h1>
   <p class="muted">
     Ranked by public contributions in the last 12 months. Each country is updated about every two days.

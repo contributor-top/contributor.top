@@ -55,7 +55,7 @@ function bestRanks(countries: readonly CountryData[], tab: Tab): Map<string, Bes
 
 const badge = (rank: number, message: string): Badge => ({
   schemaVersion: 1,
-  label: "contributors.top",
+  label: "contributor.top",
   message,
   color: badgeColor(rank),
   namedLogo: "github",

@@ -1,7 +1,7 @@
 // Applies repository settings, rulesets, environments and GitHub Pages through the GitHub CLI.
 // Dry run by default; pass --apply to change anything. Run once after the first commit's CI is green,
 // and again after the collector App exists (its ruleset needs the App ID):
-//   npm run setup-repo -- --repo contributors-top/contributors.top --apply
+//   npm run setup-repo -- --repo contributors-top/contributor.top --apply
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -78,7 +78,7 @@ function attempt(method: string, path: string, body?: unknown): string | undefin
 
 // GitHub Pages is published by .github/workflows/deploy.yml. The domain (same as `site` in astro.config.mjs)
 // is verified at the organization level, so no other account can claim it.
-const DOMAIN = "contributors.top";
+const DOMAIN = "contributor.top";
 if (apply && attempt("GET", `/repos/${repo}/pages`) === undefined) {
   gh("POST", `/repos/${repo}/pages`, { build_type: "workflow" });
 }

@@ -1,5 +1,5 @@
 {
-  "name": "contributors-top",
+  "name": "contributor-top",
   "version": "0.0.0",
   "private": true,
   "description": "Most active GitHub users by country",

@@ -101,17 +101,17 @@ describe("people checked by status", () => {
     };
     return { requests, client: new GitHubGraphQL({ token: async () => "t", fetch, clock: fakeClock() }) };
   }
-  const phrases = { optout: "contributors.top opt-out", optin: "contributors.top opt-in" };
+  const phrases = { optout: "contributor.top opt-out", optin: "contributor.top opt-in" };
 
   it("finds opt-outs by status, only for the same account, in batches, with logins as variables", async () => {
     const people = Array.from({ length: 60 }, (_, i) => ({ id: i + 1, login: `user-${i + 1}` }));
     const { requests, client } = github({
-      "user-2": { id: 2, status: "Contributors.top OPT-OUT please" },
+      "user-2": { id: 2, status: "Contributor.top OPT-OUT please" },
       "user-3": { id: 3, status: "busy" },
-      "user-4": { id: 999, status: "contributors.top opt-out" }, // the login now belongs to someone else
+      "user-4": { id: 999, status: "contributor.top opt-out" }, // the login now belongs to someone else
       "user-5": { id: 5, status: null },
-      "user-55": { id: 55, status: "contributors.top opt-out" },
-      "user-56": { id: 56, status: "contributors.top opt-in" },
+      "user-55": { id: 55, status: "contributor.top opt-out" },
+      "user-56": { id: 56, status: "contributor.top opt-in" },
     });
     expect(await optedOutByStatus(client, people, phrases)).toEqual([2, 55]);
     expect(requests.map((r) => Object.keys(r.variables).length)).toEqual([50, 10]);

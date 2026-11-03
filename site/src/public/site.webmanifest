@@ -1,6 +1,6 @@
 {
-  "name": "contributors.top",
-  "short_name": "contributors.top",
+  "name": "contributor.top",
+  "short_name": "contributor.top",
   "description": "The most active GitHub users by country",
   "start_url": "/",
   "display": "browser",

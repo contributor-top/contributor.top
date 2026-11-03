@@ -2,7 +2,7 @@ import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from "node:cr
 import { type CountryData, countryDataSchema } from "./country-data.ts";
 
 const HASH = /^[0-9a-f]{64}$/;
-const HEADER = "# HMAC-SHA256 of GitHub user IDs that opted out of contributors.top. Only hashes, no IDs or logins.";
+const HEADER = "# HMAC-SHA256 of GitHub user IDs that opted out of contributor.top. Only hashes, no IDs or logins.";
 
 /** One hash per line; blank lines and # comments are ignored; anything else is an error, not a silent skip. */
 export function parseHashes(text: string): Set<string> {
@@ -34,7 +34,7 @@ const PAD_TO = 256;
 /** Part of the key derivation and the authenticated data: never change it (not even with the domain). */
 const VERSION = "opt-out list v1";
 const LIST_HEADER =
-  "# Encrypted opt-out list of contributors.top (AES-256-GCM): neither who nor how many. Re-encrypted on every run.";
+  "# Encrypted opt-out list of contributor.top (AES-256-GCM): neither who nor how many. Re-encrypted on every run.";
 const NONCE = 12;
 const TAG = 16;
 const HASH_BYTES = 32;

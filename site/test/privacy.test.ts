@@ -27,11 +27,11 @@ describe("optoutHash", () => {
 });
 
 describe("status phrases", () => {
-  const out = "contributors.top opt-out";
-  const inn = "contributors.top opt-in";
+  const out = "contributor.top opt-out";
+  const inn = "contributor.top opt-in";
 
   it("matches the phrase anywhere, case- and spacing-insensitively", () => {
-    expect(statusMatches("Contributors.top   OPT-OUT please 🙏", out)).toBe(true);
+    expect(statusMatches("Contributor.top   OPT-OUT please 🙏", out)).toBe(true);
     expect(statusMatches("busy", out)).toBe(false);
     expect(statusMatches(null, out)).toBe(false);
     expect(statusMatches(undefined, out)).toBe(false);
