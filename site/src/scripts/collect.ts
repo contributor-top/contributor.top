@@ -5,7 +5,8 @@
 //   OPTOUT_KEY        HMAC key of the opt-out list (at least 32 characters, required)
 //   COUNTRIES         comma-separated slugs to refresh now instead of the queue
 //   FORCE=true        publish even when the circuit breaker objects
-//   PUBLISH=true      commit and push the data and optout branches, then trigger a deploy (CI only)
+//   PUBLISH=true      commit and push the data and optout branches, then trigger a deploy, and the next run
+//                     while countries are due that this run did not try (CI only)
 //   DATA_DIR, OPTOUT_DIR  working copies (default ../.data and ../.optout)
 //   MAX_MINUTES       override freshness.max_run_minutes
 //   HEALTHCHECK_URL   pinged at the end (/fail when nothing could be collected)
@@ -25,6 +26,7 @@ import { mentionsAny, parseHashes, purgeCountry, serializeHashes } from "../coll
 import { loadPresets } from "../collector/preset.ts";
 import { dueCountries } from "../collector/queue.ts";
 import { scrub } from "../collector/scrub.ts";
+import { fitsBefore, parseTimings, reserveMs, serializeTimings, shouldContinue } from "../collector/timing.ts";
 import { BranchStore, type Identity } from "./branch-store.ts";
 
 const env = process.env;
@@ -34,8 +36,6 @@ const publish = env["PUBLISH"] === "true";
 const force = env["FORCE"] === "true";
 const started = Date.now();
 const deadline = started + Number(env["MAX_MINUTES"] || config.freshness.max_run_minutes) * 60_000;
-/** Do not start a country with less time than this left: a big one takes 10–15 minutes. */
-const COUNTRY_RESERVE_MS = 20 * 60_000;
 /** Redeploy at most this often while a run is publishing countries. */
 const DEPLOY_EVERY_MS = 60 * 60_000;
 
@@ -91,8 +91,23 @@ function writeCountry(data: CountryData): void {
   touched.add(data.slug);
   writeFileSync(join(dataStore.dir, "countries", `${data.slug}.json`), `${JSON.stringify(data)}\n`);
 }
+
+/** Minutes each country's last collection took: a country is started only if it can still finish. */
+const timingsFile = join(dataStore.dir, "timings.json");
+const timings = parseTimings(
+  (() => {
+    try {
+      return readFileSync(timingsFile, "utf8");
+    } catch {
+      return null; // missing: no country measured yet
+    }
+  })(),
+);
+const writeTimings = () => writeFileSync(timingsFile, serializeTimings(timings));
+
 const rewriteCountries = () => {
   for (const slug of touched) writeCountry(countries.get(slug) as CountryData);
+  writeTimings();
 };
 
 /** Someone left the data in this run, so the previous snapshot must not stay public as data-prev. */
@@ -143,12 +158,11 @@ let updated = 0;
 let failed = 0;
 let lastDeploy = started;
 
-/** Triggers the deploy workflow; a failure is logged, never fatal (the next run deploys again). */
-async function deploy(): Promise<void> {
+/** Starts a workflow on main; a failure is logged, never fatal (the next run or the cron tries again). */
+async function dispatch(workflow: "deploy.yml" | "update.yml"): Promise<void> {
   if (!publish || !appToken) return;
-  lastDeploy = Date.now();
   try {
-    const response = await fetch(`https://api.github.com/repos/${repo}/actions/workflows/deploy.yml/dispatches`, {
+    const response = await fetch(`https://api.github.com/repos/${repo}/actions/workflows/${workflow}/dispatches`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${await appToken()}`,
@@ -157,10 +171,15 @@ async function deploy(): Promise<void> {
       },
       body: JSON.stringify({ ref: "main" }),
     });
-    if (response.status !== 204) console.log(`deploy dispatch returned ${response.status}`);
+    if (response.status !== 204) console.log(`${workflow} dispatch returned ${response.status}`);
   } catch (e) {
-    console.log(`deploy dispatch failed: ${scrub(e instanceof Error ? e.message : String(e))}`);
+    console.log(`${workflow} dispatch failed: ${scrub(e instanceof Error ? e.message : String(e))}`);
   }
+}
+
+async function deploy(): Promise<void> {
+  lastDeploy = Date.now();
+  await dispatch("deploy.yml");
 }
 
 /** New opt-outs leave every country at once, not at each country's next update. */
@@ -205,6 +224,8 @@ async function publishAll(label: string): Promise<void> {
 if (privacyChanged) await publishAll("remove opted-out people");
 
 let stopped = false;
+/** Countries this run is done with, collected or not; the rest of the queue is left for the next run. */
+const finished = new Set<string>();
 
 async function collectOne(client: GitHubGraphQL, { slug, reason }: (typeof queue)[number]): Promise<void> {
   const t0 = Date.now();
@@ -233,6 +254,9 @@ async function collectOne(client: GitHubGraphQL, { slug, reason }: (typeof queue
       writeCountry(result.data);
       updated++;
     }
+    timings.set(slug, (Date.now() - t0) / 60_000);
+    writeTimings();
+    finished.add(slug);
     const s = result.stats;
     outcome += ` · candidates ${s.candidates}, other country ${s.otherCountry}, skipped ${s.skipped}, opt-outs +${s.optedOut}/-${s.optedIn}`;
     await publishAll(slug);
@@ -241,16 +265,22 @@ async function collectOne(client: GitHubGraphQL, { slug, reason }: (typeof queue
     if (e instanceof AuthError) throw e;
     line(`failed: ${scrub(e instanceof Error ? e.message : String(e))}`);
     if (e instanceof OutOfTimeError) stopped = true;
-    else failed++;
+    else {
+      failed++;
+      finished.add(slug);
+    }
   }
   console.log(`${slug}: ${report.at(-1)?.result}`);
 }
 
-/** Workers take countries from the queue one by one until it is empty or time runs out. */
+/**
+ * Workers take countries from the queue one by one until it is empty or time runs out. A country that would not
+ * finish in time is postponed, and the worker goes on to the next one, which may be smaller and still fit.
+ */
 let next = 0;
 async function worker(client: GitHubGraphQL): Promise<void> {
   for (let item = queue[next++]; item && !stopped; item = queue[next++]) {
-    if (Date.now() > deadline - COUNTRY_RESERVE_MS)
+    if (!fitsBefore(Date.now(), deadline, reserveMs(item.slug, timings)))
       report.push({ slug: item.slug, result: "postponed: out of time", minutes: "", cost: 0 });
     else await collectOne(client, item);
   }
@@ -272,12 +302,24 @@ try {
   });
 }
 if (updated > 0 || privacyChanged) await deploy();
+// GitHub drops many scheduled runs, so a run starts the next one itself while countries are due that it did not try:
+// the ones it had no time for and the ones that became due while it ran. The concurrency group queues the next run
+// behind this one; the cron only starts a new cycle once everything was fresh.
+const left = dueCountries({
+  presets,
+  existing: countries,
+  now: new Date(),
+  minRefreshHours: config.freshness.min_refresh_hours,
+}).filter((item) => !finished.has(item.slug)).length;
+const continuing = publish && shouldContinue({ left, updated });
+if (continuing) await dispatch("update.yml");
 
 const sum = (pick: (c: GitHubGraphQL) => number) => clients.reduce((total, c) => total + pick(c), 0);
 const summary = [
   `### Collector run: ${updated} updated, ${failed} failed, ${queue.length} due`,
   "",
-  `${sum((c) => c.usage.requests)} requests, ${sum((c) => c.usage.cost)} points, ${((Date.now() - started) / 60_000).toFixed(0)} min`,
+  `${sum((c) => c.usage.requests)} requests, ${sum((c) => c.usage.cost)} points, ${((Date.now() - started) / 60_000).toFixed(0)} min` +
+    (left > 0 ? `, ${left} left for the next run${continuing ? " (started)" : ""}` : ""),
   "",
   "| Country | Result | Minutes | Points |",
   "| --- | --- | --- | --- |",

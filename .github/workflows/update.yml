@@ -1,8 +1,9 @@
 name: update
 
 on:
-  # Every hour. A run lasts up to 5 hours (the job limit is 6) and the concurrency group below queues the next one,
-  # so collection is continuous; when every country is fresh (config.yml: freshness) a run ends within a minute.
+  # Every hour, as a fallback: GitHub drops many scheduled runs, so a run that runs out of time dispatches the next
+  # one itself. A run lasts up to 5 hours (the job limit is 6) and the concurrency group below queues the next one;
+  # when every country is fresh (config.yml: freshness) a run ends within a minute.
   schedule:
     - cron: "17 * * * *"
   workflow_dispatch:
@@ -20,7 +21,8 @@ permissions: {}
 
 # Every job that calls the GitHub API shares this group: secondary rate limits are per account, so two collectors
 # at once would only slow each other down. A running job is never cancelled; GitHub keeps one pending run per group,
-# so the next hourly run replaces a pending one (a manual run waiting behind a long run may need dispatching again).
+# so the next hourly run replaces a pending one (both collect whatever is due; a manual run with inputs waiting
+# behind a long run may need dispatching again).
 concurrency:
   group: github-api
   cancel-in-progress: false
@@ -58,3 +60,62 @@ jobs:
           COUNTRIES: ${{ inputs.countries }}
           FORCE: ${{ inputs.force }}
           PUBLISH: "true"
+
+  # The alert: one issue lists the countries older than freshness.stale_days, is updated after every run and closes
+  # itself once every country is fresh. A separate job without secrets, whose token can only read code and write
+  # issues; it runs after a failed collection too, but not while collection is paused on purpose.
+  freshness:
+    name: freshness
+    needs: collect
+    if: always() && vars.COLLECT_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Look for the data branch
+        id: data
+        run: |
+          if git ls-remote --exit-code --heads origin data > /dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            mkdir ../.data
+          fi
+      - if: steps.data.outputs.exists == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: data
+          path: .data
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: site/.nvmrc
+      - run: npm ci --ignore-scripts
+      - name: Find stale countries
+        id: stale
+        run: npm run freshness
+        env:
+          DATA_DIR: ../.data
+          STALE_REPORT: ${{ runner.temp }}/stale.md
+      - name: Open, update or close the alert
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          STALE: ${{ steps.stale.outputs.stale }}
+          STALE_REPORT: ${{ runner.temp }}/stale.md
+        run: |
+          open=$(gh issue list --state open --label stale-data --json number --jq '.[0].number // empty')
+          if [ "${STALE:-0}" -gt 0 ]; then
+            gh label create stale-data --color d93f0b --description "Opened and closed by the collector" --force
+            if [ -n "$open" ]; then
+              gh issue edit "$open" --body-file "$STALE_REPORT"
+            else
+              gh issue create --title "Stale country data" --label stale-data --body-file "$STALE_REPORT"
+            fi
+          elif [ -n "$open" ]; then
+            gh issue close "$open" --comment "Every country is fresh again."
+          fi
