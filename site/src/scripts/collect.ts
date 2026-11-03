@@ -6,7 +6,7 @@
 //   COUNTRIES         comma-separated slugs to refresh now instead of the queue
 //   FORCE=true        publish even when the circuit breaker objects
 //   PUBLISH=true      commit and push the data and optout branches, then trigger a deploy, and the next run
-//                     when time ran out before every due country was collected (CI only)
+//                     while countries are due that this run did not try (CI only)
 //   DATA_DIR, OPTOUT_DIR  working copies (default ../.data and ../.optout)
 //   MAX_MINUTES       override freshness.max_run_minutes
 //   HEALTHCHECK_URL   pinged at the end (/fail when nothing could be collected)
@@ -302,9 +302,15 @@ try {
   });
 }
 if (updated > 0 || privacyChanged) await deploy();
-// GitHub drops many scheduled runs, so a run that ran out of time starts the next one itself; the concurrency group
-// queues it behind this one, and the cron is only the fallback.
-const left = queue.filter((item) => !finished.has(item.slug)).length;
+// GitHub drops many scheduled runs, so a run starts the next one itself while countries are due that it did not try:
+// the ones it had no time for and the ones that became due while it ran. The concurrency group queues the next run
+// behind this one; the cron only starts a new cycle once everything was fresh.
+const left = dueCountries({
+  presets,
+  existing: countries,
+  now: new Date(),
+  minRefreshHours: config.freshness.min_refresh_hours,
+}).filter((item) => !finished.has(item.slug)).length;
 const continuing = publish && shouldContinue({ left, updated });
 if (continuing) await dispatch("update.yml");
 

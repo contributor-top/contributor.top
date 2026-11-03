@@ -49,9 +49,10 @@ export const fitsBefore = (now: number, deadline: number, reserve: number): bool
 
 /**
  * Whether the run should start the next one itself instead of waiting for the hourly cron, which GitHub often
- * drops. Only for countries this run never got to (time ran out): a country that failed or was held back stays
- * due too, but chaining on it would collect it again and again; the cron retries those. A run that updated
- * nothing does not chain either, so a broken setup never loops.
+ * drops. `left` counts the countries due at the end of the run that it did not try: no time left for them, or due
+ * only since it started. A country that failed or was held back stays due too, but chaining on it would collect it
+ * again and again; the cron retries those. A run that updated nothing does not chain either, so a broken setup
+ * never loops.
  */
 export const shouldContinue = ({ left, updated }: { left: number; updated: number }): boolean =>
   left > 0 && updated > 0;
