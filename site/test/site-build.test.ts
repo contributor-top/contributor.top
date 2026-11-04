@@ -141,7 +141,9 @@ describe("site built from hostile data", () => {
     expect(world).toMatch(/id="zed" data-rank="2"/);
     expect(world).not.toContain("ghost");
     expect(world).not.toContain("farm-bot");
-    expect(existsSync(join(out, "u", "farm-bot.world.json"))).toBe(false);
+    expect(JSON.parse(readFileSync(join(out, "u", "farm-bot.world.json"), "utf8")).message).toBe(
+      "World: unranked (public contributions)",
+    );
     expect(existsSync(join(out, "u", "farm-bot.json"))).toBe(true);
     const country = readFileSync(join(out, "cote_divoire", "index.html"), "utf8");
     const farmRow = country.slice(country.indexOf('id="farm-bot"'), country.indexOf('id="octo-cat"'));
