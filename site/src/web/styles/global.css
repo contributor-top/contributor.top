@@ -55,10 +55,11 @@
   animation: none !important;
 }
 
-/* Reserve the scrollbar's space on every page so the layout never shifts between short and long pages. */
+/* The scrollbar shows only where the page scrolls, and the layout must not shift when it appears. Chromium ignores
+   scrollbar-gutter on the page itself, so the scrollbar's width (100vw counts it, 100% does not) goes on the left
+   too: the centred layout stays put. Overlay scrollbars (phones, macOS) make it 0. */
 html {
-  scrollbar-gutter: stable;
-  overflow-y: scroll;
+  margin-left: calc(100vw - 100%);
   -webkit-text-size-adjust: 100%;
 }
 
