@@ -4,10 +4,14 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 
-// The only inline script: it must run before first paint (theme, no flash). Its hash is computed
-// from the same file the layout embeds, so the CSP and the script can never drift apart.
-const themeInit = readFileSync(new URL("./src/web/scripts/theme-init.js", import.meta.url), "utf8");
-const themeInitHash = `sha256-${createHash("sha256").update(themeInit).digest("base64")}`;
+// The only inline scripts: the theme must apply before first paint (no flash), and the badge-link lookup on /find/
+// must start while the page is parsed. Each hash is computed from the same file the page embeds, so the CSP and the
+// script can never drift apart.
+const inlineHash = (path) =>
+  `sha256-${createHash("sha256")
+    .update(readFileSync(new URL(path, import.meta.url), "utf8"))
+    .digest("base64")}`;
+const inlineHashes = ["./src/web/scripts/theme-init.js", "./src/web/scripts/find.js"].map(inlineHash);
 
 /**
  * A <meta> CSP governs only what comes after it, and Astro emits it late in <head>, after the JSON-LD, the inline
@@ -47,9 +51,11 @@ export default defineConfig({
   prefetch: { prefetchAll: true, defaultStrategy: "hover" },
   // Astro's client-side router does not support its CSP when pages carry their own inline scripts and styles,
   // because each page's hashes differ. Bundling all of them as files makes them 'self' on every page, and the
-  // one remaining inline script (theme-init) has the same hash everywhere.
+  // remaining inline scripts (theme-init, find) have the same hashes everywhere.
   build: { format: "directory", inlineStylesheets: "never" },
-  vite: { build: { assetsInlineLimit: 0 } },
+  // One stylesheet for the whole site (about 4 kB compressed): cached by the first page, so a badge link from /find/
+  // or any other page switch never waits for another one.
+  vite: { build: { assetsInlineLimit: 0, cssCodeSplit: false } },
   // Shiki writes inline styles that the CSP below forbids; the Markdown pages need no highlighting.
   markdown: { syntaxHighlight: false },
   security: {
@@ -67,7 +73,7 @@ export default defineConfig({
         "form-action 'self'",
         "upgrade-insecure-requests",
       ],
-      scriptDirective: { hashes: [themeInitHash] },
+      scriptDirective: { hashes: inlineHashes },
       // Inline style="" attributes (badge colors) are harmless; scripts stay hash-only.
       styleDirective: { resources: [{ resource: "'unsafe-inline'", kind: "attribute" }] },
     },

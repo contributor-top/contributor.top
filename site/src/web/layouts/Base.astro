@@ -64,6 +64,8 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
     {jsonLd && <script type="application/ld+json" set:html={jsonForScript(jsonLd)} />}
     {/* Runs before paint: saved theme (light by default) and the "js" class. Its CSP hash is in astro.config.mjs. */}
     <script is:inline set:html={themeInit} />
+    {/* Page-specific early work, before the stylesheet (which Astro links last): a script here does not wait for it. */}
+    <slot name="head" />
     {/* Links load the next page in the background and swap it in: no reload, no blank flash, no animation
         (fallback="swap" also in browsers without the View Transitions API, such as Firefox). */}
     <ClientRouter fallback="swap" />
