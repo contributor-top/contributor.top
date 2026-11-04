@@ -16,15 +16,35 @@ export type Activity = {
   readonly prs: number;
   readonly issues: number;
   readonly reviews: number;
+  /** Commits in the busiest repository of their own with fewer than quiet_stars stars. Absent: not checked. */
+  readonly quiet?: number | undefined;
+  /** Commits in other people's repositories with at least popular_stars stars. Absent: not checked. */
+  readonly popular?: number | undefined;
 };
-export type AutomatedRule = { readonly min_commits: number; readonly ratio: number };
+export type AutomatedRule = {
+  readonly min_commits: number;
+  readonly ratio: number;
+  readonly quiet_stars: number;
+  readonly quiet_share: number;
+  readonly popular_stars: number;
+  readonly popular_share: number;
+};
 
 /**
- * A commit farm: a huge number of commits and almost nothing else. People who really work that much also open pull
- * requests, file issues and review others' work; a script that commits all day does none of that.
+ * Likely automated commits, only ever for a huge number of commits:
+ * - a commit farm, almost nothing but commits. People who really work that much also open pull requests, file issues
+ *   and review others' work; a script that commits all day does none of that;
+ * - or most commits in one repository of their own that nobody stars: farms that also open pull requests;
+ * - but never for someone whose commits mostly go to another owner's widely used project (a maintainer of FreeBSD
+ *   ports or Liferay commits directly, without pull requests).
+ * Without the repository numbers (not collected yet, or the request failed) only the first rule applies.
  */
-export const isLikelyAutomated = (a: Activity, rule: AutomatedRule): boolean =>
-  a.commits >= rule.min_commits && a.commits >= rule.ratio * Math.max(1, a.prs + a.issues + a.reviews);
+export function isLikelyAutomated(a: Activity, rule: AutomatedRule): boolean {
+  if (a.commits < rule.min_commits) return false;
+  if (a.popular !== undefined && a.popular >= rule.popular_share * a.commits) return false;
+  if (a.commits >= rule.ratio * Math.max(1, a.prs + a.issues + a.reviews)) return true;
+  return a.quiet !== undefined && a.quiet >= rule.quiet_share * a.commits;
+}
 
 const UNITS: readonly [number, string][] = [
   [1_000_000_000, "B"],

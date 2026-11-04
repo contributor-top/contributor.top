@@ -329,6 +329,7 @@ async function collectOne(client: GitHubGraphQL, { slug, reason }: (typeof queue
     const s = result.stats;
     // No opt-out counts: next to the data's history they would tell who left (#52).
     outcome += ` · candidates ${s.candidates}, other country ${s.otherCountry}, skipped ${s.skipped}`;
+    if (s.repoFailed > 0) outcome += `, repositories unread ${s.repoFailed}`;
     await publishAll(slug);
     line(outcome);
   } catch (e) {
