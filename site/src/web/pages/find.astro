@@ -1,66 +1,18 @@
 ---
 import Base from "../layouts/Base.astro";
 import { countryEntries } from "../lib/site.ts";
+import find from "../scripts/find.js?raw";
 
 // Badge links point here: /find/?login=…&tab=… opens that person's row in their best country ranking,
-// or, with tab=world, in the world ranking.
+// or, with tab=world, in the world ranking. The lookup is the inline script in <head> (its hash is in the CSP).
 const slugs = Object.fromEntries(countryEntries.map((c) => [c.title, c.slug]));
 ---
 
 <Base title="Find a developer" noindex>
+  <Fragment slot="head">
+    <meta name="find-data" content={JSON.stringify(slugs)} />
+    <script is:inline set:html={find} />
+  </Fragment>
   <h1>Find a developer</h1>
-  <p id="status" class="muted" data-slugs={JSON.stringify(slugs)}>Looking up…</p>
-
-  <script>
-    import { navigate } from "astro:transitions/client";
-    import { LOGIN, SLUG } from "../../collector/patterns.ts";
-
-    // Through the client router, not location.replace: this page stays on screen until the ranking (a big page)
-    // has loaded, instead of a blank window while it does. It replaces this page in the history, as before.
-    const go = (url: string) => navigate(url, { history: "replace" });
-
-    // Ranking → badge file suffix and page path; nothing outside these values ever reaches a URL.
-    const TABS = {
-      public: { suffix: "", path: "" },
-      all: { suffix: ".all", path: "all/" },
-      commits: { suffix: ".commits", path: "commits/" },
-      world: { suffix: ".world", path: "" },
-    };
-
-    // Runs on the first load and after every client-side navigation (the page is swapped, not reloaded).
-    function init(): void {
-      const status = document.getElementById("status");
-      if (!status) return;
-      const notFound = () => {
-        status.textContent = "This developer is not in this ranking yet. ";
-        const link = document.createElement("a");
-        link.href = "/methodology/";
-        link.textContent = "See who is considered.";
-        status.append(link);
-      };
-      // Written by this page's own build.
-      const slugs: Record<string, string> = JSON.parse(status.dataset["slugs"] ?? "{}");
-      const params = new URLSearchParams(location.search);
-      const login = params.get("login") ?? "";
-      const tabName = params.get("tab") ?? "public";
-      const tab = TABS[tabName as keyof typeof TABS] ?? TABS.public;
-      if (!LOGIN.test(login)) return notFound();
-      const name = login.toLowerCase();
-      fetch(`/u/${name}${tab.suffix}.json`)
-        .then((res) => (res.ok ? res.json() : null))
-        .then((badge: { message?: unknown } | null) => {
-          // "#17 Atlantis (public contributions)"; "Atlantis: unranked (…)" is a file too, but not a rank.
-          const ranked = String(badge?.message ?? "").match(/^#\d+\s+(.+?)\s+\([^()]*\)$/);
-          if (!ranked) return notFound();
-          // The world has one page: the badge's place is never looked up as a country.
-          if (tabName === "world") return go(`/world/#${name}`);
-          const slug = slugs[ranked[1] ?? ""];
-          // Slugs come from validated presets, so this stays a same-site path.
-          if (slug && SLUG.test(slug)) go(`/${slug}/${tab.path}#${name}`);
-          else notFound();
-        })
-        .catch(notFound);
-    }
-    document.addEventListener("astro:page-load", init);
-  </script>
+  <p id="status" class="muted">Looking up…</p>
 </Base>

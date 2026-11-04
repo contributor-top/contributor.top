@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
+import { LOGIN, SLUG } from "../src/collector/patterns.ts";
 
 const root = mkdtempSync(join(tmpdir(), "ct-site-"));
 const out = join(root, "dist");
@@ -169,6 +170,39 @@ describe("site built from hostile data", () => {
     expect(country.slice(country.indexOf('id="octo-cat"'))).not.toContain("likely automated");
     expect(existsSync(join(out, "u", "ghost.json"))).toBe(false);
     expect(existsSync(join(out, "u", "ghost.world.json"))).toBe(false);
+  });
+
+  it("links one stylesheet from every page, so a page switch never waits for another", () => {
+    const sheets = new Set<string>();
+    for (const page of files(out).filter((f) => f.endsWith(".html"))) {
+      const links = [...readFileSync(page, "utf8").matchAll(/<link rel="stylesheet" href="([^"]+)"/g)];
+      expect(links, page).toHaveLength(1);
+      sheets.add(links[0]?.[1] ?? "");
+    }
+    expect(sheets.size).toBe(1);
+  });
+
+  it("starts the badge-link lookup inline on /find/, before the stylesheet, with the data from the build", () => {
+    const html = readFileSync(join(out, "find", "index.html"), "utf8");
+    const script = html.indexOf(`<script>${readFileSync("src/web/scripts/find.js", "utf8")}</script>`);
+    expect(script).toBeGreaterThan(0);
+    expect(script).toBeLessThan(html.indexOf('<link rel="stylesheet"'));
+    const meta = html.match(/<meta name="find-data" content="([^"]*)"/)?.[1] ?? "";
+    expect(html.indexOf('<meta name="find-data"')).toBeLessThan(script);
+    const slugs = JSON.parse(meta.replaceAll("&quot;", '"').replaceAll("&#39;", "'").replaceAll("&amp;", "&"));
+    expect(slugs).toEqual({
+      "Congo (Kinshasa)": "congo_kinshasa",
+      "Côte d'Ivoire": "cote_divoire",
+      "Empty Land": "empty_land",
+      "No Data": "no_data",
+    });
+    expect(html).not.toMatch(/find\.astro_astro_type_script/);
+  });
+
+  it("checks badge links with the same login and slug patterns as the collector", () => {
+    const script = readFileSync("src/web/scripts/find.js", "utf8");
+    expect(script).toContain(`const LOGIN = ${LOGIN};`);
+    expect(script).toContain(`const SLUG = ${SLUG};`);
   });
 
   it("keeps the CSP: every inline script is hashed", () => {
