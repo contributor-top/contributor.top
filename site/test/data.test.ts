@@ -69,7 +69,7 @@ describe("dataDir and presetsDir", () => {
 
 describe("badges", () => {
   it("uses medal colors for the top 3", () => {
-    expect([1, 2, 3, 4].map(badgeColor)).toEqual(["d4a72c", "a0a8b0", "b87333", "0969da"]);
+    expect([1, 2, 3, 4].map(badgeColor)).toEqual(["d4a72c", "a0a8b0", "b87333", "007ec6"]);
   });
 
   it("keys by lowercase login and keeps the best rank across countries", () => {

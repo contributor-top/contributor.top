@@ -13,7 +13,8 @@ export type Badge = {
 };
 
 const MEDALS: Readonly<Record<number, string>> = { 1: "d4a72c", 2: "a0a8b0", 3: "b87333" };
-const DEFAULT_COLOR = "0969da";
+// shields.io's own "blue", the color most rank badges on GitHub profiles use.
+const DEFAULT_COLOR = "007ec6";
 
 export const badgeColor = (rank: number): string => MEDALS[rank] ?? DEFAULT_COLOR;
 
