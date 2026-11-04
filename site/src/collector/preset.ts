@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { readdirSync } from "node:fs";
 import { basename, join } from "node:path";
 import { z } from "zod";
+import { SLUG } from "./patterns.ts";
 import { ConfigError, loadYaml } from "./yaml.ts";
 
 /** A location string: letters, digits, spaces and a little punctuation, no URLs or mentions. */
@@ -63,10 +64,8 @@ export const presetSchema = z
 
 export type Preset = z.infer<typeof presetSchema>;
 
-const SLUG = /^[a-z][a-z0-9_]{1,40}$/;
-
 export function validateSlug(slug: string, reserved: readonly string[]): string | null {
-  if (!SLUG.test(slug)) return "file name must match ^[a-z][a-z0-9_]{1,40}$";
+  if (!SLUG.test(slug)) return `file name must match ${SLUG.source}`;
   if (reserved.includes(slug)) return `"${slug}" is reserved by the site`;
   return null;
 }

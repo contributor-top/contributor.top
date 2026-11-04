@@ -4,7 +4,7 @@ import type { CountryData } from "../src/collector/country-data.ts";
 import { olderThan } from "../src/collector/freshness.ts";
 import { type FetchLike, GitHubGraphQL } from "../src/collector/github.ts";
 import { optoutHash } from "../src/collector/optout.ts";
-import { decryptHashes, encryptHashes, parseHashes } from "../src/collector/optout-list.ts";
+import { decryptHashes, encryptHashes } from "../src/collector/optout-list.ts";
 import { MAX_CHECKED, optedOutByStatus, publishedPeople } from "../src/collector/sweep.ts";
 import { fakeClock, json, response } from "./fake-github.ts";
 
@@ -39,11 +39,6 @@ describe("the encrypted opt-out list", () => {
       expect(() => decryptHashes(broken, KEY), JSON.stringify(broken)).toThrow(/damaged/);
     }
     expect(() => encryptHashes(["not a hash"], KEY)).toThrow(/not a hash/);
-  });
-
-  it("carries over a legacy plain list exactly", () => {
-    const legacy = `# header\n${hashes(4).join("\n")}\n`;
-    expect(decryptHashes(encryptHashes(parseHashes(legacy), KEY), KEY)).toEqual(parseHashes(legacy));
   });
 });
 

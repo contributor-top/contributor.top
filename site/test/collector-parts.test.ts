@@ -4,7 +4,7 @@ import { appBotIdentity, appJwt, installationToken } from "../src/collector/app-
 import { breakerReasons } from "../src/collector/breaker.ts";
 import type { CountryData } from "../src/collector/country-data.ts";
 import { AuthError, type FetchLike } from "../src/collector/github.ts";
-import { mentionsAny, parseHashes, purgeCountry, serializeHashes } from "../src/collector/optout-list.ts";
+import { mentionsAny, purgeCountry } from "../src/collector/optout-list.ts";
 import { type Preset, presetChecksum } from "../src/collector/preset.ts";
 import { dueCountries } from "../src/collector/queue.ts";
 import { fakeClock, json, response } from "./fake-github.ts";
@@ -112,20 +112,6 @@ describe("queue", () => {
 });
 
 describe("opt-out list", () => {
-  const h = (c: string) => c.repeat(64);
-
-  it("round-trips sorted hashes and ignores blank lines and comments", () => {
-    const text = serializeHashes([h("b"), h("a"), h("b")]);
-    expect(text.split("\n").filter((l) => l && !l.startsWith("#"))).toEqual([h("a"), h("b")]);
-    expect(parseHashes(text)).toEqual(new Set([h("a"), h("b")]));
-    expect(parseHashes(`\n# note\n  ${h("c")}  \r\n`)).toEqual(new Set([h("c")]));
-  });
-
-  it("rejects anything that is not a hash instead of skipping it", () => {
-    expect(() => parseHashes(`${h("a")}\noctocat\n`)).toThrow(/line 2/);
-    expect(() => parseHashes(h("A"))).toThrow();
-  });
-
   it("purges people everywhere, moves everyone below up and drops their breakdown", () => {
     const data = country([10, 20, 30, 40]);
     const purged = purgeCountry(data, new Set([20, 99]));

@@ -28,12 +28,19 @@ const DETAILS = `query($ids: [ID!]!) {
 const STATUSES = `query($ids: [ID!]!) { nodes(ids: $ids) { ... on User { databaseId status { message } } } ${RATE_LIMIT} }`;
 
 const count = z.number().int();
-const personSchema = z.object({
+
+/** A user's ID and status: everything the opt-out checks read. */
+export const statusSchema = z.object({
   databaseId: count,
+  status: z.object({ message: z.string().nullable() }).nullable(),
+});
+/** Status lookups are cheap: this many users per request. */
+export const STATUS_BATCH = 50;
+
+const personSchema = statusSchema.extend({
   login: z.string(),
   location: z.string().nullable(),
   followers: z.object({ totalCount: count }),
-  status: z.object({ message: z.string().nullable() }).nullable(),
   contributionsCollection: z.object({
     contributionCalendar: z.object({ totalContributions: count }),
     totalCommitContributions: count,
@@ -83,14 +90,6 @@ async function loadBatch(client: GitHubGraphQL, batch: readonly Found[]): Promis
 /** More users than allowed never loaded; the country keeps its previous data. */
 export class TooManySkippedError extends Error {}
 
-export type PeopleResult = {
-  readonly people: Person[];
-  /** Users that failed even alone (heavy accounts). */
-  readonly skipped: number;
-  /** Users deleted, suspended or turned into organizations since the search. */
-  readonly gone: number;
-};
-
 /**
  * Loads contribution details in batches. A heavy batch (RESOURCE_LIMITS_EXCEEDED, 502/504) is halved
  * until it passes; a user that fails alone is skipped; the batch grows back after a success.
@@ -100,10 +99,9 @@ export async function fetchPeople(
   client: GitHubGraphQL,
   found: readonly Found[],
   { batchSize, maxSkipped }: { batchSize: number; maxSkipped: number },
-): Promise<PeopleResult> {
+): Promise<{ people: Person[]; skipped: number }> {
   const people: Person[] = [];
   let skipped = 0;
-  let gone = 0;
   let size = batchSize;
   let i = 0;
   while (i < found.length) {
@@ -120,16 +118,15 @@ export async function fetchPeople(
       size = batchSize;
       continue;
     }
+    // Users deleted, suspended or turned into organizations since the search come back empty: dropped.
     for (const node of nodes) {
       const person = toPerson(node);
       if (person) people.push(person);
-      else gone++;
     }
-    gone += Math.max(0, batch.length - nodes.length);
     i += batch.length;
     size = Math.min(batchSize, size * 2);
   }
-  return { people, skipped, gone };
+  return { people, skipped };
 }
 
 /**
@@ -216,8 +213,6 @@ async function readRepositories(
   return { quiet, popular };
 }
 
-const statusSchema = z.object({ databaseId: count, status: z.object({ message: z.string().nullable() }).nullable() });
-
 /**
  * Statuses only (cheap): opted-out candidates are not loaded in full, but they must still be able to
  * opt back in. Users that cannot be read keep their opt-out.
@@ -227,8 +222,8 @@ export async function fetchStatuses(
   found: readonly Found[],
 ): Promise<Map<number, string | null>> {
   const statuses = new Map<number, string | null>();
-  for (let i = 0; i < found.length; i += 50) {
-    const batch = found.slice(i, i + 50);
+  for (let i = 0; i < found.length; i += STATUS_BATCH) {
+    const batch = found.slice(i, i + STATUS_BATCH);
     const { data } = await client.query<{ nodes?: unknown[] }>(STATUSES, { ids: batch.map((f) => f.nodeId) });
     for (const node of data?.nodes ?? []) {
       const parsed = statusSchema.safeParse(node);

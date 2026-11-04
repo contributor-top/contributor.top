@@ -10,7 +10,7 @@ import { loadCountries } from "../src/collector/data-dir.ts";
 import { compactNumber, isMostlyPrivate, privateShare } from "../src/collector/flags.ts";
 import { decide, statusMatches } from "../src/collector/optout.ts";
 import { loadPresets, presetSchema } from "../src/collector/preset.ts";
-import { type Candidate, minFollowers, rank, TABS } from "../src/collector/rank.ts";
+import { type Candidate, rank, TABS } from "../src/collector/rank.ts";
 import { scrub } from "../src/collector/scrub.ts";
 import { countsFor, matchingPresets } from "../src/collector/stuffing.ts";
 import { type CountFn, findThreshold, splitRanges } from "../src/collector/threshold.ts";
@@ -97,7 +97,7 @@ describe("ranking with inconsistent API numbers", () => {
             updatedAt: "2026-10-28T12:00:00.000Z",
             totalUsers: cs.length,
             considered: cs.length,
-            minFollowers: minFollowers(cs),
+            minFollowers: 0,
             tabs,
             breakdown: {},
           };
@@ -106,11 +106,6 @@ describe("ranking with inconsistent API numbers", () => {
         },
       ),
     );
-  });
-
-  it("minFollowers survives very large candidate lists", () => {
-    const many = Array.from({ length: 300_000 }, (_, i) => ({ ...base, id: i + 1, followers: 300_000 - i }));
-    expect(minFollowers(many)).toBe(1);
   });
 });
 

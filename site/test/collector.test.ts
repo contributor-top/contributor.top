@@ -226,11 +226,11 @@ describe("loading details", () => {
     expect(people).toHaveLength(23);
   });
 
-  it("counts accounts deleted or turned into organizations since the search as gone", async () => {
+  it("drops accounts deleted or turned into organizations since the search", async () => {
     const github = new FakeGitHub([...users.slice(0, 20), { ...user(21, "Atlantis", 10), org: true }]);
-    const { people, gone } = await fetchPeople(client(github), found, { batchSize: 10, maxSkipped: 0 });
-    expect(people).toHaveLength(20);
-    expect(gone).toBe(3); // 21 is an organization now, 22 and 23 no longer exist
+    const { people, skipped } = await fetchPeople(client(github), found, { batchSize: 10, maxSkipped: 0 });
+    expect(people).toHaveLength(20); // 21 is an organization now, 22 and 23 no longer exist
+    expect(skipped).toBe(0);
   });
 
   it("reads statuses in cheap batches of 50", async () => {
@@ -252,7 +252,7 @@ describe("rate limits while loading details", () => {
     const github = new FakeGitHub(users);
     for (let i = 0; i < 5; i++) github.queued.push(json({ message: "too many" }, 429));
     const found = users.map((u) => ({ id: u.id, nodeId: `U_${u.id}`, login: u.login, followers: 1 }));
-    const c = new GitHubGraphQL({ token: async () => "t", fetch: github.fetch, clock: fakeClock(), maxAttempts: 5 });
+    const c = new GitHubGraphQL({ token: async () => "t", fetch: github.fetch, clock: fakeClock() });
     await expect(fetchPeople(c, found, { batchSize: 10, maxSkipped: 0 })).rejects.toMatchObject({ status: 429 });
     expect(github.calls).toEqual([]);
   });
@@ -290,7 +290,7 @@ describe("collecting a country", () => {
     expect(result.data.totalUsers).toBe(expected.totalUsers);
     expect(result.optedOut).toEqual([{ id: 102, hash: optoutHash(102, KEY) }]);
     expect(result.optedIn).toEqual([optoutHash(104, KEY)]);
-    expect(result.stats).toMatchObject({ denied: 1, otherCountry: 1, optedOut: 1, optedIn: 1 });
+    expect(result.stats).toMatchObject({ denied: 1, otherCountry: 1 });
     expect(result.data.tabs.public.find((r) => r.id === 106)?.contributions).toBe(0);
   });
 

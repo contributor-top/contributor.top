@@ -26,8 +26,8 @@ export const TABS = {
 
 export type Tab = keyof typeof TABS;
 
-/** Code-point order: the same on every machine, unlike localeCompare. */
-const byCodePoint = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+/** Code-point order: the same on every machine, unlike localeCompare. Used for every deterministic sort. */
+export const byCodePoint = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
 /** Deterministic order: score desc, then followers desc, then login asc (case-insensitive, #118), then id. */
 export function rank(candidates: readonly Candidate[], score: (c: Candidate) => number, topN: number): RankedRow[] {
@@ -45,8 +45,3 @@ export function rank(candidates: readonly Candidate[], score: (c: Candidate) => 
     .slice(0, Math.max(0, topN)) // slice(0, -1) would silently drop the last row
     .map(({ c, s }, i) => ({ rank: i + 1, login: c.login, id: c.id, contributions: s }));
 }
-
-/** Honest threshold: the smallest follower count among the candidates actually considered (#93). */
-export const minFollowers = (candidates: readonly Candidate[]): number =>
-  // reduce, not Math.min(...array): spreading a huge array overflows the call stack.
-  candidates.length === 0 ? 0 : candidates.reduce((min, c) => Math.min(min, c.followers), Number.POSITIVE_INFINITY);

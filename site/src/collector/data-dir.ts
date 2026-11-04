@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { type CountryData, countryDataSchema } from "./country-data.ts";
+import { loadPresets, type Preset } from "./preset.ts";
 
 /** Country data lives in the `data` branch in production; CI and local builds use fixtures. */
 export const dataDir = (): string => process.env["DATA_DIR"] ?? "test/fixtures/data";
@@ -30,4 +31,13 @@ export function loadCountries(dir = dataDir()): CountryData[] {
       if (!parsed.success) throw new Error(`${file}: ${parsed.error.issues.map((i) => i.message).join("; ")}`);
       return parsed.data;
     });
+}
+
+/** The presets and the data of the countries the site lists: data left over from a removed preset has no page. */
+export function listedCountries(reservedSlugs: readonly string[]): {
+  presets: Map<string, Preset>;
+  countries: CountryData[];
+} {
+  const presets = loadPresets(presetsDir(), reservedSlugs);
+  return { presets, countries: loadCountries().filter((c) => presets.has(c.slug)) };
 }

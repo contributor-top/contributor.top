@@ -1,28 +1,25 @@
 ---
 import Base from "../layouts/Base.astro";
-import { countryEntries, formatDate } from "../lib/site.ts";
+import { collected, countryEntries, formatDate, SITE } from "../lib/site.ts";
 
-const site = Astro.site?.href ?? "https://contributor.top/";
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
     {
       "@type": "WebSite",
       name: "contributor.top",
-      url: site,
+      url: `${SITE}/`,
       description: "The most active GitHub users in every country, ranked by public contributions.",
     },
     {
       "@type": "ItemList",
       name: "Countries",
-      itemListElement: countryEntries
-        .filter((c) => c.data)
-        .map((c, i) => ({
-          "@type": "ListItem",
-          position: i + 1,
-          name: c.title,
-          url: new URL(`/${c.slug}/`, site).href,
-        })),
+      itemListElement: collected.map((c, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: c.title,
+        url: `${SITE}/${c.slug}/`,
+      })),
     },
   ],
 };

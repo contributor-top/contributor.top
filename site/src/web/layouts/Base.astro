@@ -9,11 +9,11 @@ import themeInit from "../scripts/theme-init.js?raw";
 
 type Props = {
   title: string;
-  description?: string;
+  description?: string | undefined;
   /** Thin or utility pages (404, a country still collecting data) stay out of search results. */
   noindex?: boolean;
   /** schema.org structured data for this page. */
-  jsonLd?: Record<string, unknown>;
+  jsonLd?: Record<string, unknown> | undefined;
 };
 const {
   title,

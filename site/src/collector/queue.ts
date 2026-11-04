@@ -1,4 +1,6 @@
+import { ageMs, HOUR } from "./freshness.ts";
 import { type Preset, presetChecksum } from "./preset.ts";
+import { byCodePoint } from "./rank.ts";
 
 type DueReason = "requested" | "new" | "preset-changed" | "stale";
 export type Due = { readonly slug: string; readonly reason: DueReason };
@@ -6,7 +8,6 @@ export type Due = { readonly slug: string; readonly reason: DueReason };
 export type Existing = { readonly updatedAt: string; readonly presetChecksum?: string | undefined };
 
 const ORDER: Record<DueReason, number> = { requested: 0, new: 1, "preset-changed": 2, stale: 3 };
-const HOUR = 3_600_000;
 
 /**
  * Which countries to collect, in order: explicitly requested ones; countries without data; countries
@@ -39,13 +40,11 @@ export function dueCountries({
       due.push({ slug, reason: "new", age: 0 });
       continue;
     }
-    const age = now.getTime() - Date.parse(current.updatedAt);
+    const age = ageMs(current.updatedAt, now);
     if (current.presetChecksum !== presetChecksum(preset)) due.push({ slug, reason: "preset-changed", age });
-    // An unreadable date counts as very old rather than blocking the country forever.
-    else if (!(age < minRefreshHours * HOUR))
-      due.push({ slug, reason: "stale", age: Number.isNaN(age) ? Infinity : age });
+    else if (age >= minRefreshHours * HOUR) due.push({ slug, reason: "stale", age });
   }
   return due
-    .sort((a, b) => ORDER[a.reason] - ORDER[b.reason] || b.age - a.age || (a.slug < b.slug ? -1 : 1))
+    .sort((a, b) => ORDER[a.reason] - ORDER[b.reason] || b.age - a.age || byCodePoint(a.slug, b.slug))
     .map(({ slug, reason }) => ({ slug, reason }));
 }

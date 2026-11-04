@@ -1,10 +1,8 @@
 import type { CountryData, Row } from "./country-data.ts";
 import { type AutomatedRule, isLikelyAutomated } from "./flags.ts";
+import { byCodePoint } from "./rank.ts";
 
 export type WorldRow = Row & { country: string };
-
-/** Code-point order: the same on every machine, unlike localeCompare (and the same rule as rank.ts). */
-const byCodePoint = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
 /**
  * The world ranking: every person once, with their best public-contributions row across countries, then

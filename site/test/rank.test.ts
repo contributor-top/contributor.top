@@ -1,6 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { type Candidate, minFollowers, rank, TABS } from "../src/collector/rank.ts";
+import { type Candidate, rank, TABS } from "../src/collector/rank.ts";
 
 const candidateArb = fc.record({
   id: fc.integer({ min: 1, max: 1_000_000 }),
@@ -64,16 +64,5 @@ describe("rank", () => {
     expect(TABS.public(c)).toBe(70);
     expect(TABS.all(c)).toBe(100);
     expect(TABS.commits(c)).toBe(40);
-  });
-
-  it("reports the honest follower threshold", () => {
-    expect(minFollowers([])).toBe(0);
-    const base = { login: "x", total: 0, restricted: 0, commits: 0, prs: 0, issues: 0, reviews: 0 };
-    expect(
-      minFollowers([
-        { ...base, id: 1, followers: 12 },
-        { ...base, id: 2, followers: 11 },
-      ]),
-    ).toBe(11);
   });
 });
