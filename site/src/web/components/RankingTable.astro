@@ -124,7 +124,7 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
     const row = table ? markTarget(table) : null;
     if (row) {
       row.hidden = false;
-      row.scrollIntoView({ block: "center" });
+      row.scrollIntoView({ block: "start" });
     }
   }
   window.addEventListener("hashchange", onHashChange);
@@ -166,7 +166,7 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
         } catch {}
       });
     }
-    target?.scrollIntoView({ block: "center" });
+    target?.scrollIntoView({ block: "start" });
   }
   document.addEventListener("astro:page-load", init);
 </script>
@@ -233,6 +233,11 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
   }
   .bronze-row {
     background: var(--bronze-bg);
+  }
+  /* Where a #login link puts its row: about the middle of the screen. The browser's own jump to the anchor and
+     the script's scrollIntoView (block: start) both use this, so the page lands once instead of jumping twice. */
+  tbody tr {
+    scroll-margin-top: calc(50vh - 30px);
   }
   /* The row a badge link opens: a quiet tint with a thin edge, so it stays findable after scrolling without
      shouting. :target covers pages without JS. */
