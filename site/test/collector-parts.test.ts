@@ -112,8 +112,8 @@ describe("queue", () => {
 });
 
 describe("opt-out list", () => {
-  it("purges people everywhere, moves everyone below up and drops their breakdown", () => {
-    const data = country([10, 20, 30, 40]);
+  it("purges people everywhere, moves everyone below up and drops their breakdown and name", () => {
+    const data = country([10, 20, 30, 40], { names: { "10": "Ten", "20": "Twenty" } });
     const purged = purgeCountry(data, new Set([20, 99]));
     expect(purged.tabs.public.map((r) => [r.rank, r.id])).toEqual([
       [1, 10],
@@ -122,6 +122,8 @@ describe("opt-out list", () => {
     ]);
     expect(purged.tabs.commits.map((r) => r.id)).toEqual([10, 30, 40]);
     expect(Object.keys(purged.breakdown)).toEqual(["10", "30", "40"]);
+    expect(purged.names).toEqual({ "10": "Ten" });
+    expect(purgeCountry(country([10, 20]), new Set([20]))).not.toHaveProperty("names");
     expect(mentionsAny(data, new Set([20]))).toBe(true);
     expect(mentionsAny(purged, new Set([20]))).toBe(false);
   });

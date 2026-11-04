@@ -53,6 +53,9 @@ export const worldRows = (): WorldRow[] =>
     config.ranking.automated,
   );
 
+/** Display names from every listed country, for the world page (a person listed twice has the same name). */
+export const worldNames = (): Record<string, string> => Object.assign({}, ...collected.map((c) => c.data.names ?? {}));
+
 export const formatDate = (iso: string): string =>
   `${new Date(iso).toLocaleString("en-GB", {
     day: "numeric",

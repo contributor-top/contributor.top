@@ -76,8 +76,14 @@ export function purgeCountry(data: CountryData, ids: ReadonlySet<number>): Count
       rows.filter((r) => !ids.has(r.id)).map((r, i) => ({ ...r, rank: i + 1 })),
     ]),
   );
-  const breakdown = Object.fromEntries(Object.entries(data.breakdown).filter(([id]) => !ids.has(Number(id))));
-  return countryDataSchema.parse({ ...data, tabs, breakdown });
+  const others = <T>(record: Record<string, T>) =>
+    Object.fromEntries(Object.entries(record).filter(([id]) => !ids.has(Number(id))));
+  return countryDataSchema.parse({
+    ...data,
+    tabs,
+    breakdown: others(data.breakdown),
+    ...(data.names && { names: others(data.names) }),
+  });
 }
 
 /** Whether purging would change anything (so unchanged files are not rewritten). */

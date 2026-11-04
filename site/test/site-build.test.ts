@@ -54,6 +54,8 @@ beforeAll(() => {
   Object.assign(ci.breakdown, {
     12: { commits: 30000, prs: 0, issues: 0, reviews: 0, private: 0, quiet: 0, popular: 29000 },
   });
+  // A display name is free text: it must come out escaped, and only on pages.
+  Object.assign(ci, { names: { "11": "<b>Octo</b> & Cat" } });
   const cd = country("congo_kinshasa", "Congo (Kinshasa)", [row(1, "octo-cat", 11, 90)]);
   writeFileSync(join(dataDir, "countries", "cote_divoire.json"), JSON.stringify(ci));
   writeFileSync(join(dataDir, "countries", "congo_kinshasa.json"), JSON.stringify(cd));
@@ -93,6 +95,17 @@ describe("site built from hostile data", () => {
     }
     expect(readFileSync(join(out, "no_data", "index.html"), "utf8")).toMatch(/noindex/);
     expect(readFileSync(join(out, "cote_divoire", "index.html"), "utf8")).toContain("Côte d&#39;Ivoire");
+  });
+
+  it("shows display names escaped on the country and world pages, and never in the API", () => {
+    const escaped = "&lt;b&gt;Octo&lt;/b&gt; &amp; Cat";
+    expect(readFileSync(join(out, "cote_divoire", "index.html"), "utf8")).toContain(`<span class="name"`);
+    for (const page of [join("cote_divoire", "index.html"), join("world", "index.html")]) {
+      const html = readFileSync(join(out, page), "utf8");
+      expect(html, page).toContain(escaped);
+      expect(html, page).not.toContain("<b>Octo");
+    }
+    for (const file of files(join(out, "api"))) expect(readFileSync(file, "utf8"), file).not.toContain("Octo</b>");
   });
 
   it("emits valid JSON-LD and API files", () => {

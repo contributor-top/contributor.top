@@ -8,6 +8,8 @@ export type FakeUser = {
   location: string | null;
   followers: number;
   status?: string | null;
+  /** GitHub display name; null when not set. */
+  name?: string | null;
   total?: number;
   restricted?: number;
   commits?: number;
@@ -155,6 +157,7 @@ export class FakeGitHub {
       return {
         databaseId: u.id,
         login: u.login,
+        name: u.name,
         location: u.location,
         followers: { totalCount: u.followers },
         status,
