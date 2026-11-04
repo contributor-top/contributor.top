@@ -7,12 +7,16 @@ import type { Found } from "./search.ts";
  * A candidate with what is read during collection but never stored: location (one country per
  * person, post_filter) and status (opt-out / opt-in).
  */
-export type Person = Candidate & { readonly location: string | null; readonly status: string | null };
+export type Person = Candidate & {
+  readonly name: string | null;
+  readonly location: string | null;
+  readonly status: string | null;
+};
 
 const DETAILS = `query($ids: [ID!]!) {
   nodes(ids: $ids) {
     ... on User {
-      databaseId login location
+      databaseId login name location
       followers { totalCount }
       status { message }
       contributionsCollection {
@@ -39,6 +43,7 @@ export const STATUS_BATCH = 50;
 
 const personSchema = statusSchema.extend({
   login: z.string(),
+  name: z.string().nullish(),
   location: z.string().nullable(),
   followers: z.object({ totalCount: count }),
   contributionsCollection: z.object({
@@ -66,6 +71,7 @@ function toPerson(node: unknown): Person | null {
     prs: c.totalPullRequestContributions,
     issues: c.totalIssueContributions,
     reviews: c.totalPullRequestReviewContributions,
+    name: u.name ?? null,
     location: u.location,
     status: u.status?.message ?? null,
   };

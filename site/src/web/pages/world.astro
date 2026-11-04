@@ -1,9 +1,10 @@
 ---
 import RankingTable from "../components/RankingTable.astro";
 import Base from "../layouts/Base.astro";
-import { worldRows } from "../lib/site.ts";
+import { worldNames, worldRows } from "../lib/site.ts";
 
 const rows = worldRows();
+const names = worldNames();
 ---
 
 <Base
@@ -25,7 +26,7 @@ const rows = worldRows();
     included, so this is not an exhaustive world ranking, and accounts whose activity looks automated are left out. See the{" "}
     <a href="/methodology/">methodology</a>.
   </p>
-  {rows.length > 0 ? <RankingTable rows={rows} /> : <p class="muted">No country data yet.</p>}
+  {rows.length > 0 ? <RankingTable rows={rows} names={names} /> : <p class="muted">No country data yet.</p>}
 </Base>
 
 <style>

@@ -8,7 +8,7 @@ description: What data contributor.top uses and how to be removed.
 
 ## What we use
 
-Only public data from GitHub profiles: your numeric account ID, login, follower count and contribution counts for the last 12 months. We do not store your name, email, bio, company, status or the exact text of your location. Data is not sold and not shared with recruiters or job boards.
+Only public data from GitHub profiles: your numeric account ID, login, display name, follower count and contribution counts for the last 12 months. The display name is shown next to your login on the site, as it is on GitHub, but is not part of the JSON files; it changes when you change it on GitHub, the next time your country is updated. We do not store your email, bio, company, status or the exact text of your location. Data is not sold and not shared with recruiters or job boards.
 
 ## Remove yourself
 

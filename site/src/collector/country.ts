@@ -1,5 +1,5 @@
 import type { Config } from "./config.ts";
-import { type CountryData, countryDataSchema } from "./country-data.ts";
+import { type CountryData, countryDataSchema, displayName } from "./country-data.ts";
 import { fetchPeople, fetchRepoActivity, fetchStatuses, type Person, type RepoActivity } from "./details.ts";
 import type { GitHubGraphQL } from "./github.ts";
 import { decide, optoutHash } from "./optout.ts";
@@ -54,20 +54,25 @@ function toCountryData(slug: string, preset: Preset, people: readonly Person[], 
   ) as Record<Tab, ReturnType<typeof rank>>;
   // Only people who appear in a ranking are published; the rest of the candidates leave no trace.
   const ranked = new Set(Object.values(tabs).flatMap((rows) => rows.map((r) => r.id)));
+  const shown = people.filter((p) => ranked.has(p.id));
   const breakdown = Object.fromEntries(
-    people
-      .filter((p) => ranked.has(p.id))
-      .map((p) => [
-        String(p.id),
-        {
-          commits: Math.max(0, p.commits),
-          prs: Math.max(0, p.prs),
-          issues: Math.max(0, p.issues),
-          reviews: Math.max(0, p.reviews),
-          private: Math.max(0, p.restricted),
-          ...meta.repos.get(p.id),
-        },
-      ]),
+    shown.map((p) => [
+      String(p.id),
+      {
+        commits: Math.max(0, p.commits),
+        prs: Math.max(0, p.prs),
+        issues: Math.max(0, p.issues),
+        reviews: Math.max(0, p.reviews),
+        private: Math.max(0, p.restricted),
+        ...meta.repos.get(p.id),
+      },
+    ]),
+  );
+  const names = Object.fromEntries(
+    shown.flatMap((p) => {
+      const name = displayName(p.name, p.login);
+      return name ? [[String(p.id), name]] : [];
+    }),
   );
   return countryDataSchema.parse({
     slug,
@@ -79,6 +84,7 @@ function toCountryData(slug: string, preset: Preset, people: readonly Person[], 
     presetChecksum: presetChecksum(preset),
     tabs,
     breakdown,
+    names,
   });
 }
 

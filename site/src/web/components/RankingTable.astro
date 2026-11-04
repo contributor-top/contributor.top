@@ -6,8 +6,13 @@ import { config, formatNumber } from "../lib/site.ts";
 import BotIcon from "./BotIcon.astro";
 import LockIcon from "./LockIcon.astro";
 
-type Props = { rows: (Row & { country?: string })[]; breakdown?: CountryData["breakdown"]; tab?: Tab };
-const { rows, breakdown, tab = "public" } = Astro.props;
+type Props = {
+  rows: (Row & { country?: string })[];
+  breakdown?: CountryData["breakdown"];
+  names?: CountryData["names"];
+  tab?: Tab;
+};
+const { rows, breakdown, names, tab = "public" } = Astro.props;
 
 /** Compact always-visible breakdown: label, value, full description for the tooltip. */
 const stats = (b: CountryData["breakdown"][string]) =>
@@ -43,6 +48,7 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
     {
       rows.map((row) => {
         const b = breakdown?.[String(row.id)];
+        const name = names?.[String(row.id)];
         const flagged =
           tab === "all" && b !== undefined && isMostlyPrivate(publicOf(b), b.private, config.ranking.private_flag_share);
         const flagText = flagged ? `${Math.round(privateShare(publicOf(b), b.private) * 100)}% private` : "";
@@ -59,8 +65,11 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
                   <span class="avatar-placeholder" aria-hidden="true">{row.login.slice(0, 1).toUpperCase()}</span>
                 )}
                 <div>
-                  <a href={`https://github.com/${row.login}`}>{row.login}</a>
-                  {row.country && <span class="muted"> · {row.country}</span>}
+                  <div class="line">
+                    <a href={`https://github.com/${row.login}`}>{row.login}</a>
+                    {name && <span class="name">{name}</span>}
+                    {row.country && <span class="country muted">· {row.country}</span>}
+                  </div>
                   {b && (
                     <div class="stats">
                       {stats(b).map(([label, value, what]) => (
@@ -253,6 +262,28 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
   .who a {
     color: var(--login);
   }
+  /* Login, then the display name (shortened first when the row is narrow), then the country. */
+  .who > div {
+    min-width: 0;
+  }
+  .line {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+  }
+  .line > * {
+    flex-shrink: 0;
+  }
+  .line > .name {
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--muted);
+    font-size: 13px;
+  }
   .who {
     display: flex;
     align-items: center;
@@ -308,6 +339,10 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
     }
     .who a {
       overflow-wrap: anywhere;
+    }
+    /* A very long login may wrap here rather than push the row wider than the screen. */
+    .line > a {
+      flex-shrink: 1;
     }
     img,
     .avatar-placeholder {
