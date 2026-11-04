@@ -12,7 +12,12 @@ const slugs = Object.fromEntries(countryEntries.map((c) => [c.title, c.slug]));
   <p id="status" class="muted" data-slugs={JSON.stringify(slugs)}>Looking up…</p>
 
   <script>
+    import { navigate } from "astro:transitions/client";
     import { LOGIN, SLUG } from "../../collector/patterns.ts";
+
+    // Through the client router, not location.replace: this page stays on screen until the ranking (a big page)
+    // has loaded, instead of a blank window while it does. It replaces this page in the history, as before.
+    const go = (url: string) => navigate(url, { history: "replace" });
 
     // Ranking → badge file suffix and page path; nothing outside these values ever reaches a URL.
     const TABS = {
@@ -48,10 +53,10 @@ const slugs = Object.fromEntries(countryEntries.map((c) => [c.title, c.slug]));
           const ranked = String(badge?.message ?? "").match(/^#\d+\s+(.+?)\s+\([^()]*\)$/);
           if (!ranked) return notFound();
           // The world has one page: the badge's place is never looked up as a country.
-          if (tabName === "world") return location.replace(`/world/#${name}`);
+          if (tabName === "world") return go(`/world/#${name}`);
           const slug = slugs[ranked[1] ?? ""];
           // Slugs come from validated presets, so this stays a same-site path.
-          if (slug && SLUG.test(slug)) location.replace(`/${slug}/${tab.path}#${name}`);
+          if (slug && SLUG.test(slug)) go(`/${slug}/${tab.path}#${name}`);
           else notFound();
         })
         .catch(notFound);
