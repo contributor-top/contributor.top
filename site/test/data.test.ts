@@ -168,21 +168,6 @@ describe("commit farms", () => {
     expect(isLikelyAutomated(activity(19_999, 0), rule)).toBe(false);
   });
 
-  it("also catch one quiet repository of their own, unless most commits go to a widely used project", () => {
-    // A farm that also opens pull requests: the ratio misses it, its one repository does not.
-    const farm = { ...activity(86_462, 5_922) };
-    expect(isLikelyAutomated(farm, rule)).toBe(false);
-    expect(isLikelyAutomated({ ...farm, quiet: 54_532, popular: 0 }, rule)).toBe(true);
-    expect(isLikelyAutomated({ ...farm, quiet: 40_000, popular: 0 }, rule)).toBe(false);
-    // A maintainer committing straight to a big community project: almost no pull requests, still a person.
-    const maintainer = activity(23_609, 120);
-    expect(isLikelyAutomated(maintainer, rule)).toBe(true);
-    expect(isLikelyAutomated({ ...maintainer, quiet: 0, popular: 23_424 }, rule)).toBe(false);
-    expect(isLikelyAutomated({ ...maintainer, quiet: 0, popular: 11_000 }, rule)).toBe(true);
-    // Below min_commits nothing counts, however quiet the repository.
-    expect(isLikelyAutomated({ ...activity(19_999, 5_000), quiet: 19_999, popular: 0 }, rule)).toBe(false);
-  });
-
   it("are left out of the world ranking and the world badges, but keep their country badges", () => {
     const data: CountryData = {
       ...country("a", "Alpha", [
@@ -197,5 +182,20 @@ describe("commit farms", () => {
     expect(badges.has("farm.world")).toBe(false);
     expect(badges.get("human.world")?.message).toBe("#1 World (public contributions)");
     expect(badges.get("farm")?.message).toBe("#1 Alpha (public contributions)");
+  });
+
+  it("also catch one quiet repository of their own, unless most commits go to a widely used project", () => {
+    // A farm that also opens pull requests: the ratio misses it, its one repository does not.
+    const farm = { ...activity(86_462, 5_922) };
+    expect(isLikelyAutomated(farm, rule)).toBe(false);
+    expect(isLikelyAutomated({ ...farm, quiet: 54_532, popular: 0 }, rule)).toBe(true);
+    expect(isLikelyAutomated({ ...farm, quiet: 40_000, popular: 0 }, rule)).toBe(false);
+    // A maintainer committing straight to a big community project: almost no pull requests, still a person.
+    const maintainer = activity(23_609, 120);
+    expect(isLikelyAutomated(maintainer, rule)).toBe(true);
+    expect(isLikelyAutomated({ ...maintainer, quiet: 0, popular: 23_424 }, rule)).toBe(false);
+    expect(isLikelyAutomated({ ...maintainer, quiet: 0, popular: 11_000 }, rule)).toBe(true);
+    // Below min_commits nothing counts, however quiet the repository.
+    expect(isLikelyAutomated({ ...activity(19_999, 5_000), quiet: 19_999, popular: 0 }, rule)).toBe(false);
   });
 });
