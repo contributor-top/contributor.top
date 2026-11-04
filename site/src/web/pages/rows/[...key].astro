@@ -1,0 +1,37 @@
+---
+// A step of a ranking's rows (11–50, 51–100, …) as a bare fragment (no <html>, no <head>), at
+// /rows/<ranking>/<first rank of the step>/: the ranking page fetches it only when the chosen size or a #login link
+// needs it. Not a page (robots.txt keeps it out).
+import type { GetStaticPaths } from "astro";
+import type { CountryData, Row } from "../../../collector/country-data.ts";
+import type { Tab } from "../../../collector/rank.ts";
+import RankingRows from "../../components/RankingRows.astro";
+import { collected, rowSteps, TAB_META, worldNames, worldRows } from "../../lib/site.ts";
+
+export const partial = true;
+
+export const getStaticPaths = (() => [
+  ...collected.flatMap(({ slug, data }) =>
+    (Object.keys(TAB_META) as Tab[]).flatMap((tab) =>
+      rowSteps(data.tabs[tab]).map(({ start, rows }) => ({
+        params: { key: `${slug}/${tab}/${start + 1}` },
+        props: { rows, breakdown: data.breakdown, names: data.names, tab },
+      })),
+    ),
+  ),
+  ...rowSteps(worldRows()).map(({ start, rows }) => ({
+    params: { key: `world/${start + 1}` },
+    props: { rows, breakdown: undefined, names: worldNames(), tab: "public" as Tab },
+  })),
+]) satisfies GetStaticPaths;
+
+type Props = {
+  rows: (Row & { country?: string })[];
+  breakdown: CountryData["breakdown"] | undefined;
+  names: CountryData["names"] | undefined;
+  tab: Tab;
+};
+const { rows, breakdown, names, tab } = Astro.props as Props;
+---
+
+<RankingRows rows={rows} breakdown={breakdown} names={names} tab={tab} />

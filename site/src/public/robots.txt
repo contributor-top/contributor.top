@@ -3,5 +3,7 @@ Allow: /
 # Machine-readable JSON (badges for shields.io, data API), not pages.
 Disallow: /u/
 Disallow: /api/
+# Fragments of the rankings, fetched by the pages themselves.
+Disallow: /rows/
 
 Sitemap: https://contributor.top/sitemap.xml

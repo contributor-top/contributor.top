@@ -1,17 +1,26 @@
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 
-// The only inline scripts: the theme must apply before first paint (no flash), and the badge-link lookup on /find/
-// must start while the page is parsed. Each hash is computed from the same file the page embeds, so the CSP and the
-// script can never drift apart.
+// The only inline scripts: the theme and the ranking's linked row must apply before first paint (no flash, no jump),
+// and the badge-link lookup on /find/ must start while the page is parsed. Each hash is computed from the same file
+// the page embeds, so the CSP and the script can never drift apart.
 const inlineHash = (path) =>
   `sha256-${createHash("sha256")
     .update(readFileSync(new URL(path, import.meta.url), "utf8"))
     .digest("base64")}`;
-const inlineHashes = ["./src/web/scripts/theme-init.js", "./src/web/scripts/find.js"].map(inlineHash);
+const inlineHashes = ["theme-init", "find", "ranking", "ranking-early"].map((name) =>
+  inlineHash(`./src/web/scripts/${name}.js`),
+);
+
+/** Every built page. */
+const htmlPages = (path) =>
+  readdirSync(path).flatMap((name) => {
+    const full = join(path, name);
+    return statSync(full).isDirectory() ? htmlPages(full) : full.endsWith(".html") ? [full] : [];
+  });
 
 /**
  * A <meta> CSP governs only what comes after it, and Astro emits it late in <head>, after the JSON-LD, the inline
@@ -23,13 +32,10 @@ const cspFirst = {
   name: "csp-first",
   hooks: {
     "astro:build:done": ({ dir }) => {
-      const pages = (path) =>
-        readdirSync(path).flatMap((name) => {
-          const full = join(path, name);
-          return statSync(full).isDirectory() ? pages(full) : full.endsWith(".html") ? [full] : [];
-        });
-      for (const page of pages(fileURLToPath(dir))) {
+      for (const page of htmlPages(fileURLToPath(dir))) {
         const html = readFileSync(page, "utf8");
+        // Fragments (pages/rows) are inserted into a page that has its CSP; they have no document of their own.
+        if (!html.includes("<html")) continue;
         const meta = html.match(CSP_META)?.[0];
         if (!meta || !html.includes(CHARSET)) throw new Error(`${page}: no CSP or charset meta to reorder`);
         writeFileSync(page, html.replace(meta, "").replace(CHARSET, CHARSET + meta));
@@ -38,8 +44,53 @@ const cspFirst = {
   },
 };
 
+/**
+ * A bundled script imports further chunks (the router imports its client, which imports another), and the browser
+ * learns of each only once the previous one has arrived: round trips in a row before the page finishes loading.
+ * List every chunk a page needs as modulepreload, so they all download at once, alongside the stylesheet.
+ */
+// Minified chunks: import"./a.js" and from"./a.js"; import("./a.js") loads later, on demand, and is left out.
+const STATIC_IMPORT = /(?:import|from) *["']([.][/][^"']+[.]js)["']/g;
+const MODULE_SCRIPT = /<script type="module" src="([/]_astro[/][^"]+[.]js)"/g;
+const preloadModules = {
+  name: "preload-modules",
+  hooks: {
+    "astro:build:done": ({ dir }) => {
+      const root = fileURLToPath(dir);
+      const importsOf = new Map();
+      const imports = (file) => {
+        if (!importsOf.has(file)) {
+          const code = readFileSync(join(root, file), "utf8");
+          importsOf.set(
+            file,
+            [...code.matchAll(STATIC_IMPORT)].map((m) => posix.join(posix.dirname(file), m[1])),
+          );
+        }
+        return importsOf.get(file);
+      };
+      for (const page of htmlPages(root)) {
+        const html = readFileSync(page, "utf8");
+        const entries = [...html.matchAll(MODULE_SCRIPT)].map((m) => m[1]);
+        const needed = new Set();
+        const visit = (file) => {
+          for (const dep of imports(file)) {
+            if (needed.has(dep)) continue;
+            needed.add(dep);
+            visit(dep);
+          }
+        };
+        for (const entry of entries) visit(entry);
+        for (const entry of entries) needed.delete(entry);
+        if (needed.size === 0) continue;
+        const links = [...needed].sort().map((href) => `<link rel="modulepreload" href="${href}">`);
+        writeFileSync(page, html.replace("</head>", `${links.join("")}</head>`));
+      }
+    },
+  },
+};
+
 export default defineConfig({
-  integrations: [cspFirst],
+  integrations: [cspFirst, preloadModules],
   site: "https://contributor.top",
   output: "static",
   srcDir: "./src/web",
@@ -51,7 +102,7 @@ export default defineConfig({
   prefetch: { prefetchAll: true, defaultStrategy: "hover" },
   // Astro's client-side router does not support its CSP when pages carry their own inline scripts and styles,
   // because each page's hashes differ. Bundling all of them as files makes them 'self' on every page, and the
-  // remaining inline scripts (theme-init, find) have the same hashes everywhere.
+  // remaining inline scripts (theme-init, find, ranking, ranking-early) have the same hashes everywhere.
   build: { format: "directory", inlineStylesheets: "never" },
   // One stylesheet for the whole site (about 4 kB compressed): cached by the first page, so a badge link from /find/
   // or any other page switch never waits for another one.

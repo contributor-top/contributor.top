@@ -1,9 +1,18 @@
 ---
 import type { GetStaticPaths } from "astro";
 import type { Tab } from "../../../collector/rank.ts";
+import RankingHead from "../../components/RankingHead.astro";
 import RankingTable from "../../components/RankingTable.astro";
 import Base from "../../layouts/Base.astro";
-import { type CountryEntry, countryEntries, formatDate, formatNumber, TAB_META, tabHref } from "../../lib/site.ts";
+import {
+  type CountryEntry,
+  countryEntries,
+  formatDate,
+  formatNumber,
+  rowsBase,
+  TAB_META,
+  tabHref,
+} from "../../lib/site.ts";
 
 export const getStaticPaths = (() =>
   countryEntries.flatMap((entry) =>
@@ -29,6 +38,7 @@ const description = data
     ` Updated ${formatDate(data.updatedAt)}.`
   : `The ranking of the most active GitHub users in ${entry.title} is being collected.`;
 const url = new URL(Astro.url.pathname, Astro.site).href;
+const more = rowsBase(`${entry.slug}/${tab}`);
 // Dataset helps Google Dataset Search; ItemList and breadcrumbs describe the page itself.
 const jsonLd = data
   ? {
@@ -69,6 +79,7 @@ const jsonLd = data
 ---
 
 <Base title={title} description={description} noindex={!data} jsonLd={jsonLd}>
+  <RankingHead slot="head" count={data?.tabs[tab].length ?? 0} more={more} />
   <h1>{entry.title}</h1>
   {
     data ? (
@@ -96,7 +107,13 @@ const jsonLd = data
         <p class="muted">
           {TAB_META[tab].note} In the list? <a href="/badge/">Add a badge to your GitHub profile →</a>
         </p>
-        <RankingTable rows={data.tabs[tab]} breakdown={data.breakdown} names={data.names} tab={tab} />
+        <RankingTable
+          rows={data.tabs[tab]}
+          breakdown={data.breakdown}
+          names={data.names}
+          tab={tab}
+          more={more}
+        />
       </>
     ) : (
       <p class="empty">Collecting data… The first update of a country can take a day or two.</p>
