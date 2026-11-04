@@ -11,13 +11,23 @@ ranking:
   consider: 1000 # most-followed candidates examined per country
   world_top_n: 512
   private_flag_share: 0.9 # in "all contributions", warn when this share of contributions is private
-  # Commit farms (a script committing all day): at least this many commits a year, and at least `ratio` times as many
-  # commits as pull requests, issues and reviews together. Measured Nov 2026: 74 of 72,884 people, all in a country
-  # top 10, while heavy contributors with real PR and review work stay well below. Left out of the world ranking and
-  # the world badges, marked in country rankings.
+  # Likely automated commits, for accounts with at least `min_commits` a year (left out of the world ranking and the
+  # world badges, marked in country rankings):
+  # - a commit farm: at least `ratio` times as many commits as pull requests, issues and reviews together;
+  # - or one repository of their own, with fewer than `quiet_stars` stars, holds at least `quiet_share` of the commits
+  #   (farms that also open pull requests hide from the ratio);
+  # - but never when at least `popular_share` of the commits go to someone else's repository with `popular_stars` or
+  #   more (maintainers of big community projects who commit directly, such as FreeBSD ports or Liferay).
+  # The repository check is one extra request per account above `min_commits` (~150 a cycle); when it fails, only the
+  # ratio applies. Measured Nov 2026 on the 374 accounts with 10k+ commits: the ratio alone flags 82, nearly all
+  # farms; the repository check clears 4 maintainers and adds 4 one-repository farms.
   automated:
     min_commits: 20000
     ratio: 50
+    quiet_stars: 10
+    quiet_share: 0.6
+    popular_stars: 1000
+    popular_share: 0.5
 
 collector:
   batch_size: 10 # users per GraphQL request

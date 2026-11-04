@@ -2,7 +2,8 @@ import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { type Config, loadConfig } from "../src/collector/config.ts";
 import { collectCountry } from "../src/collector/country.ts";
-import { fetchPeople, fetchStatuses, TooManySkippedError } from "../src/collector/details.ts";
+import { fetchPeople, fetchRepoActivity, fetchStatuses, TooManySkippedError } from "../src/collector/details.ts";
+import { type Activity, isLikelyAutomated } from "../src/collector/flags.ts";
 import { GitHubGraphQL } from "../src/collector/github.ts";
 import { optoutHash } from "../src/collector/optout.ts";
 import type { Preset } from "../src/collector/preset.ts";
@@ -332,6 +333,64 @@ describe("collecting a country", () => {
     });
     expect(data.tabs.public.map((r) => r.id).sort()).toEqual([2, 4]);
     expect(stats.postFiltered).toBe(2);
+  });
+
+  it("reads repositories only above min_commits, keeps only counts, and survives a failed read", async () => {
+    const users = [
+      // A farm that also opens pull requests: most commits in one quiet repository of its own.
+      user(1, "Atlantis", 10, {
+        commits: 90_000,
+        prs: 6_000,
+        repos: [
+          { owner: "USER-1", stars: 3, commits: 60_000 },
+          { owner: "user-1", stars: 2, commits: 20_000 },
+          { owner: "someone", stars: 5_000, commits: 1_000 },
+        ],
+      }),
+      // A maintainer committing straight to a big project of someone else, with few pull requests.
+      user(2, "Atlantis", 10, {
+        commits: 25_000,
+        prs: 100,
+        repos: [
+          { owner: "big-org", stars: 2_000, commits: 24_000 },
+          { owner: "user-2", stars: 500, commits: 900 },
+        ],
+      }),
+      user(3, "Atlantis", 10, { commits: 30_000, prs: 0, reposFail: true }),
+      user(4, "Atlantis", 10, { commits: 19_999, prs: 0 }),
+    ];
+    const github = new FakeGitHub(users);
+    const cfg = config();
+    const { data, stats } = await collectCountry(client(github), {
+      slug: "atlantis",
+      presets: PRESETS,
+      config: cfg,
+      optout: { key: KEY, hashes: new Set() },
+      now: NOW,
+    });
+    expect(data.breakdown["1"]).toMatchObject({ quiet: 60_000, popular: 1_000 });
+    expect(data.breakdown["2"]).toMatchObject({ quiet: 0, popular: 24_000 });
+    expect(data.breakdown["3"]).not.toHaveProperty("quiet");
+    expect(data.breakdown["4"]).not.toHaveProperty("quiet");
+    expect(JSON.stringify(data)).not.toMatch(/big-org|someone/);
+    // One request for each account above min_commits (3 fails twice, each retried once by the client), none below it.
+    expect(github.calls.filter((c) => c.kind === "repos")).toHaveLength(6);
+    expect(stats.repoFailed).toBe(1);
+    const rule = cfg.ranking.automated;
+    const flagged = (id: number) => isLikelyAutomated(data.breakdown[String(id)] as Activity, rule);
+    expect([1, 2, 3, 4].map(flagged)).toEqual([true, false, true, false]);
+  });
+
+  it("drops a repository read that comes back for another account (renamed since)", async () => {
+    const github = new FakeGitHub([user(7, "Atlantis", 10, { commits: 50_000, repos: [] })]);
+    const person = { id: 8, login: "user-7", followers: 1, total: 0, restricted: 0, commits: 50_000, prs: 0 };
+    const { activity, failed } = await fetchRepoActivity(
+      client(github),
+      [{ ...person, issues: 0, reviews: 0, location: null, status: null }],
+      config().ranking.automated,
+    );
+    expect(activity.size).toBe(0);
+    expect(failed).toBe(1);
   });
 
   it("rejects unknown countries", async () => {

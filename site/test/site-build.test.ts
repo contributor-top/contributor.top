@@ -50,6 +50,10 @@ beforeAll(() => {
   ]);
   // A commit farm: almost nothing but commits. It stays in its country, marked, and is left out of the world.
   ci.breakdown["13"] = { commits: 900000, prs: 1, issues: 0, reviews: 0, private: 0 };
+  // A maintainer committing straight to a widely used project: few pull requests, but not automated.
+  Object.assign(ci.breakdown, {
+    12: { commits: 30000, prs: 0, issues: 0, reviews: 0, private: 0, quiet: 0, popular: 29000 },
+  });
   const cd = country("congo_kinshasa", "Congo (Kinshasa)", [row(1, "octo-cat", 11, 90)]);
   writeFileSync(join(dataDir, "countries", "cote_divoire.json"), JSON.stringify(ci));
   writeFileSync(join(dataDir, "countries", "congo_kinshasa.json"), JSON.stringify(cd));

@@ -42,6 +42,13 @@ const breakdown = z
     reviews: z.number().int().min(0),
     /** restrictedContributionsCount: one opaque number, not split by type. */
     private: z.number().int().min(0),
+    /**
+     * Only for accounts with ranking.automated.min_commits or more, and only counts (never repository names):
+     * commits in their busiest own repository without stars to speak of, and commits in other owners' widely used
+     * repositories. See isLikelyAutomated.
+     */
+    quiet: z.number().int().min(0).optional(),
+    popular: z.number().int().min(0).optional(),
   })
   .strict();
 

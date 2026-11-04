@@ -132,6 +132,90 @@ export async function fetchPeople(
   return { people, skipped, gone };
 }
 
+/**
+ * Commits per repository, busiest first (only public repositories are visible to the app). One user per request:
+ * accounts with this many commits are the heaviest there are, and batches of them time out.
+ */
+const REPOSITORIES = `query($login: String!) {
+  user(login: $login) {
+    databaseId
+    contributionsCollection {
+      commitContributionsByRepository(maxRepositories: 10) {
+        contributions { totalCount }
+        repository { stargazerCount owner { login } }
+      }
+    }
+  }
+  ${RATE_LIMIT}
+}`;
+
+const repositoriesSchema = z.object({
+  databaseId: count,
+  contributionsCollection: z.object({
+    commitContributionsByRepository: z.array(
+      z.object({
+        contributions: z.object({ totalCount: count }),
+        repository: z.object({ stargazerCount: count, owner: z.object({ login: z.string() }) }),
+      }),
+    ),
+  }),
+});
+
+export type RepoActivity = { readonly quiet: number; readonly popular: number };
+
+/**
+ * For accounts with at least min_commits: commits in their busiest own repository with fewer than quiet_stars
+ * stars, and in other owners' repositories with at least popular_stars. Best effort: a user that cannot be read
+ * (an error, renamed since, a request GitHub gives up on) is left out, and only the commit ratio applies to them.
+ * Running out of time or a revoked token still stop the run.
+ */
+export async function fetchRepoActivity(
+  client: GitHubGraphQL,
+  people: readonly Person[],
+  rule: { readonly min_commits: number; readonly quiet_stars: number; readonly popular_stars: number },
+): Promise<{ activity: Map<number, RepoActivity>; failed: number }> {
+  const activity = new Map<number, RepoActivity>();
+  let pending = people.filter((p) => p.commits >= rule.min_commits);
+  // GitHub often gives up (502) on these accounts once and answers the same request a minute later: a second pass
+  // after the others gives it that minute.
+  for (let pass = 0; pass < 2 && pending.length > 0; pass++) {
+    const failedNow: Person[] = [];
+    for (const person of pending) {
+      const result = await readRepositories(client, person, rule);
+      if (result) activity.set(person.id, result);
+      else failedNow.push(person);
+    }
+    pending = failedNow;
+  }
+  return { activity, failed: pending.length };
+}
+
+async function readRepositories(
+  client: GitHubGraphQL,
+  person: Person,
+  rule: { readonly quiet_stars: number; readonly popular_stars: number },
+): Promise<RepoActivity | null> {
+  let node: unknown = null;
+  try {
+    const { data } = await client.query<{ user?: unknown }>(REPOSITORIES, { login: person.login });
+    node = data?.user ?? null;
+  } catch (e) {
+    if (!(e instanceof ApiError)) throw e;
+  }
+  const parsed = repositoriesSchema.safeParse(node);
+  // The login was read minutes ago; a different account under it now is someone else.
+  if (!parsed.success || parsed.data.databaseId !== person.id) return null;
+  const own = (login: string) => login.toLowerCase() === person.login.toLowerCase();
+  let quiet = 0;
+  let popular = 0;
+  for (const { contributions, repository } of parsed.data.contributionsCollection.commitContributionsByRepository) {
+    const commits = Math.max(0, contributions.totalCount);
+    if (own(repository.owner.login) && repository.stargazerCount < rule.quiet_stars) quiet = Math.max(quiet, commits);
+    if (!own(repository.owner.login) && repository.stargazerCount >= rule.popular_stars) popular += commits;
+  }
+  return { quiet, popular };
+}
+
 const statusSchema = z.object({ databaseId: count, status: z.object({ message: z.string().nullable() }).nullable() });
 
 /**

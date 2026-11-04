@@ -15,6 +15,10 @@ export type FakeUser = {
   issues?: number;
   reviews?: number;
   org?: boolean;
+  /** Commits per repository, busiest first (commitContributionsByRepository). */
+  repos?: { owner: string; stars: number; commits: number }[];
+  /** The repository request for this user always fails with a 502. */
+  reposFail?: boolean;
 };
 
 export type RawResponse = { status: number; body: string; headers?: Record<string, string> };
@@ -51,7 +55,7 @@ function parseSearch(q: string): Search {
 const nodeId = (id: number) => `U_${id}`;
 
 export class FakeGitHub {
-  readonly calls: { kind: "count" | "page" | "details" | "statuses"; size: number }[] = [];
+  readonly calls: { kind: "count" | "page" | "details" | "statuses" | "repos"; size: number }[] = [];
   /** Raw responses served before normal handling, one per request (status codes, broken bodies). */
   readonly queued: RawResponse[] = [];
   /** Detail requests with more IDs than this fail as RESOURCE_LIMITS_EXCEEDED. */
@@ -91,6 +95,7 @@ export class FakeGitHub {
   private handle(body: { query: string; variables: Record<string, unknown> }): RawResponse {
     const { query, variables } = body;
     if (query.includes("nodes(ids")) return this.nodes(query, variables["ids"] as string[]);
+    if (query.includes("user(login")) return this.repos(variables["login"] as string);
     const matched = this.matches(parseSearch(variables["q"] as string));
     if (query.includes("first: 0")) {
       this.calls.push({ kind: "count", size: 0 });
@@ -117,6 +122,22 @@ export class FakeGitHub {
         rateLimit: this.rateLimit(),
       },
     });
+  }
+
+  private repos(login: string): RawResponse {
+    this.calls.push({ kind: "repos", size: 1 });
+    const u = this.users.find((x) => x.login.toLowerCase() === login.toLowerCase() && !x.org);
+    if (u?.reposFail) return { status: 502, body: "bad gateway" };
+    const user = u && {
+      databaseId: u.id,
+      contributionsCollection: {
+        commitContributionsByRepository: (u.repos ?? []).map((r) => ({
+          contributions: { totalCount: r.commits },
+          repository: { stargazerCount: r.stars, owner: { login: r.owner } },
+        })),
+      },
+    };
+    return json({ data: { user: user ?? null, rateLimit: this.rateLimit() } });
   }
 
   private nodes(query: string, ids: string[]): RawResponse {

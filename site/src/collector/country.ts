@@ -1,6 +1,6 @@
 import type { Config } from "./config.ts";
 import { type CountryData, countryDataSchema } from "./country-data.ts";
-import { fetchPeople, fetchStatuses, type Person } from "./details.ts";
+import { fetchPeople, fetchRepoActivity, fetchStatuses, type Person, type RepoActivity } from "./details.ts";
 import type { GitHubGraphQL } from "./github.ts";
 import { decide, optoutHash } from "./optout.ts";
 import { type Preset, presetChecksum } from "./preset.ts";
@@ -21,6 +21,8 @@ type CountryStats = {
   postFiltered: number;
   optedOut: number;
   optedIn: number;
+  /** Accounts above ranking.automated.min_commits whose repositories could not be read (only the ratio applies). */
+  repoFailed: number;
 };
 
 export type CountryResult = {
@@ -42,7 +44,13 @@ function postFiltered(preset: Preset, location: string | null): boolean {
   );
 }
 
-type Meta = { topN: number; updatedAt: string; totalUsers: number; threshold: number };
+type Meta = {
+  topN: number;
+  updatedAt: string;
+  totalUsers: number;
+  threshold: number;
+  repos: ReadonlyMap<number, RepoActivity>;
+};
 
 function toCountryData(slug: string, preset: Preset, people: readonly Person[], meta: Meta): CountryData {
   const tabs = Object.fromEntries(
@@ -61,6 +69,7 @@ function toCountryData(slug: string, preset: Preset, people: readonly Person[], 
           issues: Math.max(0, p.issues),
           reviews: Math.max(0, p.reviews),
           private: Math.max(0, p.restricted),
+          ...meta.repos.get(p.id),
         },
       ]),
   );
@@ -162,6 +171,7 @@ export async function collectCountry(
     postFiltered: 0,
     optedOut: 0,
     optedIn: 0,
+    repoFailed: 0,
   };
   const run: Run = { client, slug, preset, presets, config, hashOf: (id) => optoutHash(id, optout.key), stats };
 
@@ -176,12 +186,15 @@ export async function collectCountry(
   });
   const { optedOut, kept } = sift(run, people);
   Object.assign(stats, { skipped, gone, optedOut: optedOut.length, optedIn: optedIn.length, considered: kept.length });
+  const repos = await fetchRepoActivity(client, kept, config.ranking.automated);
+  stats.repoFailed = repos.failed;
 
   const data = toCountryData(slug, preset, kept, {
     topN: config.ranking.top_n,
     updatedAt: now.toISOString(),
     totalUsers,
     threshold,
+    repos: repos.activity,
   });
   return { data, optedOut, optedIn, stats };
 }

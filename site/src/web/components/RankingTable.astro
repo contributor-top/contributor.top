@@ -46,7 +46,7 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
           tab === "all" && b !== undefined && isMostlyPrivate(publicOf(b), b.private, config.ranking.private_flag_share);
         // Commit farms stay in country rankings, marked; the world ranking leaves them out.
         const automated = b !== undefined && isLikelyAutomated(b, config.ranking.automated);
-        const automatedText = "Almost only commits: likely automated, not in the world ranking";
+        const automatedText = "Commits are likely automated, not in the world ranking";
         const flagText = b
           ? `${Math.round(privateShare(publicOf(b), b.private) * 100)}% private`
           : "";

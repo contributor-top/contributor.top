@@ -63,11 +63,35 @@
             "ratio": {
               "type": "number",
               "exclusiveMinimum": 0
+            },
+            "quiet_stars": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "quiet_share": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 1
+            },
+            "popular_stars": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "popular_share": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 1
             }
           },
           "required": [
             "min_commits",
-            "ratio"
+            "ratio",
+            "quiet_stars",
+            "quiet_share",
+            "popular_stars",
+            "popular_share"
           ],
           "additionalProperties": false
         }
