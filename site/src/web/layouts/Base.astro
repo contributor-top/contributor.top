@@ -125,6 +125,9 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
     gap: 20px;
     height: calc(100dvh - 80px);
     overflow-y: auto;
+    /* Room for focus rings, which the scroll box would otherwise cut off; the negative margin keeps the geometry. */
+    padding: 4px;
+    margin: -4px;
   }
   .logo {
     font-size: 24px;
@@ -141,6 +144,7 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
   nav {
     display: flex;
     flex-direction: column;
+    align-items: flex-start; /* links as wide as their text, and so are their focus rings */
     gap: 6px;
   }
   nav a {
@@ -182,7 +186,8 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
       grid-template-columns: 1fr auto;
       align-items: center;
       gap: 12px;
-      padding-bottom: 12px;
+      margin: 0;
+      padding: 0 0 12px;
       border-bottom: 1px solid var(--line);
     }
     .tagline {
