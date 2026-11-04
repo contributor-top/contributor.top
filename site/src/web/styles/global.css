@@ -143,14 +143,51 @@ h1 {
   border-radius: 4px;
 }
 
-/* Instant tooltip: hover, keyboard focus and tap. Text comes from data-tip. */
+/* Icons as masks over the text color: one shape in the stylesheet instead of an inline SVG in every row. */
+.lock,
+.bot {
+  display: inline-block;
+  background: currentColor;
+  mask-position: center;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+}
+
+.lock {
+  width: 11px;
+  height: 11px;
+  vertical-align: -1px;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 4a4 4 0 0 1 8 0v2h.25c.966 0 1.75.784 1.75 1.75v5.5A1.75 1.75 0 0 1 12.25 15h-8.5A1.75 1.75 0 0 1 2 13.25v-5.5C2 6.784 2.784 6 3.75 6H4Zm8.25 3.5h-8.5a.25.25 0 0 0-.25.25v5.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-5.5a.25.25 0 0 0-.25-.25ZM10.5 6V4a2.5 2.5 0 1 0-5 0v2Z'/%3E%3C/svg%3E");
+}
+
+.bot {
+  width: 12px;
+  height: 12px;
+  vertical-align: -2px;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 0a.75.75 0 0 1 .75.75V2h2.5A2.75 2.75 0 0 1 14 4.75v6.5A2.75 2.75 0 0 1 11.25 14h-6.5A2.75 2.75 0 0 1 2 11.25v-6.5A2.75 2.75 0 0 1 4.75 2h2.5V.75A.75.75 0 0 1 8 0ZM4.75 3.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h6.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25ZM6 6.25a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm4 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2ZM5.5 10h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1Z'/%3E%3C/svg%3E");
+}
+
+/* A #login link: the table stays hidden until its row is in place (ranking.js), so it never shows elsewhere first.
+   If the script never gets there, the table shows anyway after a moment. */
+html.to-row table.ranking {
+  visibility: hidden;
+  animation: to-row 0s 1.5s forwards;
+}
+
+@keyframes to-row {
+  to {
+    visibility: visible;
+  }
+}
+
+/* Instant tooltip: hover, keyboard focus and tap. data-tip marks it; the text is the aria-label, written once. */
 [data-tip] {
   position: relative;
   cursor: help;
 }
 
 [data-tip]:is(:hover, :focus)::after {
-  content: attr(data-tip);
+  content: attr(aria-label);
   position: absolute;
   bottom: calc(100% + 6px);
   left: 0;

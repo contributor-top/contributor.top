@@ -1,0 +1,20 @@
+---
+// For a ranking page's <head>: what ranking-early.js needs to fetch the rows the chosen size needs while the page is
+// still arriving (its CSP hash is in astro.config.mjs). Nothing for a ranking that fits its smallest size.
+import { chunkStarts, sizesFor } from "../lib/site.ts";
+import early from "../scripts/ranking-early.js?raw";
+
+type Props = { count: number; more: string };
+const { count, more } = Astro.props;
+const starts = chunkStarts(count);
+const { choices, defaultTop } = sizesFor(count);
+---
+
+{
+  starts.length > 0 && (
+    <>
+      <meta name="ranking" content={JSON.stringify({ more, starts, choices, top: defaultTop })} />
+      <script is:inline data-astro-rerun set:html={early} />
+    </>
+  )
+}

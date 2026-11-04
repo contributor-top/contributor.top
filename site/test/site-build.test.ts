@@ -24,6 +24,9 @@ const country = (slug: string, title: string, rows: ReturnType<typeof row>[]) =>
   breakdown: Object.fromEntries(rows.map((r) => [r.id, { commits: 1, prs: 2, issues: 3, reviews: 4, private: 0 }])),
 });
 
+/** Built HTML documents: every page, without the row fragments (pages/rows). */
+const documents = () => files(out).filter((f) => f.endsWith(".html") && !f.startsWith(join(out, "rows")));
+
 function files(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {
     const path = join(dir, name);
@@ -61,6 +64,10 @@ beforeAll(() => {
   writeFileSync(join(dataDir, "countries", "cote_divoire.json"), JSON.stringify(ci));
   writeFileSync(join(dataDir, "countries", "congo_kinshasa.json"), JSON.stringify(cd));
   writeFileSync(join(dataDir, "countries", "empty_land.json"), JSON.stringify(country("empty_land", "Empty Land", [])));
+  // More rows than the smallest size: the page carries 10, the rest are fragments loaded on demand.
+  writeFileSync(join(presetsDir, "big_land.yml"), "{ title: Big Land, iso: null, include: [bigtown], exclude: [] }");
+  const big = Array.from({ length: 60 }, (_, i) => row(i + 1, `big-${i + 1}`, 1000 + i, 30 - Math.floor(i / 2)));
+  writeFileSync(join(dataDir, "countries", "big_land.json"), JSON.stringify(country("big_land", "Big Land", big)));
   // Data left over from a removed preset: no page, so no badge may link to it.
   writeFileSync(
     join(dataDir, "countries", "orphan.json"),
@@ -119,6 +126,7 @@ describe("site built from hostile data", () => {
     }
     const index = JSON.parse(readFileSync(join(out, "api", "index.json"), "utf8"));
     expect(index.countries.map((c: { slug: string }) => c.slug).sort()).toEqual([
+      "big_land",
       "congo_kinshasa",
       "cote_divoire",
       "empty_land",
@@ -136,7 +144,7 @@ describe("site built from hostile data", () => {
   });
 
   it("puts the CSP first in <head>: a meta policy covers only what comes after it", () => {
-    for (const page of files(out).filter((f) => f.endsWith(".html"))) {
+    for (const page of documents()) {
       const html = readFileSync(page, "utf8");
       const csp = html.search(/<meta http-equiv="content-security-policy"/i);
       expect(csp, page).toBeGreaterThan(-1);
@@ -174,7 +182,7 @@ describe("site built from hostile data", () => {
 
   it("links one stylesheet from every page, so a page switch never waits for another", () => {
     const sheets = new Set<string>();
-    for (const page of files(out).filter((f) => f.endsWith(".html"))) {
+    for (const page of documents()) {
       const links = [...readFileSync(page, "utf8").matchAll(/<link rel="stylesheet" href="([^"]+)"/g)];
       expect(links, page).toHaveLength(1);
       sheets.add(links[0]?.[1] ?? "");
@@ -189,8 +197,10 @@ describe("site built from hostile data", () => {
     expect(script).toBeLessThan(html.indexOf('<link rel="stylesheet"'));
     const meta = html.match(/<meta name="find-data" content="([^"]*)"/)?.[1] ?? "";
     expect(html.indexOf('<meta name="find-data"')).toBeLessThan(script);
-    const slugs = JSON.parse(meta.replaceAll("&quot;", '"').replaceAll("&#39;", "'").replaceAll("&amp;", "&"));
-    expect(slugs).toEqual({
+    const data = JSON.parse(meta.replaceAll("&quot;", '"').replaceAll("&#39;", "'").replaceAll("&amp;", "&"));
+    expect(data.sizes).toEqual([10, 50, 100, 256, 512]);
+    expect(data.slugs).toEqual({
+      "Big Land": "big_land",
       "Congo (Kinshasa)": "congo_kinshasa",
       "Côte d'Ivoire": "cote_divoire",
       "Empty Land": "empty_land",
@@ -199,10 +209,65 @@ describe("site built from hostile data", () => {
     expect(html).not.toMatch(/find\.astro_astro_type_script/);
   });
 
-  it("checks badge links with the same login and slug patterns as the collector", () => {
-    const script = readFileSync("src/web/scripts/find.js", "utf8");
-    expect(script).toContain(`const LOGIN = ${LOGIN};`);
-    expect(script).toContain(`const SLUG = ${SLUG};`);
+  it("checks badge links and #login links with the same patterns as the collector", () => {
+    const find = readFileSync("src/web/scripts/find.js", "utf8");
+    expect(find).toContain(`const LOGIN = ${LOGIN};`);
+    expect(find).toContain(`const SLUG = ${SLUG};`);
+    expect(readFileSync("src/web/scripts/ranking.js", "utf8")).toContain(`const LOGIN = ${LOGIN};`);
+  });
+
+  it("puts only the smallest size in the page and the rest in fragments, one per step", () => {
+    const html = readFileSync(join(out, "big_land", "index.html"), "utf8");
+    expect(html.match(/<tr id=/g)).toHaveLength(10);
+    expect(html).toContain('data-more="/rows/big_land/public/"');
+    expect(html).toContain('data-starts="10,50"');
+    const step = (n: number) => readFileSync(join(out, "rows", "big_land", "public", String(n), "index.html"), "utf8");
+    const ranks = (fragment: string) => [...fragment.matchAll(/data-rank="([0-9]+)"/g)].map((m) => Number(m[1]));
+    expect(ranks(step(11))).toEqual(Array.from({ length: 40 }, (_, i) => 11 + i));
+    expect(ranks(step(51))).toEqual(Array.from({ length: 10 }, (_, i) => 51 + i));
+    for (const fragment of [step(11), step(51)]) {
+      expect(fragment.trimStart().startsWith("<tr")).toBe(true);
+      expect(fragment).not.toMatch(/<html|<head|<script/);
+    }
+    expect(existsSync(join(out, "rows", "big_land", "public", "101"))).toBe(false);
+    // A ranking that fits its smallest size has no fragments and fetches nothing.
+    expect(existsSync(join(out, "rows", "cote_divoire"))).toBe(false);
+    expect(readFileSync(join(out, "cote_divoire", "index.html"), "utf8")).not.toMatch(
+      /data-more="|<meta name="ranking"/,
+    );
+    expect(readFileSync(join(out, "robots.txt"), "utf8")).toContain("Disallow: /rows/");
+  });
+
+  it("starts fetching the steps a size needs from <head>, before the stylesheet", () => {
+    const html = readFileSync(join(out, "big_land", "index.html"), "utf8");
+    const meta = html.indexOf('<meta name="ranking"');
+    const early = readFileSync("src/web/scripts/ranking-early.js", "utf8");
+    const script = html.indexOf(`<script data-astro-rerun>${early}</script>`);
+    expect(meta).toBeGreaterThan(0);
+    expect(script).toBeGreaterThan(meta);
+    expect(script).toBeLessThan(html.indexOf('<link rel="stylesheet"'));
+  });
+
+  it("runs the ranking script inline, right after the table, before the first paint and after every page switch", () => {
+    const html = readFileSync(join(out, "cote_divoire", "index.html"), "utf8");
+    const script = `</table><script data-astro-rerun>${readFileSync("src/web/scripts/ranking.js", "utf8")}</script>`;
+    expect(html).toContain(script);
+    expect(html).not.toMatch(/RankingTable\.astro_astro_type_script/);
+  });
+
+  it("preloads every module a page imports, so none waits for another", () => {
+    for (const page of files(out).filter((f) => f.endsWith(".html"))) {
+      const html = readFileSync(page, "utf8");
+      const listed = new Set(
+        [...html.matchAll(/<(?:script type="module" src|link rel="modulepreload" href)="([^"]+)"/g)].map((m) => m[1]),
+      );
+      for (const src of listed) {
+        const code = readFileSync(join(out, src ?? ""), "utf8");
+        for (const [, dep] of code.matchAll(/(?:import|from) *["']([.][/][^"']+[.]js)["']/g)) {
+          expect(listed, `${page}: ${dep}`).toContain(`/_astro/${dep?.slice(2)}`);
+        }
+      }
+    }
   });
 
   it("keeps the CSP: every inline script is hashed", () => {

@@ -1,186 +1,59 @@
 ---
 import type { CountryData, Row } from "../../collector/country-data.ts";
-import { compactNumber, isLikelyAutomated, isMostlyPrivate, privateShare } from "../../collector/flags.ts";
 import type { Tab } from "../../collector/rank.ts";
-import { config, formatNumber } from "../lib/site.ts";
-import BotIcon from "./BotIcon.astro";
-import LockIcon from "./LockIcon.astro";
+import { chunkStarts, FIRST_ROWS, sizesFor } from "../lib/site.ts";
+import ranking from "../scripts/ranking.js?raw";
+import RankingRows from "./RankingRows.astro";
 
 type Props = {
   rows: (Row & { country?: string })[];
   breakdown?: CountryData["breakdown"];
   names?: CountryData["names"];
   tab?: Tab;
+  /** rowsBase() of this ranking: its rows after the first FIRST_ROWS, a fragment per step (pages/rows). */
+  more: string;
 };
-const { rows, breakdown, names, tab = "public" } = Astro.props;
-
-/** Compact always-visible breakdown: label, value, full description for the tooltip. */
-const stats = (b: CountryData["breakdown"][string]) =>
-  [
-    ["C", b.commits, "public commits"],
-    ["PR", b.prs, "public pull requests"],
-    ["IS", b.issues, "public issues"],
-    ["RV", b.reviews, "public reviews"],
-    ["private", b.private, "private contributions"],
-  ] as const;
-const publicOf = (b: CountryData["breakdown"][string]) => b.commits + b.prs + b.issues + b.reviews;
-
-// In increasing order (the config schema checks). Offer a size only if the previous one does not show everyone.
-const choices = config.ranking.top_choices;
-const visibleChoices = choices.filter((_, i) => i === 0 || (choices[i - 1] as number) < rows.length);
-const defaultTop = Math.min(config.ranking.default_top, visibleChoices.at(-1) ?? config.ranking.default_top);
-const automatedText = "Commits are likely automated, not in the world ranking";
-const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : rank === 3 ? "bronze" : "");
+const { rows, breakdown, names, tab = "public", more } = Astro.props;
+const { choices, defaultTop } = sizesFor(rows.length);
+const starts = chunkStarts(rows.length);
 ---
 
 <div class="toolbar needs-js">
   <span class="muted">Show top</span>
   <div class="segmented" role="group" aria-label="Number of people shown" data-top-switch>
-    {visibleChoices.map((c) => <button type="button" data-top-value={c} data-label={c}>{c}</button>)}
+    {choices.map((c) => <button type="button" data-top-value={c} data-label={c}>{c}</button>)}
   </div>
 </div>
 
-<table class="ranking" data-top={defaultTop} data-choices={visibleChoices.join(",")}>
+<table
+  class="ranking"
+  data-top={defaultTop}
+  data-choices={choices.join(",")}
+  data-more={starts.length > 0 ? more : undefined}
+  data-starts={starts.join(",")}
+  data-count={rows.length}
+>
   <thead>
     <tr><th scope="col" class="r">#</th><th scope="col">Developer</th><th scope="col" class="c">Contributions</th></tr>
   </thead>
   <tbody>
-    {
-      rows.map((row) => {
-        const b = breakdown?.[String(row.id)];
-        const name = names?.[String(row.id)];
-        const flagged =
-          tab === "all" && b !== undefined && isMostlyPrivate(publicOf(b), b.private, config.ranking.private_flag_share);
-        const flagText = flagged ? `${Math.round(privateShare(publicOf(b), b.private) * 100)}% private` : "";
-        // Commit farms stay in country rankings, marked; the world ranking leaves them out.
-        const automated = b !== undefined && isLikelyAutomated(b, config.ranking.automated);
-        return (
-          <tr id={row.login.toLowerCase()} data-rank={row.rank} class={medal(row.rank) ? `podium ${medal(row.rank)}-row` : undefined}>
-            <td class={`r ${medal(row.rank)}`}>{row.rank}</td>
-            <td>
-              <div class="who">
-                {row.id > 0 ? (
-                  <img loading="lazy" width="28" height="28" alt="" src={`https://avatars.githubusercontent.com/u/${row.id}?s=56`} />
-                ) : (
-                  <span class="avatar-placeholder" aria-hidden="true">{row.login.slice(0, 1).toUpperCase()}</span>
-                )}
-                <div>
-                  <div class="line">
-                    <a href={`https://github.com/${row.login}`}>{row.login}</a>
-                    {name && <span class="name">{name}</span>}
-                    {row.country && <span class="country muted">· {row.country}</span>}
-                  </div>
-                  {b && (
-                    <div class="stats">
-                      {stats(b).map(([label, value, what]) => (
-                        <span tabindex="0" data-tip={`${formatNumber(value)} ${what}`} aria-label={`${formatNumber(value)} ${what}`}>
-                          {label === "private" ? <LockIcon /> : label} {compactNumber(value)}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </td>
-            <td class="c">
-              {automated && (
-                <span class="flag tip-end" tabindex="0" data-tip={automatedText} aria-label={automatedText} role="img">
-                  <BotIcon />
-                </span>
-              )}
-              {flagged && (
-                <span class="flag tip-end" tabindex="0" data-tip={flagText} aria-label={flagText} role="img">
-                  <LockIcon />
-                </span>
-              )}
-              {formatNumber(row.contributions)}
-            </td>
-          </tr>
-        );
-      })
-    }
+    <RankingRows rows={rows.slice(0, FIRST_ROWS)} breakdown={breakdown} names={names} tab={tab} />
   </tbody>
 </table>
+{
+  starts.length > 0 && (
+    <noscript>
+      <p class="muted">The top {FIRST_ROWS} of {rows.length} are shown; the rest need JavaScript.</p>
+    </noscript>
+  )
+}
 
-<script>
-  import { LOGIN } from "../../collector/patterns.ts";
+{/* Before the first paint: marks and scrolls to a linked row. Its CSP hash is in astro.config.mjs. */}
+<script is:inline data-astro-rerun set:html={ranking} />
 
-  /**
-   * The row a link points to (#login, e.g. from a badge): case-insensitive, unlike :target, and also after a
-   * client-side navigation, which never updates :target. A malformed #hash must not break the page.
-   */
-  function targetRow(table: HTMLTableElement): HTMLTableRowElement | null {
-    try {
-      const id = decodeURIComponent(location.hash.slice(1)).toLowerCase();
-      if (!LOGIN.test(id)) return null;
-      return table.querySelector<HTMLTableRowElement>(`tbody tr[id="${id}"]`);
-    } catch {
-      return null;
-    }
-  }
-
-  /** Marks the linked row; the CSS gives it a quiet tint. */
-  function markTarget(table: HTMLTableElement): HTMLTableRowElement | null {
-    for (const row of table.querySelectorAll("tr.is-target")) row.classList.remove("is-target");
-    const row = targetRow(table);
-    row?.classList.add("is-target");
-    return row;
-  }
-
-  // Same page, new #login (a typed or followed hash link): move the mark there. Registered once for the document.
-  function onHashChange(): void {
-    const table = document.querySelector<HTMLTableElement>("table.ranking");
-    const row = table ? markTarget(table) : null;
-    if (row) {
-      row.hidden = false;
-      row.scrollIntoView({ block: "start" });
-    }
-  }
-  window.addEventListener("hashchange", onHashChange);
-
-  // Runs on the first load and after every client-side navigation (the page is swapped, not reloaded).
-  function init(): void {
-    // Without JS every row stays visible; the selector only hides rows below the chosen size.
-    const table = document.querySelector<HTMLTableElement>("table.ranking");
-    const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-top-switch] button")];
-    if (!table) return;
-    const rows = [...table.querySelectorAll<HTMLTableRowElement>("tbody tr[data-rank]")];
-    const choices = (table.dataset["choices"] ?? "").split(",").map(Number).filter((n) => n > 0);
-    const pick = (top: number) => {
-      if (!choices.includes(top)) return;
-      for (const row of rows) row.hidden = Number(row.dataset["rank"]) > top;
-      for (const b of buttons) b.setAttribute("aria-pressed", String(Number(b.dataset["topValue"]) === top));
-    };
-    let initial = Number(new URLSearchParams(location.search).get("top"));
-    if (!choices.includes(initial)) {
-      try {
-        initial = Number(localStorage.getItem("top"));
-      } catch {}
-    }
-    if (!choices.includes(initial)) initial = Number(table.dataset["top"]);
-    // A link to #login must show that row even if it is below the chosen size.
-    const target = markTarget(table);
-    const targetRank = Number(target?.dataset["rank"]);
-    if (targetRank > initial) initial = choices.find((c) => c >= targetRank) ?? initial;
-    pick(initial);
-    for (const b of buttons) {
-      b.addEventListener("click", () => {
-        const top = Number(b.dataset["topValue"]);
-        pick(top);
-        const url = new URL(location.href);
-        url.searchParams.set("top", String(top));
-        history.replaceState(null, "", url);
-        try {
-          localStorage.setItem("top", String(top));
-        } catch {}
-      });
-    }
-    target?.scrollIntoView({ block: "start" });
-  }
-  document.addEventListener("astro:page-load", init);
-</script>
-
-<style>
+<style is:global>
+  /* Global, but every selector starts at the toolbar or the ranking table: Astro's scoped styles would put a
+     data-astro-cid attribute on each of the table's thousands of elements. */
   .toolbar {
     display: flex;
     flex-wrap: wrap;
@@ -188,11 +61,11 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
     gap: 8px;
     margin: 0 0 8px;
   }
-  table {
+  table.ranking {
     width: 100%;
     border-collapse: collapse;
   }
-  th {
+  .ranking th {
     text-align: left;
     font-size: 12px;
     font-weight: 600;
@@ -200,82 +73,82 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
     padding: 6px 8px;
     border-bottom: 1px solid var(--line);
   }
-  td {
+  .ranking td {
     padding: 8px;
     border-bottom: 1px solid var(--line);
     vertical-align: middle;
   }
-  .r {
+  .ranking .r {
     width: 56px;
     text-align: right;
     color: var(--muted);
     font-variant-numeric: tabular-nums;
   }
-  .c {
+  .ranking .c {
     text-align: right;
     font-variant-numeric: tabular-nums;
   }
-  td.c {
+  .ranking td.c {
     font-weight: 600;
     white-space: nowrap;
   }
-  .gold,
-  .silver,
-  .bronze {
+  .ranking .gold,
+  .ranking .silver,
+  .ranking .bronze {
     font-weight: 700;
   }
-  .gold {
+  .ranking .gold {
     color: var(--gold);
   }
-  .silver {
+  .ranking .silver {
     color: var(--silver);
   }
-  .bronze {
+  .ranking .bronze {
     color: var(--bronze);
   }
   /* A light tint for the top 3, just enough to stand out. */
-  .gold-row {
+  .ranking .gold-row {
     background: var(--gold-bg);
   }
-  .silver-row {
+  .ranking .silver-row {
     background: var(--silver-bg);
   }
-  .bronze-row {
+  .ranking .bronze-row {
     background: var(--bronze-bg);
   }
   /* Where a #login link puts its row: about the middle of the screen. The browser's own jump to the anchor and
      the script's scrollIntoView (block: start) both use this, so the page lands once instead of jumping twice. */
-  tbody tr {
+  .ranking tbody tr {
     scroll-margin-top: calc(50vh - 30px);
   }
   /* The row a badge link opens: a quiet tint with a thin edge, so it stays findable after scrolling without
      shouting. :target covers pages without JS. */
-  tr:target,
-  tr.is-target {
+  .ranking tr:target,
+  .ranking tr.is-target {
     background: var(--highlight);
   }
-  tr:target > td:first-child,
-  tr.is-target > td:first-child {
+  .ranking tr:target > td:first-child,
+  .ranking tr.is-target > td:first-child {
     box-shadow: inset 3px 0 0 var(--highlight-edge);
   }
   /* Logins use their own token: blue in the light theme, plain text in the dark one; hover only underlines. */
-  .who a {
+  .ranking .who a {
     color: var(--login);
   }
   /* Login, then the display name (shortened first when the row is narrow), then the country. */
-  .who > div {
+  .ranking .who > div {
     min-width: 0;
   }
-  .line {
+  .ranking .line {
     display: flex;
     align-items: baseline;
     gap: 6px;
     min-width: 0;
   }
-  .line > * {
+  .ranking .line > * {
     flex-shrink: 0;
   }
-  .line > .name {
+  .ranking .line > .name {
     flex-shrink: 1;
     min-width: 0;
     overflow: hidden;
@@ -284,12 +157,12 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
     color: var(--muted);
     font-size: 13px;
   }
-  .who {
+  .ranking .who {
     display: flex;
     align-items: center;
     gap: 10px;
   }
-  .stats {
+  .ranking .stats {
     display: flex;
     flex-wrap: wrap;
     gap: 2px 10px;
@@ -298,27 +171,27 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
     font-variant-numeric: tabular-nums;
   }
   /* Same quiet style as the stats: an informational hint, not a warning. */
-  .flag {
+  .ranking .flag {
     color: var(--muted);
     font-weight: 400;
     margin-right: 6px;
   }
-  .stats [data-tip]:hover,
-  .flag:hover {
+  .ranking .stats [data-tip]:hover,
+  .ranking .flag:hover {
     color: var(--fg);
   }
-  img,
-  .avatar-placeholder {
+  .ranking img,
+  .ranking .avatar-placeholder {
     width: 28px;
     height: 28px;
     border-radius: 50%;
     flex: none;
   }
   /* A quiet circle holds the avatar's place until the photo arrives, then the photo covers it. */
-  img {
+  .ranking img {
     background: var(--skeleton);
   }
-  .avatar-placeholder {
+  .ranking .avatar-placeholder {
     display: inline-grid;
     place-items: center;
     background: var(--surface);
@@ -327,25 +200,25 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
     color: var(--muted);
   }
   @media (max-width: 560px) {
-    th,
-    td {
+    .ranking th,
+    .ranking td {
       padding: 6px 4px;
     }
-    .r {
+    .ranking .r {
       width: 32px;
     }
-    .who {
+    .ranking .who {
       gap: 8px;
     }
-    .who a {
+    .ranking .who a {
       overflow-wrap: anywhere;
     }
     /* A very long login may wrap here rather than push the row wider than the screen. */
-    .line > a {
+    .ranking .line > a {
       flex-shrink: 1;
     }
-    img,
-    .avatar-placeholder {
+    .ranking img,
+    .ranking .avatar-placeholder {
       width: 24px;
       height: 24px;
     }
