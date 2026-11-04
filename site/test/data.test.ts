@@ -108,14 +108,30 @@ describe("badges", () => {
     expect(badges.get("x")?.message).toBe("#3 Alpha (public contributions)");
   });
 
-  it("ranks the world badge across countries and writes it only for the world top", () => {
+  it("ranks the world badge across countries; below the world top it reads unranked", () => {
     // contributions = 100 - rank: "b" (#1 in Beta, 99) is ahead of "a" (#2 in Alpha, 98).
     const countries = [country("a", "Alpha", [row(2, "a", 1)]), country("b", "Beta", [row(1, "b", 2), row(3, "c", 3)])];
     const badges = buildBadges(countries, 2);
     expect(badges.get("b.world")?.message).toBe("#1 World (public contributions)");
     expect(badges.get("a.world")).toMatchObject({ message: "#2 World (public contributions)", color: "a0a8b0" });
-    expect(badges.has("c.world")).toBe(false);
-    expect(badges.has("c")).toBe(true);
+    expect(badges.get("c.world")).toMatchObject({ message: "World: unranked (public contributions)", color: "6e7781" });
+    expect(badges.get("c")?.message).toBe("#3 Beta (public contributions)");
+  });
+
+  it("says unranked, with the country of the best rank, for a ranking the person is not in", () => {
+    const data = country("a", "Alpha", [row(1, "solo", 2)]);
+    const badges = buildBadges(
+      [
+        { ...data, tabs: { public: [], all: [row(2, "solo", 2)], commits: [] } },
+        { ...country("b", "Beta", []), tabs: { public: [], all: [], commits: [row(1, "solo", 2)] } },
+      ],
+      512,
+    );
+    expect(badges.get("solo.all")?.message).toBe("#2 Alpha (all contributions)");
+    expect(badges.get("solo.commits")?.message).toBe("#1 Beta (public commits)");
+    expect(badges.get("solo")).toMatchObject({ message: "Alpha: unranked (public contributions)", color: "6e7781" });
+    expect(badges.get("solo.world")?.message).toBe("World: unranked (public contributions)");
+    expect(badges.size).toBe(4);
   });
 });
 
@@ -161,7 +177,7 @@ describe("commit farms", () => {
     expect(isLikelyAutomated(activity(19_999, 0), rule)).toBe(false);
   });
 
-  it("are left out of the world ranking and the world badges, but keep their country badges", () => {
+  it("are left out of the world ranking (their world badge reads unranked), but keep their country badges", () => {
     const data: CountryData = {
       ...country("a", "Alpha", [
         { rank: 1, login: "farm", id: 1, contributions: 900_000 },
@@ -172,7 +188,7 @@ describe("commit farms", () => {
     expect(worldRanking([data], 10, rule).map((r) => `${r.rank}:${r.login}`)).toEqual(["1:human"]);
     expect(worldRanking([data], 10).map((r) => r.login)).toEqual(["farm", "human"]);
     const badges = buildBadges([data], 10, rule);
-    expect(badges.has("farm.world")).toBe(false);
+    expect(badges.get("farm.world")?.message).toBe("World: unranked (public contributions)");
     expect(badges.get("human.world")?.message).toBe("#1 World (public contributions)");
     expect(badges.get("farm")?.message).toBe("#1 Alpha (public contributions)");
   });

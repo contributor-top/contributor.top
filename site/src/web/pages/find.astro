@@ -46,8 +46,10 @@ const slugs = Object.fromEntries(countryEntries.map((c) => [c.title, c.slug]));
           fetch(`/u/${name}${tab.suffix}.json`)
             .then((res) => (res.ok ? res.json() : null))
             .then((badge: { message?: unknown } | null) => {
+              // "World: unranked (…)" and "Atlantis: unranked (…)" are files too, but not a rank.
+              const rankedBadge = /^#\d+ /.test(String(badge?.message ?? ""));
               if (tab.world) {
-                if (badge) location.replace(`/world/#${name}`);
+                if (rankedBadge) location.replace(`/world/#${name}`);
                 else notFound();
                 return;
               }
