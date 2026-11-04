@@ -101,6 +101,9 @@ h1 {
 }
 
 .segmented button {
+  /* Hidden regular and bold copies of the label (data-label) reserve the wider of the two, so pressing a button
+     never shifts the others (in some fonts the bold digits are even narrower). */
+  display: inline-grid;
   border: 0;
   background: transparent;
   color: var(--muted);
@@ -108,6 +111,19 @@ h1 {
   font: inherit;
   font-size: 13px;
   cursor: pointer;
+}
+
+.segmented button::before,
+.segmented button::after {
+  content: attr(data-label);
+  font-weight: 400;
+  height: 0;
+  visibility: hidden;
+  overflow: hidden;
+}
+
+.segmented button::after {
+  font-weight: 600;
 }
 
 .segmented button + button {

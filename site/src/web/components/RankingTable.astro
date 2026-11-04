@@ -31,7 +31,7 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
 <div class="toolbar needs-js">
   <span class="muted">Show top</span>
   <div class="segmented" role="group" aria-label="Number of people shown" data-top-switch>
-    {visibleChoices.map((c) => <button type="button" data-top-value={c}>{c}</button>)}
+    {visibleChoices.map((c) => <button type="button" data-top-value={c} data-label={c}>{c}</button>)}
   </div>
 </div>
 
