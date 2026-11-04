@@ -137,11 +137,11 @@ describe("site built from hostile data", () => {
       "#2 World (public contributions)",
     );
     const world = readFileSync(join(out, "world", "index.html"), "utf8");
+    expect(world).toContain('See the <a href="/methodology/"');
     expect(world).toMatch(/id="octo-cat" data-rank="1"/);
     expect(world).toMatch(/id="zed" data-rank="2"/);
     expect(world).not.toContain("ghost");
     expect(world).not.toContain("farm-bot");
-    expect(world).toContain('See the <a href="/methodology/"');
     expect(existsSync(join(out, "u", "farm-bot.world.json"))).toBe(false);
     expect(existsSync(join(out, "u", "farm-bot.json"))).toBe(true);
     const country = readFileSync(join(out, "cote_divoire", "index.html"), "utf8");
