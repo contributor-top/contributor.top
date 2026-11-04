@@ -1,21 +1,16 @@
 ---
-import { LOGIN, SLUG } from "../../collector/patterns.ts";
 import Base from "../layouts/Base.astro";
 import { countryEntries } from "../lib/site.ts";
 import find from "../scripts/find.js?raw";
 
 // Badge links point here: /find/?login=…&tab=… opens that person's row in their best country ranking,
 // or, with tab=world, in the world ranking. The lookup is the inline script in <head> (its hash is in the CSP).
-const data = {
-  slugs: Object.fromEntries(countryEntries.map((c) => [c.title, c.slug])),
-  login: LOGIN.source,
-  slug: SLUG.source,
-};
+const slugs = Object.fromEntries(countryEntries.map((c) => [c.title, c.slug]));
 ---
 
 <Base title="Find a developer" noindex>
   <Fragment slot="head">
-    <meta name="find-data" content={JSON.stringify(data)} />
+    <meta name="find-data" content={JSON.stringify(slugs)} />
     <script is:inline set:html={find} />
   </Fragment>
   <h1>Find a developer</h1>

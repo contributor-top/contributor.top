@@ -189,18 +189,20 @@ describe("site built from hostile data", () => {
     expect(script).toBeLessThan(html.indexOf('<link rel="stylesheet"'));
     const meta = html.match(/<meta name="find-data" content="([^"]*)"/)?.[1] ?? "";
     expect(html.indexOf('<meta name="find-data"')).toBeLessThan(script);
-    const data = JSON.parse(meta.replaceAll("&quot;", '"').replaceAll("&#39;", "'").replaceAll("&amp;", "&"));
-    expect(data).toEqual({
-      slugs: {
-        "Congo (Kinshasa)": "congo_kinshasa",
-        "Côte d'Ivoire": "cote_divoire",
-        "Empty Land": "empty_land",
-        "No Data": "no_data",
-      },
-      login: LOGIN.source,
-      slug: SLUG.source,
+    const slugs = JSON.parse(meta.replaceAll("&quot;", '"').replaceAll("&#39;", "'").replaceAll("&amp;", "&"));
+    expect(slugs).toEqual({
+      "Congo (Kinshasa)": "congo_kinshasa",
+      "Côte d'Ivoire": "cote_divoire",
+      "Empty Land": "empty_land",
+      "No Data": "no_data",
     });
     expect(html).not.toMatch(/find\.astro_astro_type_script/);
+  });
+
+  it("checks badge links with the same login and slug patterns as the collector", () => {
+    const script = readFileSync("src/web/scripts/find.js", "utf8");
+    expect(script).toContain(`const LOGIN = ${LOGIN};`);
+    expect(script).toContain(`const SLUG = ${SLUG};`);
   });
 
   it("keeps the CSP: every inline script is hashed", () => {

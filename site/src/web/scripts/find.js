@@ -3,11 +3,11 @@
 // arrives instead of after the stylesheet and the bundled modules; the ranking then loads as a normal page, whose
 // stylesheet is already cached.
 (() => {
-  // Written by this page's own build: country titles to slugs, and the login and slug patterns.
-  const data = JSON.parse(document.querySelector('meta[name="find-data"]')?.getAttribute("content") || "{}");
-  const titles = data.slugs || {};
-  const LOGIN = new RegExp(data.login || "^$");
-  const SLUG = new RegExp(data.slug || "^$");
+  // LOGIN and SLUG from src/collector/patterns.ts (a test keeps them equal): a plain script cannot import them.
+  const LOGIN = /^[A-Za-z0-9][A-Za-z0-9-]{0,38}$/;
+  const SLUG = /^[a-z][a-z0-9_]{1,40}$/;
+  // Written by this page's own build: country titles to slugs.
+  const titles = JSON.parse(document.querySelector('meta[name="find-data"]')?.getAttribute("content") || "{}");
   // Ranking → badge file suffix and page path; nothing outside these values ever reaches a URL.
   const TABS = {
     public: { suffix: "", path: "" },
@@ -35,7 +35,7 @@
   const tab = Object.hasOwn(TABS, tabName) ? TABS[tabName] : TABS.public;
   if (!LOGIN.test(login)) return notFound();
   const name = login.toLowerCase();
-  fetch(`/u/${name}${tab.suffix}.json`)
+  fetch(`/u/${encodeURIComponent(name)}${tab.suffix}.json`)
     .then((res) => (res.ok ? res.json() : null))
     .then((badge) => {
       // "#17 Atlantis (public contributions)"; "Atlantis: unranked (…)" is a file too, but not a rank.
