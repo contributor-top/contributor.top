@@ -115,19 +115,16 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
     gap: 56px;
     padding: 40px 24px;
   }
-  /* The sidebar stays in view while the ranking scrolls. */
+  /* The sidebar stays in view while the ranking scrolls, at least as tall as the window so the footer note sits at
+     the bottom. Not a scroll box of its own: that would clip focus rings. In a very short window it simply grows. */
   aside {
     position: sticky;
-    top: 36px; /* 40px minus the 4px margin below: stuck or not, it sits in the same place */
+    top: 40px;
     align-self: start;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    height: calc(100dvh - 80px);
-    overflow-y: auto;
-    /* Room for focus rings, which the scroll box would otherwise cut off; the negative margin keeps the geometry. */
-    padding: 4px;
-    margin: -4px;
+    min-height: calc(100dvh - 80px);
   }
   .logo {
     font-size: 24px;
@@ -180,14 +177,12 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
     }
     aside {
       position: static;
-      height: auto;
-      overflow: visible;
+      min-height: 0;
       display: grid;
       grid-template-columns: 1fr auto;
       align-items: center;
       gap: 12px;
-      margin: 0;
-      padding: 0 0 12px;
+      padding-bottom: 12px;
       border-bottom: 1px solid var(--line);
     }
     .tagline {
