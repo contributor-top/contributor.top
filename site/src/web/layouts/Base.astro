@@ -118,7 +118,7 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
   /* The sidebar stays in view while the ranking scrolls. */
   aside {
     position: sticky;
-    top: 40px;
+    top: 36px; /* 40px minus the 4px margin below: stuck or not, it sits in the same place */
     align-self: start;
     display: flex;
     flex-direction: column;
