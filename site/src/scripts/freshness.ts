@@ -6,14 +6,12 @@
 //   GITHUB_OUTPUT   receives stale=<count>
 import { appendFileSync, writeFileSync } from "node:fs";
 import { loadConfig } from "../collector/config.ts";
-import { loadCountries, presetsDir } from "../collector/data-dir.ts";
+import { listedCountries } from "../collector/data-dir.ts";
 import { staleCountries, staleReport } from "../collector/freshness.ts";
-import { loadPresets } from "../collector/preset.ts";
 
 const config = loadConfig();
 // Only countries the site lists; data left over from a removed preset is never refreshed and must not alert.
-const presets = loadPresets(presetsDir(), config.reserved_slugs);
-const countries = loadCountries().filter((c) => presets.has(c.slug));
+const { countries } = listedCountries(config.reserved_slugs);
 const stale = staleCountries(countries, new Date(), config.freshness.stale_days);
 
 console.log(`${stale.length} of ${countries.length} countries are older than ${config.freshness.stale_days} days`);

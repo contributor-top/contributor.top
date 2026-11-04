@@ -1,8 +1,6 @@
 import { z } from "zod";
+import { LOGIN, SLUG } from "./patterns.ts";
 import { displayTitle } from "./preset.ts";
-
-/** GitHub logins: letters, digits and single hyphens, up to 39 characters. Also used as file names. */
-export const LOGIN = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/;
 
 const row = z
   .object({
@@ -58,7 +56,7 @@ const breakdown = z
  */
 export const countryDataSchema = z
   .object({
-    slug: z.string().regex(/^[a-z][a-z0-9_]{1,40}$/),
+    slug: z.string().regex(SLUG),
     title: displayTitle,
     updatedAt: z.iso.datetime(),
     totalUsers: z.number().int().min(0),

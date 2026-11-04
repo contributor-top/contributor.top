@@ -1,5 +1,6 @@
-import { type CountryData, LOGIN } from "./country-data.ts";
+import type { CountryData } from "./country-data.ts";
 import type { AutomatedRule } from "./flags.ts";
+import { LOGIN } from "./patterns.ts";
 import type { Tab } from "./rank.ts";
 import { worldRanking } from "./world.ts";
 

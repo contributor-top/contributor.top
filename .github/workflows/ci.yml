@@ -17,61 +17,24 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  lint:
-    name: lint
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: site/.nvmrc
-      - run: npm ci --ignore-scripts
-      - run: npm run lint
-      - run: npm run format:check
-
-  typecheck:
-    name: typecheck
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: site/.nvmrc
-      - run: npm ci --ignore-scripts
-      - run: npm run typecheck
-
-  knip:
-    name: knip
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: site/.nvmrc
-      - run: npm ci --ignore-scripts
-      - run: npm run knip
-
-  test:
-    name: test
+  # One job per check, so each is a separate required status (the names are what .github/rulesets/main.json lists).
+  checks:
+    name: ${{ matrix.check }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { check: lint, scripts: lint format:check }
+          - { check: typecheck, scripts: typecheck }
+          - { check: knip, scripts: knip }
+          - { check: test, scripts: test }
+          - { check: validate-data, scripts: validate schemas:check }
+          - { check: build, scripts: build privacy-check }
+          - { check: supply-chain, scripts: supply-chain }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -80,59 +43,9 @@ jobs:
         with:
           node-version-file: site/.nvmrc
       - run: npm ci --ignore-scripts
-      - run: npm test
-
-  validate-data:
-    name: validate-data
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: site/.nvmrc
-      - run: npm ci --ignore-scripts
-      - run: npm run validate
-      - name: JSON Schemas are up to date
-        run: npm run schemas:check
-
-  build:
-    name: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: site/.nvmrc
-      - run: npm ci --ignore-scripts
-      - run: npm run build
-      - name: privacy-check
-        run: npm run privacy-check
-
-  supply-chain:
-    name: supply-chain
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: site/.nvmrc
-      - run: npm ci --ignore-scripts
-      - run: npm run supply-chain
+      - run: for script in $SCRIPTS; do npm run "$script"; done
+        env:
+          SCRIPTS: ${{ matrix.scripts }}
 
   actionlint:
     name: actionlint

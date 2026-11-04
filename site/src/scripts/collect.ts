@@ -12,7 +12,7 @@
 //   HEALTHCHECK_URL   pinged at the end (/fail when nothing could be collected)
 // Logs carry slugs and counts only: no logins, IDs or locations.
 import { execFileSync } from "node:child_process";
-import { appendFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { appBotIdentity, installationToken } from "../collector/app-token.ts";
 import { breakerReasons } from "../collector/breaker.ts";
@@ -23,15 +23,7 @@ import { loadCountries } from "../collector/data-dir.ts";
 import { olderThan } from "../collector/freshness.ts";
 import { AuthError, GitHubGraphQL, OutOfTimeError } from "../collector/github.ts";
 import { optoutHash } from "../collector/optout.ts";
-import {
-  decryptHashes,
-  encryptHashes,
-  LEGACY_FILE,
-  LIST_FILE,
-  mentionsAny,
-  parseHashes,
-  purgeCountry,
-} from "../collector/optout-list.ts";
+import { decryptHashes, encryptHashes, LIST_FILE, mentionsAny, purgeCountry } from "../collector/optout-list.ts";
 import { loadPresets } from "../collector/preset.ts";
 import { dueCountries } from "../collector/queue.ts";
 import { scrub } from "../collector/scrub.ts";
@@ -52,28 +44,24 @@ const DEPLOY_EVERY_MS = 60 * 60_000;
 const optoutKey = env["OPTOUT_KEY"] ?? "";
 if (optoutKey.length < 32) throw new Error("OPTOUT_KEY must be set (at least 32 characters)");
 
-const appId = env["COLLECTOR_APP_ID"];
-const appKey = env["COLLECTOR_APP_KEY"];
-const appToken = appId && appKey ? installationToken({ appId, privateKey: appKey, repo }) : null;
+const app =
+  env["COLLECTOR_APP_ID"] && env["COLLECTOR_APP_KEY"]
+    ? { appId: env["COLLECTOR_APP_ID"], privateKey: env["COLLECTOR_APP_KEY"] }
+    : null;
+const appToken = app ? installationToken({ ...app, repo }) : null;
 const token: () => Promise<string> =
   appToken ?? (async () => env["GITHUB_TOKEN"] || execFileSync("gh", ["auth", "token"], { encoding: "utf8" }).trim());
-const identity: Identity | null = appId && appKey ? await appBotIdentity({ appId, privateKey: appKey }) : null;
+const identity: Identity | null = app ? await appBotIdentity(app) : null;
 if (publish && !appToken) throw new Error("PUBLISH needs the GitHub App credentials");
 
-const dataStore = new BranchStore(env["DATA_DIR"] || "../.data", "data", repo, publish ? token : null, identity);
-const optoutStore = new BranchStore(
-  env["OPTOUT_DIR"] || "../.optout",
-  "optout",
-  repo,
-  publish ? token : null,
-  identity,
-);
+const store = (dir: string, branch: string) => new BranchStore(dir, branch, repo, publish ? token : null, identity);
+const dataStore = store(env["DATA_DIR"] || "../.data", "data");
+const optoutStore = store(env["OPTOUT_DIR"] || "../.optout", "optout");
 if (publish) await Promise.all([dataStore.prepare(), optoutStore.prepare()]);
 mkdirSync(join(dataStore.dir, "countries"), { recursive: true });
 mkdirSync(optoutStore.dir, { recursive: true });
 
 const listFile = join(optoutStore.dir, LIST_FILE);
-const legacyFile = join(optoutStore.dir, LEGACY_FILE);
 /** Read without a separate existence check (no window between check and use); missing means absent. */
 function readOptional(file: string): string | null {
   try {
@@ -83,17 +71,10 @@ function readOptional(file: string): string | null {
     throw e;
   }
 }
-/**
- * The encrypted list, plus the plain list it replaced while that still exists. Neither one means the first run;
- * a list that cannot be read stops the run instead of counting as empty.
- */
+/** No list means the first run; a list that cannot be read stops the run instead of counting as empty. */
 function readHashes(): Set<string> {
-  const hashes = new Set<string>();
   const list = readOptional(listFile);
-  if (list !== null) for (const hash of decryptHashes(list, optoutKey)) hashes.add(hash);
-  const legacy = readOptional(legacyFile);
-  if (legacy !== null) for (const hash of parseHashes(legacy)) hashes.add(hash);
-  return hashes;
+  return list === null ? new Set() : decryptHashes(list, optoutKey);
 }
 const hashes = readHashes();
 /** What this run changed in the opt-out list; applied on top of the file, so hashes added by others survive. */
@@ -105,7 +86,6 @@ function writeHashes(): void {
   for (const hash of merged) hashes.add(hash);
   // A fresh nonce every time: the file changes on every write, whether anyone opted out or not.
   writeFileSync(listFile, encryptHashes(merged, optoutKey));
-  rmSync(legacyFile, { force: true });
 }
 
 const presets = loadPresets("../presets", config.reserved_slugs);
@@ -119,15 +99,7 @@ function writeCountry(data: CountryData): void {
 
 /** Minutes each country's last collection took: a country is started only if it can still finish. */
 const timingsFile = join(dataStore.dir, "timings.json");
-const timings = parseTimings(
-  (() => {
-    try {
-      return readFileSync(timingsFile, "utf8");
-    } catch {
-      return null; // missing: no country measured yet
-    }
-  })(),
-);
+const timings = parseTimings(readOptional(timingsFile)); // missing or unreadable: no country measured yet
 const writeTimings = () => writeFileSync(timingsFile, serializeTimings(timings));
 
 const rewriteCountries = () => {
@@ -169,16 +141,27 @@ const requested = (env["COUNTRIES"] ?? "")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
-const queue = dueCountries({
-  presets,
-  existing: countries,
-  now: new Date(),
-  minRefreshHours: config.freshness.min_refresh_hours,
-  requested,
-});
+const due = (requested: string[] = []) =>
+  dueCountries({
+    presets,
+    existing: countries,
+    now: new Date(),
+    minRefreshHours: config.freshness.min_refresh_hours,
+    requested,
+  });
+const queue = due(requested);
 
 type Line = { slug: string; result: string; minutes: string; cost: number };
 const report: Line[] = [];
+/** Errors go to the public log scrubbed. */
+const failure = (e: unknown) => `failed: ${scrub(e instanceof Error ? e.message : String(e))}`;
+/** Starts measuring a step; the returned function adds its line to the report with the time and points spent. */
+function measure(slug: string, client: GitHubGraphQL): (result: string) => void {
+  const t0 = Date.now();
+  const cost0 = client.usage.cost;
+  return (result) =>
+    report.push({ slug, result, minutes: ((Date.now() - t0) / 60_000).toFixed(1), cost: client.usage.cost - cost0 });
+}
 let updated = 0;
 let failed = 0;
 let lastDeploy = started;
@@ -200,7 +183,7 @@ async function workflowApi(workflow: Workflow, action: "dispatches" | "enable"):
     });
     if (response.status !== 204) console.log(`${workflow} ${action} returned ${response.status}`);
   } catch (e) {
-    console.log(`${workflow} ${action} failed: ${scrub(e instanceof Error ? e.message : String(e))}`);
+    console.log(`${workflow} ${action} ${failure(e)}`);
   }
 }
 
@@ -263,8 +246,7 @@ if (privacyChanged) await publishAll("start of run");
   );
   if (overdue.length > 0) {
     const client = clients[0] as GitHubGraphQL;
-    const t0 = Date.now();
-    const cost0 = client.usage.cost;
+    const line = measure("(statuses)", client);
     const people = publishedPeople(overdue, (id) => hashes.has(optoutHash(id, optoutKey)));
     let result = `checked ${people.length} people shown in ${overdue.length} overdue countries`;
     try {
@@ -279,15 +261,10 @@ if (privacyChanged) await publishAll("start of run");
       }
     } catch (e) {
       if (e instanceof AuthError) throw e;
-      result = `failed: ${scrub(e instanceof Error ? e.message : String(e))}`;
+      result = failure(e);
     }
     // Counts of people checked only: how many opted out stays out of the public log.
-    report.push({
-      slug: "(statuses)",
-      result,
-      minutes: ((Date.now() - t0) / 60_000).toFixed(1),
-      cost: client.usage.cost - cost0,
-    });
+    line(result);
     console.log(`(statuses): ${result}`);
   }
 }
@@ -298,9 +275,7 @@ const finished = new Set<string>();
 
 async function collectOne(client: GitHubGraphQL, { slug, reason }: (typeof queue)[number]): Promise<void> {
   const t0 = Date.now();
-  const cost0 = client.usage.cost;
-  const line = (result: string) =>
-    report.push({ slug, result, minutes: ((Date.now() - t0) / 60_000).toFixed(1), cost: client.usage.cost - cost0 });
+  const line = measure(slug, client);
   try {
     const result = await collectCountry(client, {
       slug,
@@ -334,7 +309,7 @@ async function collectOne(client: GitHubGraphQL, { slug, reason }: (typeof queue
     line(outcome);
   } catch (e) {
     if (e instanceof AuthError) throw e;
-    line(`failed: ${scrub(e instanceof Error ? e.message : String(e))}`);
+    line(failure(e));
     if (e instanceof OutOfTimeError) stopped = true;
     else {
       failed++;
@@ -369,23 +344,13 @@ try {
   }
 } catch (e) {
   failed++;
-  report.push({
-    slug: "(publish)",
-    result: `failed: ${scrub(e instanceof Error ? e.message : String(e))}`,
-    minutes: "",
-    cost: 0,
-  });
+  report.push({ slug: "(publish)", result: failure(e), minutes: "", cost: 0 });
 }
 if (updated > 0 || privacyChanged) await deploy();
 // GitHub drops many scheduled runs, so a run starts the next one itself while countries are due that it did not try:
 // the ones it had no time for and the ones that became due while it ran. The concurrency group queues the next run
 // behind this one; the cron only starts a new cycle once everything was fresh.
-const left = dueCountries({
-  presets,
-  existing: countries,
-  now: new Date(),
-  minRefreshHours: config.freshness.min_refresh_hours,
-}).filter((item) => !finished.has(item.slug)).length;
+const left = due().filter((item) => !finished.has(item.slug)).length;
 const continuing = publish && shouldContinue({ left, updated });
 if (continuing) await dispatch("update.yml");
 // GitHub disables a public repository's scheduled workflows after 60 days without activity. Once every country is

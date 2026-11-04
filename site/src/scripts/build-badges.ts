@@ -3,13 +3,11 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildBadges } from "../collector/badges.ts";
 import { loadConfig } from "../collector/config.ts";
-import { loadCountries, presetsDir } from "../collector/data-dir.ts";
-import { loadPresets } from "../collector/preset.ts";
+import { listedCountries } from "../collector/data-dir.ts";
 
 const config = loadConfig();
 // The same countries the site lists: data left over from a removed preset has no page to link to.
-const presets = loadPresets(presetsDir(), config.reserved_slugs);
-const countries = loadCountries().filter((c) => presets.has(c.slug));
+const { countries } = listedCountries(config.reserved_slugs);
 const out = join(process.env["OUT_DIR"] ?? "dist", "u");
 mkdirSync(out, { recursive: true });
 // The same world ranking as the /world/ page: commit farms are left out of both.

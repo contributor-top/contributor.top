@@ -4,7 +4,7 @@ import { z } from "zod";
 import { configSchema } from "../collector/config.ts";
 import { presetSchema } from "../collector/preset.ts";
 
-mkdirSync("schemas", { recursive: true });
+mkdirSync("src/schemas", { recursive: true });
 for (const [name, schema] of [
   ["config", configSchema],
   ["preset", presetSchema],

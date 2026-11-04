@@ -1,8 +1,8 @@
 ---
 import { BADGE_KINDS, badgeColor, WORLD_BADGE } from "../../collector/badges.ts";
 import Base from "../layouts/Base.astro";
+import { SITE } from "../lib/site.ts";
 
-const site = (Astro.site?.href ?? "https://contributor.top/").replace(/\/$/, "");
 const styles = ["flat", "flat-square", "plastic", "for-the-badge", "social"];
 const rankings = [
   ["public", "Public contributions"],
@@ -22,10 +22,11 @@ const examples = [
 ] as const;
 /** Per ranking: the badge file suffix, the place ("Atlantis" or "World") and the label. */
 const kinds = {
-  ...Object.fromEntries(Object.entries(BADGE_KINDS).map(([k, v]) => [k, { ...v, place: exampleCountry }])),
+  public: { ...BADGE_KINDS.public, place: exampleCountry },
+  all: { ...BADGE_KINDS.all, place: exampleCountry },
+  commits: { ...BADGE_KINDS.commits, place: exampleCountry },
   world: { suffix: WORLD_BADGE.suffix, label: WORLD_BADGE.label, place: WORLD_BADGE.place },
-} as Record<string, { suffix: string; label: string; place: string }>;
-const exampleOf = (kind: string) => kinds[kind] ?? { suffix: "", label: "", place: "" };
+};
 const PLACEHOLDER = "YOUR_LOGIN";
 ---
 
@@ -38,7 +39,7 @@ const PLACEHOLDER = "YOUR_LOGIN";
     Show your rank in your GitHub profile README. The badge updates by itself whenever your country is updated.
   </p>
 
-  <div id="badge-area" data-style="flat" data-site={site} data-placeholder={PLACEHOLDER} data-kinds={JSON.stringify(kinds)}>
+  <div id="badge-area" data-style="flat" data-site={SITE} data-placeholder={PLACEHOLDER} data-kinds={JSON.stringify(kinds)}>
     <div class="examples" aria-label="Examples">
       {
         examples.map(([rank, kind]) => (
@@ -53,9 +54,9 @@ const PLACEHOLDER = "YOUR_LOGIN";
               contributor.top
             </span>
             <span class="message" style={`--badge: #${badgeColor(rank)}`}>
-              #{rank} <span class="place" data-mixed={exampleOf(kind).place}>{exampleCountry}</span> (<span
+              #{rank} <span class="place" data-mixed={kinds[kind].place}>{exampleCountry}</span> (<span
                 class="kind"
-                data-mixed={exampleOf(kind).label}>{BADGE_KINDS.public.label}</span>)
+                data-mixed={kinds[kind].label}>{BADGE_KINDS.public.label}</span>)
             </span>
           </span>
         ))
@@ -98,6 +99,8 @@ const PLACEHOLDER = "YOUR_LOGIN";
   </div>
 
   <script>
+    import { LOGIN } from "../../collector/patterns.ts";
+
     // Runs on the first load and after every client-side navigation (the page is swapped, not reloaded).
     function init(): void {
       const area = document.getElementById("badge-area");
@@ -107,19 +110,18 @@ const PLACEHOLDER = "YOUR_LOGIN";
       const md = document.getElementById("md");
       const html = document.getElementById("html");
       if (area && login && ranking && style && md && html) {
-        const site = area.dataset["site"] ?? "https://contributor.top";
-        const placeholder = area.dataset["placeholder"] ?? "YOUR_LOGIN";
-        let kinds: Record<string, { suffix: string; label: string; place: string }> = {};
-        try {
-          kinds = JSON.parse(area.dataset["kinds"] ?? "{}");
-        } catch {}
+        // Written by this page's own build, so trusted; only the URL's parameters below are checked.
+        const site = area.dataset["site"] ?? "";
+        const placeholder = area.dataset["placeholder"] ?? "";
+        const kinds: Record<string, { suffix: string; label: string; place: string }> = JSON.parse(
+          area.dataset["kinds"] ?? "{}",
+        );
         const STYLES = [...style.options].map((o) => o.value);
         const RANKINGS = [...ranking.options].map((o) => o.value);
-        const VALID = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/;
 
         const params = new URLSearchParams(location.search);
         const fromUrl = params.get("login");
-        if (fromUrl && VALID.test(fromUrl)) login.value = fromUrl;
+        if (fromUrl && LOGIN.test(fromUrl)) login.value = fromUrl;
         const styleFromUrl = params.get("style");
         if (styleFromUrl && STYLES.includes(styleFromUrl)) style.value = styleFromUrl;
         // "three" was the "all of them" choice before the world badge; old links still work.
@@ -128,9 +130,10 @@ const PLACEHOLDER = "YOUR_LOGIN";
 
         const render = () => {
           const raw = login.value.trim();
-          const name = VALID.test(raw) ? raw.toLowerCase() : placeholder;
-          const chosen = STYLES.includes(style.value) ? style.value : "flat";
-          const which = RANKINGS.includes(ranking.value) ? ranking.value : "public";
+          const name = LOGIN.test(raw) ? raw.toLowerCase() : placeholder;
+          // A <select> only ever holds one of its own options.
+          const chosen = style.value;
+          const which = ranking.value;
           area.dataset["style"] = chosen;
           // Example badges follow the chosen ranking; "All four" shows one of each.
           const every = which === "every";
@@ -140,7 +143,7 @@ const PLACEHOLDER = "YOUR_LOGIN";
           for (const kind of area.querySelectorAll<HTMLElement>(".examples .kind")) {
             kind.textContent = every ? (kind.dataset["mixed"] ?? "") : (kinds[which]?.label ?? "");
           }
-          const chosenKinds = every ? ["public", "all", "commits", "world"] : [which];
+          const chosenKinds = every ? Object.keys(kinds) : [which];
           const items = chosenKinds.map((kind) => {
             const json = encodeURIComponent(`${site}/u/${name}${kinds[kind]?.suffix ?? ""}.json`);
             const tab = kind === "public" ? "" : `&tab=${kind}`;

@@ -1,17 +1,24 @@
 // Which countries are too old: the collector's alert (freshness.stale_days) and its status check (target_hours).
+import { byCodePoint } from "./rank.ts";
 
 export type Dated = { readonly slug: string; readonly title: string; readonly updatedAt: string };
 export type Stale = { readonly slug: string; readonly title: string; readonly hours: number };
 
-const HOUR = 3_600_000;
+export const HOUR = 3_600_000;
 
-/** Countries whose data is older than `hours`, oldest first; an unreadable date counts as old. */
+/** How old the data is; an unreadable date counts as infinitely old rather than blocking the country forever. */
+export function ageMs(updatedAt: string, now: Date): number {
+  const age = now.getTime() - Date.parse(updatedAt);
+  return Number.isNaN(age) ? Number.POSITIVE_INFINITY : age;
+}
+
+/** Countries whose data is older than `hours`, oldest first. */
 export function olderThan(countries: readonly Dated[], now: Date, hours: number): Stale[] {
   return countries
-    .map((c) => ({ slug: c.slug, title: c.title, hours: (now.getTime() - Date.parse(c.updatedAt)) / HOUR }))
-    .filter((c) => !(c.hours <= hours))
-    .map((c) => ({ ...c, hours: Number.isNaN(c.hours) ? Number.POSITIVE_INFINITY : Math.floor(c.hours) }))
-    .sort((a, b) => b.hours - a.hours || (a.slug < b.slug ? -1 : 1));
+    .map((c) => ({ c, age: ageMs(c.updatedAt, now) }))
+    .filter(({ age }) => age > hours * HOUR)
+    .map(({ c, age }) => ({ slug: c.slug, title: c.title, hours: Math.floor(age / HOUR) }))
+    .sort((a, b) => b.hours - a.hours || byCodePoint(a.slug, b.slug));
 }
 
 /** Countries older than stale_days: the alert. */

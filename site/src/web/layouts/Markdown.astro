@@ -5,7 +5,7 @@ type Props = { frontmatter: { title: string; description?: string } };
 const { frontmatter } = Astro.props;
 ---
 
-<Base title={frontmatter.title} {...frontmatter.description ? { description: frontmatter.description } : {}}>
+<Base title={frontmatter.title} description={frontmatter.description}>
   <article>
     <slot />
   </article>

@@ -1,5 +1,7 @@
 // How long each country takes to collect, and what a run does with the time it has left.
 import { z } from "zod";
+import { SLUG } from "./patterns.ts";
+import { byCodePoint } from "./rank.ts";
 
 const MINUTE = 60_000;
 /** A country never measured yet (a new preset, or a run before this file existed): as long as the biggest ones. */
@@ -13,25 +15,21 @@ const MAX_RESERVE_MS = 90 * MINUTE;
  * timings.json in the data branch: minutes the last successful collection of each country took. Countries only,
  * no person; anything unreadable counts as never measured instead of stopping the run.
  */
-const timingsSchema = z.record(z.string().regex(/^[a-z][a-z0-9_]{1,40}$/), z.number().positive().max(1000));
+const timingsSchema = z.record(z.string().regex(SLUG), z.number().positive().max(1000));
 
 export function parseTimings(text: string | null): Map<string, number> {
-  if (text === null) return new Map();
-  let json: unknown;
   try {
-    json = JSON.parse(text);
+    return new Map(Object.entries(timingsSchema.parse(JSON.parse(text ?? ""))));
   } catch {
     return new Map();
   }
-  const parsed = timingsSchema.safeParse(json);
-  return parsed.success ? new Map(Object.entries(parsed.data)) : new Map();
 }
 
 /** Sorted keys and one decimal, so the file changes only when a time does. */
 export const serializeTimings = (timings: ReadonlyMap<string, number>): string =>
   `${JSON.stringify(
     Object.fromEntries(
-      [...timings].sort(([a], [b]) => (a < b ? -1 : 1)).map(([slug, m]) => [slug, Math.round(m * 10) / 10]),
+      [...timings].sort(([a], [b]) => byCodePoint(a, b)).map(([slug, m]) => [slug, Math.round(m * 10) / 10]),
     ),
     null,
     2,

@@ -19,12 +19,9 @@ export function buildQuery(preset: Preset): string {
 
 export type FollowersRange = { readonly min: number; readonly max: number | null };
 
-function followersQualifier({ min, max }: FollowersRange): string {
-  return max === null ? `followers:>=${min}` : `followers:${min}..${max}`;
-}
-
-export function withFollowers(base: string, range: FollowersRange): string {
-  return `${base} ${followersQualifier(range)}`;
+export function withFollowers(base: string, { min, max }: FollowersRange): string {
+  const followers = max === null ? `>=${min}` : `${min}..${max}`;
+  return `${base} followers:${followers}`;
 }
 
 /** Qualifiers (`name:value`, `name:"quoted value"`, optionally negated) or free-text tokens. */

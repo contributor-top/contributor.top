@@ -3,7 +3,7 @@ import type { GetStaticPaths } from "astro";
 import type { Tab } from "../../../collector/rank.ts";
 import RankingTable from "../../components/RankingTable.astro";
 import Base from "../../layouts/Base.astro";
-import { type CountryEntry, countryEntries, formatDate, formatNumber, TAB_META } from "../../lib/site.ts";
+import { type CountryEntry, countryEntries, formatDate, formatNumber, TAB_META, tabHref } from "../../lib/site.ts";
 
 export const getStaticPaths = (() =>
   countryEntries.flatMap((entry) =>
@@ -68,7 +68,7 @@ const jsonLd = data
   : undefined;
 ---
 
-<Base title={title} description={description} noindex={!data} {...jsonLd ? { jsonLd } : {}}>
+<Base title={title} description={description} noindex={!data} jsonLd={jsonLd}>
   <h1>{entry.title}</h1>
   {
     data ? (
@@ -82,7 +82,7 @@ const jsonLd = data
         </p>
         <nav class="tabs" aria-label="Ranking">
           {tabs.map(([key, meta]) => (
-            <a href={`/${entry.slug}/${meta.path ? `${meta.path}/` : ""}`} aria-current={key === tab ? "page" : undefined}>
+            <a href={tabHref(entry.slug, key)} aria-current={key === tab ? "page" : undefined}>
               <span class="long">{meta.label}</span>
               <span class="short" aria-hidden="true">
                 {meta.short}
@@ -145,9 +145,6 @@ const jsonLd = data
     content: "·";
     color: var(--muted);
     padding: 0 6px;
-  }
-  .meta a::before {
-    display: inline-block;
   }
   .short {
     display: none;

@@ -11,18 +11,14 @@ import { countsFor, mentions } from "./stuffing.ts";
 export type OptoutList = { readonly key: string; readonly hashes: ReadonlySet<string> };
 
 type CountryStats = {
-  totalUsers: number;
-  candidates: number;
-  considered: number;
-  skipped: number;
-  gone: number;
-  denied: number;
-  otherCountry: number;
-  postFiltered: number;
-  optedOut: number;
-  optedIn: number;
+  readonly candidates: number;
+  /** Users that failed to load even alone (heavy accounts). */
+  readonly skipped: number;
+  readonly denied: number;
+  readonly otherCountry: number;
+  readonly postFiltered: number;
   /** Accounts above ranking.automated.min_commits whose repositories could not be read (only the ratio applies). */
-  repoFailed: number;
+  readonly repoFailed: number;
 };
 
 export type CountryResult = {
@@ -36,7 +32,7 @@ export type CountryResult = {
 };
 
 /** post_filter: drop people whose location has an include term together with a banned substring. */
-function postFiltered(preset: Preset, location: string | null): boolean {
+function isPostFiltered(preset: Preset, location: string | null): boolean {
   if (!preset.post_filter || !location) return false;
   const lower = location.toLowerCase();
   return Object.entries(preset.post_filter).some(
@@ -93,20 +89,22 @@ type Run = {
   readonly presets: ReadonlyMap<string, Preset>;
   readonly config: Config;
   readonly hashOf: (id: number) => string;
-  readonly stats: CountryStats;
 };
+
+const decision = (run: Run, status: string | null | undefined) =>
+  decide(status, run.config.privacy.optout_phrase, run.config.privacy.optin_phrase);
 
 /**
  * Splits candidates into people to load and opted-out people. Opted-out people are not loaded in full,
  * but their status is read so they can come back with the opt-in phrase.
  */
 async function admit(run: Run, found: readonly Found[], hashes: ReadonlySet<string>) {
-  const { optout_phrase: outPhrase, optin_phrase: inPhrase } = run.config.privacy;
   const denylist = new Set(run.config.denylist_ids);
   const active: Found[] = [];
   const excluded: Found[] = [];
+  let denied = 0;
   for (const f of found) {
-    if (denylist.has(f.id)) run.stats.denied++;
+    if (denylist.has(f.id)) denied++;
     else if (hashes.has(run.hashOf(f.id))) excluded.push(f);
     else active.push(f);
   }
@@ -114,27 +112,27 @@ async function admit(run: Run, found: readonly Found[], hashes: ReadonlySet<stri
   if (excluded.length > 0) {
     const statuses = await fetchStatuses(run.client, excluded);
     for (const f of excluded) {
-      if (decide(statuses.get(f.id), outPhrase, inPhrase) !== "opt-in") continue;
+      if (decision(run, statuses.get(f.id)) !== "opt-in") continue;
       optedIn.push(run.hashOf(f.id));
       active.push(f);
     }
   }
-  return { active, optedIn };
+  return { active, optedIn, denied };
 }
 
 /** Opt-out by status, one country per person, post_filter. */
 function sift(run: Run, people: readonly Person[]) {
-  const { optout_phrase: outPhrase, optin_phrase: inPhrase } = run.config.privacy;
   const optedOut: { id: number; hash: string }[] = [];
   const kept: Person[] = [];
+  let otherCountry = 0;
+  let postFiltered = 0;
   for (const person of people) {
-    if (decide(person.status, outPhrase, inPhrase) === "opt-out")
-      optedOut.push({ id: person.id, hash: run.hashOf(person.id) });
-    else if (!countsFor(run.slug, person.location, run.presets)) run.stats.otherCountry++;
-    else if (postFiltered(run.preset, person.location)) run.stats.postFiltered++;
+    if (decision(run, person.status) === "opt-out") optedOut.push({ id: person.id, hash: run.hashOf(person.id) });
+    else if (!countsFor(run.slug, person.location, run.presets)) otherCountry++;
+    else if (isPostFiltered(run.preset, person.location)) postFiltered++;
     else kept.push(person);
   }
-  return { optedOut, kept };
+  return { optedOut, kept, otherCountry, postFiltered };
 }
 
 /**
@@ -160,34 +158,16 @@ export async function collectCountry(
 ): Promise<CountryResult> {
   const preset = presets.get(slug);
   if (!preset) throw new Error(`unknown country ${slug}`);
-  const stats: CountryStats = {
-    totalUsers: 0,
-    candidates: 0,
-    considered: 0,
-    skipped: 0,
-    gone: 0,
-    denied: 0,
-    otherCountry: 0,
-    postFiltered: 0,
-    optedOut: 0,
-    optedIn: 0,
-    repoFailed: 0,
-  };
-  const run: Run = { client, slug, preset, presets, config, hashOf: (id) => optoutHash(id, optout.key), stats };
+  const run: Run = { client, slug, preset, presets, config, hashOf: (id) => optoutHash(id, optout.key) };
 
   const { totalUsers, threshold, found } = await findCandidates(client, preset, config.ranking.consider);
-  stats.totalUsers = totalUsers;
-  stats.candidates = found.length;
-
-  const { active, optedIn } = await admit(run, found, optout.hashes);
-  const { people, skipped, gone } = await fetchPeople(client, active, {
+  const { active, optedIn, denied } = await admit(run, found, optout.hashes);
+  const { people, skipped } = await fetchPeople(client, active, {
     batchSize: config.collector.batch_size,
     maxSkipped: config.collector.max_skipped_per_country,
   });
-  const { optedOut, kept } = sift(run, people);
-  Object.assign(stats, { skipped, gone, optedOut: optedOut.length, optedIn: optedIn.length, considered: kept.length });
+  const { optedOut, kept, otherCountry, postFiltered } = sift(run, people);
   const repos = await fetchRepoActivity(client, kept, config.ranking.automated);
-  stats.repoFailed = repos.failed;
 
   const data = toCountryData(slug, preset, kept, {
     topN: config.ranking.top_n,
@@ -196,5 +176,6 @@ export async function collectCountry(
     threshold,
     repos: repos.activity,
   });
+  const stats = { candidates: found.length, skipped, denied, otherCountry, postFiltered, repoFailed: repos.failed };
   return { data, optedOut, optedIn, stats };
 }

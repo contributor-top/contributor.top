@@ -2,23 +2,6 @@ import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from "node:cr
 import { type CountryData, countryDataSchema } from "./country-data.ts";
 
 const HASH = /^[0-9a-f]{64}$/;
-const HEADER = "# HMAC-SHA256 of GitHub user IDs that opted out of contributor.top. Only hashes, no IDs or logins.";
-
-/** One hash per line; blank lines and # comments are ignored; anything else is an error, not a silent skip. */
-export function parseHashes(text: string): Set<string> {
-  const hashes = new Set<string>();
-  for (const [i, raw] of text.split(/\r?\n/).entries()) {
-    const line = raw.trim();
-    if (line === "" || line.startsWith("#")) continue;
-    if (!HASH.test(line)) throw new Error(`opt-out list line ${i + 1} is not a SHA-256 hash`);
-    hashes.add(line);
-  }
-  return hashes;
-}
-
-/** Sorted, so the file's history shows only additions and removals. */
-export const serializeHashes = (hashes: Iterable<string>): string =>
-  `${HEADER}\n${[...new Set(hashes)].sort().join("\n")}\n`;
 
 /**
  * The published opt-out list: the hashes encrypted with a key derived from OPTOUT_KEY, padded to a multiple of
@@ -27,8 +10,6 @@ export const serializeHashes = (hashes: Iterable<string>): string =>
  * disappeared at the same time. This file changes on every run and its size only every PAD_TO opt-outs.
  */
 export const LIST_FILE = "list.enc";
-/** The plain list before the list was encrypted; read once more, then removed. */
-export const LEGACY_FILE = "hashes.txt";
 
 const PAD_TO = 256;
 /** Part of the key derivation and the authenticated data: never change it (not even with the domain). */
