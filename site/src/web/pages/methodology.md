@@ -43,3 +43,5 @@ Use them for open-source research, statistics and community projects. Do not use
 ## Updates
 
 Countries are updated one after another, the least recently updated first. Each country page shows when it was last updated.
+
+Inspired by [committers.top](https://committers.top).
