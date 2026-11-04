@@ -110,7 +110,7 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
     }
   }
 
-  /** Marks the linked row; the CSS gives it a quiet tint and a brief flash on arrival. */
+  /** Marks the linked row; the CSS gives it a quiet tint. */
   function markTarget(table: HTMLTableElement): HTMLTableRowElement | null {
     for (const row of table.querySelectorAll("tr.is-target")) row.classList.remove("is-target");
     const row = targetRow(table);
@@ -235,7 +235,7 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
     background: var(--bronze-bg);
   }
   /* The row a badge link opens: a quiet tint with a thin edge, so it stays findable after scrolling without
-     shouting; a brief brighter flash on arrival says "this is you". :target covers pages without JS. */
+     shouting. :target covers pages without JS. */
   tr:target,
   tr.is-target {
     background: var(--highlight);
@@ -243,20 +243,6 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
   tr:target > td:first-child,
   tr.is-target > td:first-child {
     box-shadow: inset 3px 0 0 var(--highlight-edge);
-  }
-  tr.is-target {
-    animation: arrive 1.6s ease-out;
-  }
-  @keyframes arrive {
-    0%,
-    25% {
-      background: var(--highlight-flash);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    tr.is-target {
-      animation: none;
-    }
   }
   /* Logins use their own token: blue in the light theme, plain text in the dark one; hover only underlines. */
   .who a {
