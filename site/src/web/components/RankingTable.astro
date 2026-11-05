@@ -78,6 +78,9 @@ const starts = chunkStarts(rows.length);
     border-bottom: 1px solid var(--line);
     vertical-align: middle;
   }
+  /* Column widths must not depend on rows that arrive after the first paint (ranking.js), or the table shifts
+     sideways when they do: the rank column fits three digits from the start, the contributions column is only as
+     wide as its content, and the developer column takes the rest (instead of a share set by the longest names). */
   .ranking .r {
     width: 56px;
     text-align: right;
@@ -85,6 +88,7 @@ const starts = chunkStarts(rows.length);
     font-variant-numeric: tabular-nums;
   }
   .ranking .c {
+    width: 1%;
     text-align: right;
     font-variant-numeric: tabular-nums;
   }
@@ -205,7 +209,7 @@ const starts = chunkStarts(rows.length);
       padding: 6px 4px;
     }
     .ranking .r {
-      width: 32px;
+      width: calc(3ch + 8px); /* ranks up to 512, plus the padding */
     }
     .ranking .who {
       gap: 8px;
