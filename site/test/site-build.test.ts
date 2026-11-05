@@ -2,12 +2,15 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { LOGIN, SLUG } from "../src/collector/patterns.ts";
 
-const root = mkdtempSync(join(tmpdir(), "ct-site-"));
+// On the project's disk, not in the system temp directory: Astro moves built files into the output with rename(),
+// which fails (EXDEV) where /tmp is another file system, as on some CI runners.
+const cache = join("node_modules", ".cache");
+mkdirSync(cache, { recursive: true });
+const root = mkdtempSync(join(cache, "ct-site-"));
 const out = join(root, "dist");
 const presetsDir = join(root, "presets");
 const dataDir = join(root, "data");
