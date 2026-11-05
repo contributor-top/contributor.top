@@ -29,6 +29,38 @@
       .filter((n) => n >= 0);
 
   /**
+   * Puts rows into the page's language. Fragments are built once, in English, for every language; a page in another
+   * one says how to translate them (data-i18n: its locale, the row messages and the country names). A number alone
+   * (data-n) is shown in the language; a tooltip (data-k) gets its message.
+   */
+  const translate = (words, rows) => {
+    const number = new Intl.NumberFormat(words.locale);
+    const plural = new Intl.PluralRules(words.locale);
+    for (const el of rows.querySelectorAll("[data-n], [data-k]")) {
+      const n = Number(el.dataset.n);
+      const forms = el.dataset.k && words.messages[el.dataset.k];
+      if (!forms) el.textContent = number.format(n);
+      else {
+        const text = typeof forms === "string" ? forms : (forms[plural.select(n)] ?? forms.other);
+        el.setAttribute("aria-label", text.replace("{n}", number.format(n)));
+      }
+    }
+    for (const el of rows.querySelectorAll(".country")) {
+      el.textContent = words.countries?.[el.textContent] ?? el.textContent;
+    }
+  };
+
+  /** Appends a fragment's rows, translated first on a page that is not in English. */
+  const insertRows = (table, rows) => {
+    const body = table.tBodies[0];
+    if (!body) return;
+    const template = document.createElement("template");
+    template.innerHTML = rows;
+    if (table.dataset.i18n) translate(JSON.parse(table.dataset.i18n), template.content);
+    body.append(template.content);
+  };
+
+  /**
    * Inserts the steps of rows that start below `upTo`, in order, each once. A step fetched by ranking-early.js is
    * taken from there; a step that cannot be loaded is skipped (the rows above it stay usable).
    */
@@ -47,9 +79,7 @@
           .then((res) => (res.ok ? res.text() : ""))
           .catch(() => "");
       // Same-site static files built from the same rows as this page: rows only, no scripts.
-      table.queue = table.queue
-        .then(() => html)
-        .then((rows) => table.tBodies[0]?.insertAdjacentHTML("beforeend", rows));
+      table.queue = table.queue.then(() => html).then((rows) => insertRows(table, rows));
     }
     return table.queue;
   };

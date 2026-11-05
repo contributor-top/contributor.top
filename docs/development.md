@@ -17,6 +17,7 @@ npm run check    # everything CI checks: lint, types, tests, validation, build, 
 | `site/`               | The Node project: package.json, tool configs, sources       |
 | `site/src/collector/` | Data collection and ranking logic                           |
 | `site/src/web/`       | The Astro site (pages, components, styles)                  |
+| `site/src/web/i18n/`  | Translations: texts per language and the two text pages     |
 | `site/src/public/`    | Static files served as is (icons, robots.txt)               |
 | `site/src/scripts/`   | Build, validation and repository setup scripts              |
 | `site/src/schemas/`   | Generated JSON Schemas for editor autocompletion            |

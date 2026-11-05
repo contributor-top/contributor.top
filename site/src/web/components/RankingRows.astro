@@ -1,9 +1,12 @@
 ---
-// Rows of a ranking: on the page (the first ones) and in the /rows/… fragment (the rest, loaded when asked for).
+// Rows of a ranking: on the page (the first ones, in the page's language) and in the /rows/… fragments (the rest,
+// loaded when asked for, built once in English for every language). Every number and tooltip carries data-n (the
+// number) and data-k (its message), so ranking.js can put an inserted fragment into the page's language.
 import type { CountryData, Row } from "../../collector/country-data.ts";
 import { compactNumber, isLikelyAutomated, isMostlyPrivate, privateShare } from "../../collector/flags.ts";
 import type { Tab } from "../../collector/rank.ts";
-import { config, formatNumber } from "../lib/site.ts";
+import { i18n } from "../i18n/index.ts";
+import { config, countryByTitle } from "../lib/site.ts";
 import BotIcon from "./BotIcon.astro";
 import LockIcon from "./LockIcon.astro";
 
@@ -15,17 +18,17 @@ type Props = {
 };
 const { rows, breakdown, names, tab = "public" } = Astro.props;
 
-/** Compact always-visible breakdown: label, value, full description for the tooltip. */
+const { t, number, country } = i18n(Astro.currentLocale);
+/** Compact always-visible breakdown: label, value, the message of its tooltip. */
 const stats = (b: CountryData["breakdown"][string]) =>
   [
-    ["C", b.commits, "public commits"],
-    ["PR", b.prs, "public pull requests"],
-    ["IS", b.issues, "public issues"],
-    ["RV", b.reviews, "public reviews"],
-    ["private", b.private, "private contributions"],
+    ["C", b.commits, "row.commits"],
+    ["PR", b.prs, "row.prs"],
+    ["IS", b.issues, "row.issues"],
+    ["RV", b.reviews, "row.reviews"],
+    ["private", b.private, "row.private"],
   ] as const;
 const publicOf = (b: CountryData["breakdown"][string]) => b.commits + b.prs + b.issues + b.reviews;
-const automatedText = "Commits are likely automated, not in the world ranking";
 const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : rank === 3 ? "bronze" : "");
 ---
 
@@ -35,7 +38,7 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
     const name = names?.[String(row.id)];
     const flagged =
       tab === "all" && b !== undefined && isMostlyPrivate(publicOf(b), b.private, config.ranking.private_flag_share);
-    const flagText = flagged ? `${Math.round(privateShare(publicOf(b), b.private) * 100)}% private` : "";
+    const share = flagged ? Math.round(privateShare(publicOf(b), b.private) * 100) : 0;
     // Commit farms stay in country rankings, marked; the world ranking leaves them out.
     const automated = b !== undefined && isLikelyAutomated(b, config.ranking.automated);
     return (
@@ -57,12 +60,12 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
                     {name}
                   </span>
                 )}
-                {row.country && <span class="country muted">{row.country}</span>}
+                {row.country && <span class="country muted">{country(countryByTitle(row.country))}</span>}
               </div>
               {b && (
                 <div class="stats">
-                  {stats(b).map(([label, value, what]) => (
-                    <span tabindex="0" data-tip aria-label={`${formatNumber(value)} ${what}`}>
+                  {stats(b).map(([label, value, key]) => (
+                    <span tabindex="0" data-tip data-k={key} data-n={value} aria-label={t(key, { n: value })}>
                       {label === "private" ? <LockIcon /> : label} {compactNumber(value)}
                     </span>
                   ))}
@@ -73,16 +76,24 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
         </td>
         <td class="c">
           {automated && (
-            <span class="flag tip-end" tabindex="0" data-tip aria-label={automatedText} role="img">
+            <span class="flag tip-end" tabindex="0" data-tip data-k="row.automated" aria-label={t("row.automated")} role="img">
               <BotIcon />
             </span>
           )}
           {flagged && (
-            <span class="flag tip-end" tabindex="0" data-tip aria-label={flagText} role="img">
+            <span
+              class="flag tip-end"
+              tabindex="0"
+              data-tip
+              data-k="row.privateShare"
+              data-n={share}
+              aria-label={t("row.privateShare", { n: share })}
+              role="img"
+            >
               <LockIcon />
             </span>
           )}
-          {formatNumber(row.contributions)}
+          <span data-n={row.contributions}>{number(row.contributions)}</span>
         </td>
       </tr>
     );

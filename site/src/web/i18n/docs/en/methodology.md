@@ -1,5 +1,4 @@
 ---
-layout: ../layouts/Markdown.astro
 title: Methodology
 description: How contributor.top selects and ranks GitHub users.
 ---

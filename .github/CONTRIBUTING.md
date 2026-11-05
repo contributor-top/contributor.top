@@ -13,6 +13,18 @@ issue. To edit presets yourself:
 3. Open a pull request with `Closes #<issue>`. CI validates the file and shows which locations conflict with other
    countries.
 
+## Add a language or fix a translation
+
+Open an [Add a language or fix a translation](https://github.com/contributor-top/contributor.top/issues/new?template=translation.yml)
+issue, or edit the files yourself in `site/src/web/i18n/`:
+
+1. `<code>.json` holds the site's texts (`en.json` is the source; copy it and translate the values). Keep every
+   `{placeholder}`; a value that depends on a number is an object of plural forms (one, few, many, other…).
+2. `docs/<code>/methodology.md` and `docs/<code>/privacy.md` are the two text pages; links to the site's pages get
+   the language prefix (`/de/privacy/`).
+3. `npm run test` checks keys, placeholders, plural forms and links. The site builds every page for each file it
+   finds: no other change is needed.
+
 ## Code changes
 
 ```sh

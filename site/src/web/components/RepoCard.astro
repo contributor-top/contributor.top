@@ -1,12 +1,14 @@
 ---
+import { i18n } from "../i18n/index.ts";
 import { config } from "../lib/site.ts";
 
 // Small "Star · N" link, rendered at once so nothing moves when the count arrives: the count comes from
 // the GitHub API in the browser (cached for the session) into a slot whose width is reserved.
 const repo = config.site.repo;
+const { t } = i18n(Astro.currentLocale);
 ---
 
-<a class="stars" href={`https://github.com/${repo}`} data-repo={repo} aria-label="Star contributor.top on GitHub">
+<a class="stars" href={`https://github.com/${repo}`} data-repo={repo} aria-label={t("stars.aria")}>
   {/* The star spans y 0.25–14.4 of its 16×16 box: the box starts 0.67 higher, so the star sits at its middle. */}
   <svg viewBox="0 -0.67 16 16" width="14" height="14" aria-hidden="true">
     <path
@@ -14,18 +16,21 @@ const repo = config.site.repo;
       d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"
     ></path>
   </svg>
-  <span class="label">Star on GitHub</span>
+  <span class="label">{t("stars.label")}</span>
   <span class="count"></span>
 </a>
 
 <script>
-  const link = document.querySelector<HTMLAnchorElement>("a.stars");
-  const repo = link?.dataset["repo"];
-  if (link && repo && /^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/.test(repo)) {
+  // On every page load: a sidebar in another language comes with its own link. Each link is filled in once.
+  document.addEventListener("astro:page-load", () => {
+    const link = document.querySelector<HTMLAnchorElement>("a.stars");
+    const repo = link?.dataset["repo"];
+    if (!link || link.dataset["ready"] || !repo || !/^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/.test(repo)) return;
+    link.dataset["ready"] = "true";
     const key = `stars:${repo}`;
     const show = (n: number) => {
       const count = link.querySelector(".count");
-      if (count) count.textContent = n.toLocaleString("en-US");
+      if (count) count.textContent = n.toLocaleString(document.documentElement.lang);
     };
     let cached: string | null = null;
     try {
@@ -45,7 +50,7 @@ const repo = config.site.repo;
         })
         .catch(() => {});
     }
-  }
+  });
 </script>
 
 <style>

@@ -1,8 +1,11 @@
 ---
+import { i18n } from "../i18n/index.ts";
 import Base from "../layouts/Base.astro";
+
+const { t, href } = i18n(Astro.currentLocale);
 ---
 
-<Base title="Not found" noindex>
-  <h1>Not found</h1>
-  <p class="muted">This page does not exist. <a href="/">See all countries</a>.</p>
+<Base title={t("notFound.title")} noindex>
+  <h1>{t("notFound.title")}</h1>
+  <p class="muted">{t("notFound.text")} <a href={href("/")}>{t("notFound.link")}</a>.</p>
 </Base>

@@ -1,14 +1,25 @@
 ---
+// Methodology and Privacy: the page's Markdown in this language (i18n/docs/<language>/<doc>.md), English where a
+// translation is missing. A translation says that the English text applies and where to report a mistake.
+import { getEntry, render } from "astro:content";
+import { DEFAULT_LANG, i18n, parts, prefixOf } from "../i18n/index.ts";
 import { config } from "../lib/site.ts";
 import Base from "./Base.astro";
 
-type Props = { frontmatter: { title: string; description?: string } };
-const { frontmatter } = Astro.props;
-// The announcement (config.yml site.notice) appears only on these text pages, not over the rankings.
-const notice = config.site.notice;
+type Props = { doc: "methodology" | "privacy" };
+const { doc } = Astro.props;
+const { lang, t } = i18n(Astro.currentLocale);
+const entry = (await getEntry("docs", `${lang}/${doc}`)) ?? (await getEntry("docs", `${DEFAULT_LANG}/${doc}`));
+if (!entry) throw new Error(`docs: no ${DEFAULT_LANG}/${doc}.md`);
+const { Content } = await render(entry);
+const translated = lang !== DEFAULT_LANG && entry.id === `${lang}/${doc}`;
+// The announcement appears only on these text pages, not over the rankings; an empty message hides it.
+const notice = t("site.notice");
+const english = `${prefixOf(DEFAULT_LANG)}/${doc}/`;
+const report = `https://github.com/${config.site.repo}/issues/new?template=translation.yml`;
 ---
 
-<Base title={frontmatter.title} description={frontmatter.description}>
+<Base title={entry.data.title} description={entry.data.description}>
   {
     notice && (
       <p class="notice muted">
@@ -18,11 +29,32 @@ const notice = config.site.notice;
     )
   }
   <article>
-    <slot />
+    <Content />
   </article>
+  {
+    translated && (
+      <p class="translated muted">
+        {parts(t("doc.translated")).map((part) =>
+          part === "{english}" ? (
+            <a href={english}>{t("doc.english")}</a>
+          ) : part === "{report}" ? (
+            <a href={report}>{t("doc.report")}</a>
+          ) : (
+            part
+          ),
+        )}
+      </p>
+    )
+  }
 </Base>
 
 <style>
+  .translated {
+    margin: 32px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+  }
   .notice {
     margin: 0 0 16px;
     font-size: 12px;
