@@ -78,4 +78,10 @@ const { t } = i18n(Astro.currentLocale);
   :global(html[data-theme="dark"]) .theme [data-icon="dark"] {
     display: inline;
   }
+  /* Phones: the icon only, next to the star and the language (the button keeps its label for screen readers). */
+  @media (max-width: 860px) {
+    .label {
+      display: none;
+    }
+  }
 </style>

@@ -217,4 +217,13 @@ const isCurrent = (page: string) => (page === "/" ? path === "/" : path.startsWi
       display: none;
     }
   }
+  /* The narrowest phones (320 px): the logo and the tools still share one line in every language. */
+  @media (max-width: 380px) {
+    .logo {
+      font-size: 20px;
+    }
+    .tools {
+      gap: 10px;
+    }
+  }
 </style>
