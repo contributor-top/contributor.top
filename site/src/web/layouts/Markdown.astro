@@ -1,17 +1,35 @@
 ---
+import { config } from "../lib/site.ts";
 import Base from "./Base.astro";
 
 type Props = { frontmatter: { title: string; description?: string } };
 const { frontmatter } = Astro.props;
+// The announcement (config.yml site.notice) appears only on these text pages, not over the rankings.
+const notice = config.site.notice;
 ---
 
 <Base title={frontmatter.title} description={frontmatter.description}>
+  {
+    notice && (
+      <p class="notice muted">
+        {/* Split on [brackets]: every odd part was inside them. */}
+        {notice.split(/\[([^\]]*)\]/).map((part, i) => (i % 2 ? <strong>{part}</strong> : part))}
+      </p>
+    )
+  }
   <article>
     <slot />
   </article>
 </Base>
 
 <style>
+  .notice {
+    margin: 0 0 16px;
+    font-size: 12px;
+  }
+  .notice strong {
+    color: var(--accent);
+  }
   article {
     overflow-wrap: break-word;
   }

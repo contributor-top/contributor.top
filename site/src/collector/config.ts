@@ -8,7 +8,8 @@ export const configSchema = z
     site: z
       .object({
         repo: z.string().regex(/^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/),
-        notice: z.string().trim().min(1).max(160).optional(), // a quiet line above every page, plain text
+        // A quiet line on the Methodology and Privacy pages: plain text, [text in brackets] highlighted.
+        notice: z.string().trim().min(1).max(160).optional(),
       })
       .strict(),
     ranking: z
