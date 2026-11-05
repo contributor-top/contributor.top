@@ -88,6 +88,7 @@
   "badge.explain": "每个排名一个徽章：你所在国家的公开贡献、全部贡献和公开提交，以及你在全球排名中的名次。前 3 名为金、银、铜色，其他人为蓝色。",
   "badge.login": "你的 GitHub 用户名",
   "badge.loginHint": "（可选，会填入模板）",
+  "badge.placeholder": "你的用户名",
   "badge.ranking": "排名",
   "badge.style": "样式",
   "badge.every": "全部四个",

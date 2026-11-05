@@ -88,6 +88,7 @@
   "badge.explain": "순위마다 배지가 하나씩 있습니다: 내 국가의 공개 기여, 전체 기여, 공개 커밋, 그리고 세계 순위. 상위 3명은 금·은·동, 나머지는 파란색입니다.",
   "badge.login": "GitHub 사용자 이름",
   "badge.loginHint": "(선택 사항, 템플릿에 입력됨)",
+  "badge.placeholder": "사용자_이름",
   "badge.ranking": "순위",
   "badge.style": "스타일",
   "badge.every": "4개 모두",

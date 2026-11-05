@@ -88,6 +88,7 @@
   "badge.explain": "ランキングごとに1つのバッジがあります：国内の公開コントリビューション、全コントリビューション、公開コミット、そして世界ランキングでの順位。上位3人は金・銀・銅、それ以外は青です。",
   "badge.login": "GitHubのユーザー名",
   "badge.loginHint": "（任意。テンプレートに入力されます）",
+  "badge.placeholder": "ユーザー名",
   "badge.ranking": "ランキング",
   "badge.style": "スタイル",
   "badge.every": "4つすべて",

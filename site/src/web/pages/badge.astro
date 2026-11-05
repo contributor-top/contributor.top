@@ -31,7 +31,8 @@ const kinds = {
   commits: { ...BADGE_KINDS.commits, place: exampleCountry },
   world: { suffix: WORLD_BADGE.suffix, label: WORLD_BADGE.label, place: WORLD_BADGE.place },
 };
-const PLACEHOLDER = "YOUR_LOGIN";
+// Stands for the login in the snippets until one is typed; in the page's language, the visitor replaces it.
+const PLACEHOLDER = t("badge.placeholder");
 ---
 
 <Base title={t("badge.title")} description={t("badge.description")}>
@@ -153,7 +154,9 @@ const PLACEHOLDER = "YOUR_LOGIN";
           }
           const chosenKinds = every ? Object.keys(kinds) : [which];
           const items = chosenKinds.map((kind) => {
-            const json = encodeURIComponent(`${site}/u/${name}${kinds[kind]?.suffix ?? ""}.json`);
+            // The login is left as typed (a login needs no escaping), so a placeholder in another script, such as
+            // ВАШ_ЛОГИН, stays readable in the snippet instead of turning into %D0%92….
+            const json = `${encodeURIComponent(`${site}/u/`)}${name}${encodeURIComponent(`${kinds[kind]?.suffix ?? ""}.json`)}`;
             const tab = kind === "public" ? "" : `&tab=${kind}`;
             return {
               image: `https://img.shields.io/endpoint?url=${json}&style=${chosen}`,
