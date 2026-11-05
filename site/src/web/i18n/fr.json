@@ -112,6 +112,7 @@
   "badge.explain": "Un badge par classement : contributions publiques, toutes les contributions et commits publics dans votre pays, ainsi que votre place au classement mondial. Or, argent et bronze pour le top 3, bleu pour tous les autres.",
   "badge.login": "Votre login GitHub",
   "badge.loginHint": "(facultatif, remplit le modèle)",
+  "badge.placeholder": "VOTRE_LOGIN",
   "badge.ranking": "Classement",
   "badge.style": "Style",
   "badge.every": "Les quatre",

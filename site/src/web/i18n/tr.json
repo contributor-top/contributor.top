@@ -90,6 +90,7 @@
   "badge.explain": "Her sıralama için bir rozet: ülkenizdeki herkese açık katkılar, tüm katkılar ve herkese açık commit'ler ile dünya sıralamasındaki yeriniz. İlk 3 için altın, gümüş ve bronz, diğer herkes için mavi.",
   "badge.login": "GitHub kullanıcı adınız",
   "badge.loginHint": "(isteğe bağlı, şablona eklenir)",
+  "badge.placeholder": "KULLANICI_ADINIZ",
   "badge.ranking": "Sıralama",
   "badge.style": "Stil",
   "badge.every": "Dördü de",

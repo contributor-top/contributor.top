@@ -88,6 +88,7 @@
   "badge.explain": "Satu badge untuk setiap peringkat: kontribusi publik, semua kontribusi, dan commit publik di negara Anda, serta posisi Anda di peringkat dunia. Emas, perak, dan perunggu untuk 3 teratas, biru untuk yang lainnya.",
   "badge.login": "Nama pengguna GitHub Anda",
   "badge.loginHint": "(opsional, mengisi template)",
+  "badge.placeholder": "NAMA_PENGGUNA",
   "badge.ranking": "Peringkat",
   "badge.style": "Gaya",
   "badge.every": "Keempatnya",

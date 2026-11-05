@@ -90,6 +90,7 @@
   "badge.explain": "Ein Badge pro Ranking: öffentliche Beiträge, alle Beiträge und öffentliche Commits in deinem Land sowie dein Platz im Weltranking. Gold, Silber und Bronze für die Top 3, Blau für alle anderen.",
   "badge.login": "Dein GitHub-Login",
   "badge.loginHint": "(optional, wird in die Vorlage eingesetzt)",
+  "badge.placeholder": "DEIN_LOGIN",
   "badge.ranking": "Ranking",
   "badge.style": "Stil",
   "badge.every": "Alle vier",

@@ -112,6 +112,7 @@
   "badge.explain": "Um badge por ranking: contribuições públicas, todas as contribuições e commits públicos no seu país, e sua posição no ranking mundial. Ouro, prata e bronze para o top 3, azul para os demais.",
   "badge.login": "Seu usuário do GitHub",
   "badge.loginHint": "(opcional, preenche o modelo)",
+  "badge.placeholder": "SEU_USUÁRIO",
   "badge.ranking": "Ranking",
   "badge.style": "Estilo",
   "badge.every": "Todos os quatro",

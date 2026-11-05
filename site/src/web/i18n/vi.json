@@ -88,6 +88,7 @@
   "badge.explain": "Mỗi bảng xếp hạng một huy hiệu: đóng góp công khai, tất cả đóng góp và commit công khai ở quốc gia của bạn, cùng vị trí của bạn trong bảng xếp hạng thế giới. Vàng, bạc và đồng cho top 3, xanh dương cho những người còn lại.",
   "badge.login": "Tên đăng nhập GitHub của bạn",
   "badge.loginHint": "(không bắt buộc, sẽ được điền vào mẫu)",
+  "badge.placeholder": "TÊN_ĐĂNG_NHẬP",
   "badge.ranking": "Bảng xếp hạng",
   "badge.style": "Kiểu",
   "badge.every": "Cả bốn",

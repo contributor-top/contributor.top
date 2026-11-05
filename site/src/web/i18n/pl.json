@@ -119,6 +119,7 @@
   "badge.explain": "Jedna odznaka na każdy ranking: publiczne kontrybucje, wszystkie kontrybucje i publiczne commity w twoim kraju oraz miejsce w rankingu światowym. Złoto, srebro i brąz dla pierwszej trójki, niebieski dla pozostałych.",
   "badge.login": "Twój login na GitHubie",
   "badge.loginHint": "(opcjonalnie, zostanie wstawiony do szablonu)",
+  "badge.placeholder": "TWÓJ_LOGIN",
   "badge.ranking": "Ranking",
   "badge.style": "Styl",
   "badge.every": "Wszystkie cztery",
