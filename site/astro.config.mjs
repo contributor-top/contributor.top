@@ -89,9 +89,24 @@ const preloadModules = {
   },
 };
 
+// Languages: one file per language in src/web/i18n (en.json is the default, at the root). Every page is built for each
+// of them under /<lang>/ from the same templates ("rewrite" renders the English page with Astro.currentLocale set);
+// endpoints, such as the shared row fragments and the API, are built once.
+const languages = readdirSync(new URL("./src/web/i18n/", import.meta.url))
+  .filter((name) => name.endsWith(".json"))
+  .map((name) => name.slice(0, -5))
+  .sort((a, b) => (a === "en" ? -1 : b === "en" ? 1 : a.localeCompare(b)));
+const others = languages.filter((lang) => lang !== "en");
+
 export default defineConfig({
   integrations: [cspFirst, preloadModules],
   site: "https://contributor.top",
+  i18n: {
+    locales: languages,
+    defaultLocale: "en",
+    fallback: Object.fromEntries(others.map((lang) => [lang, "en"])),
+    routing: { prefixDefaultLocale: false, fallbackType: "rewrite" },
+  },
   output: "static",
   srcDir: "./src/web",
   publicDir: "./src/public",

@@ -1,0 +1,137 @@
+---
+// The language switcher: plain links to this page in every language (crawlable, no JS needed), folded into a quiet
+// <details> next to the theme switch. The sidebar persists across page switches within a language, so a script
+// keeps the links pointing at the current page.
+import { codeOf, i18n, LANGS, nameOf, prefixOf, unprefixed } from "../i18n/index.ts";
+
+const { lang, t } = i18n(Astro.currentLocale);
+// The 404 page has no address of its own in other languages: its links go to their home pages.
+const here = unprefixed(Astro.url.pathname);
+const path = here === "/404/" || here === "/404.html" ? "/" : here;
+---
+
+<details class="lang" data-prefix={prefixOf(lang)}>
+  <summary aria-label={`${t("lang.label")}: ${nameOf(lang)}`}>
+    <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="1.3">
+        <circle cx="8" cy="8" r="6.5"></circle>
+        <path d="M1.5 8h13M8 1.5c-1.8 1.8-2.6 4-2.6 6.5s.8 4.7 2.6 6.5c1.8-1.8 2.6-4 2.6-6.5S9.8 3.3 8 1.5Z"></path>
+      </g>
+    </svg>
+    <span class="name">{nameOf(lang)}</span>
+    <span class="code" aria-hidden="true">{lang.toUpperCase()}</span>
+  </summary>
+  <ul>
+    {
+      LANGS.map((l) => (
+        <li>
+          <a
+            href={prefixOf(l) + path}
+            hreflang={codeOf(l)}
+            lang={codeOf(l)}
+            data-prefix={prefixOf(l)}
+            aria-current={l === lang ? "true" : undefined}
+          >
+            {nameOf(l)}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</details>
+
+<script>
+  // After a page switch within the language, point every link at the new page; close the list on a click outside
+  // it or on Escape.
+  document.addEventListener("astro:page-load", () => {
+    const picker = document.querySelector<HTMLDetailsElement>("details.lang");
+    if (!picker) return;
+    const own = picker.dataset["prefix"] ?? "";
+    const path = location.pathname.slice(own.length) || "/";
+    for (const link of picker.querySelectorAll<HTMLAnchorElement>("a[data-prefix]")) {
+      link.href = (link.dataset["prefix"] ?? "") + path;
+    }
+    picker.open = false;
+  });
+  document.addEventListener("click", (event) => {
+    const picker = document.querySelector<HTMLDetailsElement>("details.lang[open]");
+    if (picker && !picker.contains(event.target as Node)) picker.open = false;
+  });
+  document.addEventListener("keydown", (event) => {
+    const picker = document.querySelector<HTMLDetailsElement>("details.lang[open]");
+    if (picker && event.key === "Escape") {
+      picker.open = false;
+      picker.querySelector("summary")?.focus();
+    }
+  });
+</script>
+
+<style>
+  .lang {
+    position: relative;
+    font-size: 13px;
+  }
+  summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary:hover,
+  .lang[open] summary {
+    color: var(--fg);
+  }
+  summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  .code {
+    display: none;
+  }
+  ul {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: -8px;
+    z-index: 20;
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    min-width: 150px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: 0 6px 16px #0000001f;
+  }
+  ul a {
+    display: block;
+    padding: 3px 8px;
+    border-radius: 5px;
+    color: var(--fg);
+  }
+  ul a:hover {
+    background: var(--surface);
+    text-decoration: none;
+  }
+  ul a[aria-current] {
+    font-weight: 600;
+  }
+  /* Phones: the globe and a short code in the header, the list opening to the left. */
+  @media (max-width: 860px) {
+    .name {
+      display: none;
+    }
+    .code {
+      display: inline;
+    }
+    ul {
+      left: auto;
+      right: 0;
+    }
+  }
+</style>

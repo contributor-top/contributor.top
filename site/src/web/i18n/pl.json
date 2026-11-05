@@ -1,0 +1,142 @@
+{
+  "lang.name": "Polski",
+  "lang.code": "pl",
+  "lang.label": "Język",
+
+  "site.tagline": "Najaktywniejsi użytkownicy GitHuba według krajów",
+  "site.description": "Najaktywniejsi użytkownicy GitHuba w każdym kraju, uszeregowani według publicznych kontrybucji z ostatnich 12 miesięcy.",
+  "site.notice": "Rankingi przeniosą się na contributor[s].top na początku 2027 roku.",
+  "nav.label": "Menu główne",
+  "nav.countries": "Kraje",
+  "nav.world": "Świat",
+  "nav.badge": "Zdobądź odznakę",
+  "nav.methodology": "Metodologia",
+  "nav.privacy": "Prywatność",
+  "about.text": "Dane z publicznych profili GitHub. {link}.",
+  "about.source": "Kod źródłowy na GitHubie",
+  "stars.label": "Gwiazdka na GitHubie",
+  "stars.aria": "Daj gwiazdkę contributor.top na GitHubie",
+  "theme.light": "Jasny",
+  "theme.dark": "Ciemny",
+  "theme.toDark": "Włącz ciemny motyw",
+  "theme.toLight": "Włącz jasny motyw",
+
+  "home.title": "Najaktywniejsi użytkownicy GitHuba według krajów",
+  "home.h1": "Najaktywniejsi użytkownicy GitHuba według krajów",
+  "home.intro": "Ranking według publicznych kontrybucji z ostatnich 12 miesięcy. Każdy kraj jest aktualizowany mniej więcej co dwa dni.",
+  "home.collecting": "zbieranie danych…",
+  "home.world": "Ranking światowy",
+  "home.worldNote": "ze wszystkich krajów",
+
+  "world.title": "Najaktywniejsi użytkownicy GitHuba na świecie",
+  "world.description": "Najaktywniejsi użytkownicy GitHuba z całego świata: wspólny ranking wszystkich krajów według publicznych kontrybucji z ostatnich 12 miesięcy.",
+  "world.h1": "Świat",
+  "world.json": "Ranking światowy w formacie JSON",
+  "world.intro": "Połączony z rankingów wszystkich krajów (publiczne kontrybucje). Obejmuje tylko osoby, których lokalizacja pasuje do któregoś kraju, więc nie jest to pełny ranking światowy; konta, których aktywność wygląda na zautomatyzowaną, są pominięte. Szczegóły: {link}.",
+  "world.methodology": "metodologia",
+  "world.empty": "Nie ma jeszcze danych o krajach.",
+
+  "country.title": "{country}: najaktywniejsi użytkownicy GitHuba",
+  "country.titleBy": "{country}: najaktywniejsi użytkownicy GitHuba – {what}",
+  "country.what.public": "publiczne kontrybucje",
+  "country.what.all": "publiczne i prywatne kontrybucje",
+  "country.what.commits": "commity",
+  "country.description": {
+    "one": "{country}: najaktywniejszy programista na GitHubie według kryterium „{what}” w ostatnich 12 miesiącach{top}. Zaktualizowano {date}.",
+    "few": "{country}: top {n} programistów na GitHubie według kryterium „{what}” w ostatnich 12 miesiącach{top}. Zaktualizowano {date}.",
+    "many": "{country}: top {n} programistów na GitHubie według kryterium „{what}” w ostatnich 12 miesiącach{top}. Zaktualizowano {date}.",
+    "other": "{country}: top {n} programistów na GitHubie według kryterium „{what}” w ostatnich 12 miesiącach{top}. Zaktualizowano {date}."
+  },
+  "country.top": ": {logins} i inni",
+  "country.collectingDescription": "{country}: ranking najaktywniejszych użytkowników GitHuba jest w trakcie tworzenia.",
+  "country.updated": "Zaktualizowano {date}",
+  "country.users": {
+    "one": "{n} użytkownik z pasującą lokalizacją",
+    "few": "{n} użytkownicy z pasującą lokalizacją",
+    "many": "{n} użytkowników z pasującą lokalizacją",
+    "other": "{n} użytkownika z pasującą lokalizacją"
+  },
+  "country.considered": "uwzględniono {n} najczęściej obserwowanych (≥ {min} obserwujących)",
+  "country.tabs": "Ranking",
+  "country.json": "{country}: ranking w formacie JSON",
+  "country.inList": "Jesteś na liście?",
+  "country.addBadge": "Dodaj odznakę do profilu GitHub →",
+  "country.collecting": "Zbieranie danych… Pierwsza aktualizacja kraju może potrwać dzień lub dwa.",
+
+  "tab.public": "Publiczne kontrybucje",
+  "tab.public.short": "Publiczne",
+  "tab.public.note": "Kontrybucje widoczne dla wszystkich z ostatnich 12 miesięcy.",
+  "tab.all": "Wszystkie kontrybucje",
+  "tab.all.short": "Wszystkie",
+  "tab.all.note": "Publiczne plus prywatne kontrybucje; prywatne liczą się tylko u osób, które pokazują je w profilu.",
+  "tab.commits": "Commity",
+  "tab.commits.short": "Commity",
+  "tab.commits.note": "Publiczne commity z ostatnich 12 miesięcy.",
+
+  "table.showTop": "Pokaż top",
+  "table.sizes": "Liczba wyświetlanych osób",
+  "table.developer": "Programista",
+  "table.contributions": "Kontrybucje",
+  "table.noscript": "Pokazano pierwszych {first} z {n}; do wyświetlenia pozostałych potrzebny jest JavaScript.",
+  "row.commits": {
+    "one": "{n} publiczny commit",
+    "few": "{n} publiczne commity",
+    "many": "{n} publicznych commitów",
+    "other": "{n} publicznego commita"
+  },
+  "row.prs": {
+    "one": "{n} publiczny pull request",
+    "few": "{n} publiczne pull requesty",
+    "many": "{n} publicznych pull requestów",
+    "other": "{n} publicznego pull requesta"
+  },
+  "row.issues": {
+    "one": "{n} publiczne issue",
+    "few": "{n} publiczne issue",
+    "many": "{n} publicznych issue",
+    "other": "{n} publicznego issue"
+  },
+  "row.reviews": {
+    "one": "{n} publiczne review",
+    "few": "{n} publiczne review",
+    "many": "{n} publicznych review",
+    "other": "{n} publicznego review"
+  },
+  "row.private": {
+    "one": "{n} prywatna kontrybucja",
+    "few": "{n} prywatne kontrybucje",
+    "many": "{n} prywatnych kontrybucji",
+    "other": "{n} prywatnej kontrybucji"
+  },
+  "row.privateShare": "{n}% prywatnych",
+  "row.automated": "Commity prawdopodobnie zautomatyzowane; poza rankingiem światowym",
+
+  "badge.title": "Zdobądź odznakę contributor.top",
+  "badge.description": "Dodaj do README swojego profilu GitHub odznakę z twoim miejscem wśród najaktywniejszych użytkowników GitHuba w twoim kraju.",
+  "badge.h1": "Zdobądź odznakę",
+  "badge.intro": "Pokaż swoje miejsce w README profilu GitHub. Odznaka aktualizuje się sama przy każdej aktualizacji twojego kraju.",
+  "badge.examples": "Przykłady",
+  "badge.explain": "Jedna odznaka na każdy ranking: publiczne kontrybucje, wszystkie kontrybucje i publiczne commity w twoim kraju oraz miejsce w rankingu światowym. Złoto, srebro i brąz dla pierwszej trójki, niebieski dla pozostałych.",
+  "badge.login": "Twój login na GitHubie",
+  "badge.loginHint": "(opcjonalnie, zostanie wstawiony do szablonu)",
+  "badge.ranking": "Ranking",
+  "badge.style": "Styl",
+  "badge.every": "Wszystkie cztery",
+  "badge.copy": "Kopiuj",
+  "badge.copied": "Skopiowano",
+  "badge.note": "Jeśli nie podano loginu, zastąp {placeholder} swoim. Odznaka pokazuje miejsce, gdy trafisz do danego rankingu (zobacz {link}). Jeśli jesteś w innym rankingu, do tego czasu na odznace widnieje „unranked”; jeśli nie ma cię w żadnym, shields.io pokaże, że odznaki nie znaleziono. Link otwiera ranking twojego kraju (lub światowy) z podświetlonym twoim wierszem.",
+  "badge.who": "kogo uwzględniamy",
+
+  "find.title": "Znajdź programistę",
+  "find.looking": "Szukamy…",
+  "find.notFound": "Tego programisty nie ma jeszcze w tym rankingu.",
+  "find.see": "Zobacz, kogo uwzględniamy.",
+
+  "notFound.title": "Nie znaleziono",
+  "notFound.text": "Ta strona nie istnieje.",
+  "notFound.link": "Wszystkie kraje",
+
+  "doc.translated": "Przetłumaczono z angielskiego. Jeśli tłumaczenie różni się od {english}, obowiązuje wersja angielska. Widzisz błąd? {report}.",
+  "doc.english": "wersji angielskiej",
+  "doc.report": "Zgłoś go"
+}

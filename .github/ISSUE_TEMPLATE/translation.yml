@@ -1,0 +1,21 @@
+name: Add a language or fix a translation
+description: Ask for a new language for the site, or report a mistake in a translation.
+labels: [translation]
+body:
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      description: Its name or code, e.g. "Deutsch", "Hindi" or "pt-BR".
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Page (optional)
+      description: The address of the page with the mistake, e.g. https://contributor.top/de/methodology/.
+  - type: textarea
+    id: text
+    attributes:
+      label: What is wrong, and how it should read
+      description: Leave empty when asking for a new language. Translations live in site/src/web/i18n; pull requests are welcome.

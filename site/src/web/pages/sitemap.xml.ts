@@ -1,11 +1,14 @@
 import type { APIRoute } from "astro";
-import type { Tab } from "../../collector/rank.ts";
-import { collected, SITE, TAB_META, tabHref, updates } from "../lib/site.ts";
+import { LANGS, prefixOf } from "../i18n/index.ts";
+import { collected, SITE, TABS, tabHref, updates } from "../lib/site.ts";
 
-/** All indexable pages; country pages carry their own update time as lastmod. */
+/**
+ * All indexable pages, in every language; country pages carry their own update time as lastmod. The pages name
+ * their other languages themselves (hreflang in <head>), so the sitemap only lists them.
+ */
 export const GET: APIRoute = () => {
   const newest = updates.at(-1);
-  const urls: { loc: string; lastmod?: string | undefined }[] = [
+  const pages: { loc: string; lastmod?: string | undefined }[] = [
     { loc: "/", lastmod: newest },
     { loc: "/world/", lastmod: newest },
     { loc: "/badge/" },
@@ -14,11 +17,14 @@ export const GET: APIRoute = () => {
   ];
   // "Collecting" pages are thin; they join the sitemap once they have data.
   for (const { slug, data } of collected) {
-    for (const tab of Object.keys(TAB_META) as Tab[]) urls.push({ loc: tabHref(slug, tab), lastmod: data.updatedAt });
+    for (const tab of TABS) pages.push({ loc: tabHref(slug, tab), lastmod: data.updatedAt });
   }
-  const body = urls
-    .map(({ loc, lastmod }) => `<url><loc>${SITE}${loc}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}</url>`)
-    .join("");
+  const body = LANGS.flatMap((lang) =>
+    pages.map(
+      ({ loc, lastmod }) =>
+        `<url><loc>${SITE}${prefixOf(lang)}${loc}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}</url>`,
+    ),
+  ).join("");
   return new Response(
     `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${body}</urlset>`,
     { headers: { "Content-Type": "application/xml; charset=utf-8" } },

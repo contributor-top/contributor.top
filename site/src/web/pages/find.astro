@@ -1,21 +1,26 @@
 ---
+import { i18n, prefixOf } from "../i18n/index.ts";
 import Base from "../layouts/Base.astro";
 import { config, countryEntries } from "../lib/site.ts";
 import find from "../scripts/find.js?raw";
 
 // Badge links point here: /find/?login=…&tab=… opens that person's row in their best country ranking,
 // or, with tab=world, in the world ranking. The lookup is the inline script in <head> (its hash is in the CSP).
+// Badges name countries in English, so the titles map to slugs in every language; the ranking opens in this one.
+const { lang, t } = i18n(Astro.currentLocale);
 const data = {
   slugs: Object.fromEntries(countryEntries.map((c) => [c.title, c.slug])),
   sizes: config.ranking.top_choices,
+  base: prefixOf(lang),
+  text: { notFound: t("find.notFound"), see: t("find.see") },
 };
 ---
 
-<Base title="Find a developer" noindex>
+<Base title={t("find.title")} noindex>
   <Fragment slot="head">
     <meta name="find-data" content={JSON.stringify(data)} />
     <script is:inline set:html={find} />
   </Fragment>
-  <h1>Find a developer</h1>
-  <p id="status" class="muted">Looking up…</p>
+  <h1>{t("find.title")}</h1>
+  <p id="status" class="muted">{t("find.looking")}</p>
 </Base>

@@ -1,0 +1,135 @@
+{
+  "lang.name": "Italiano",
+  "lang.code": "it",
+  "lang.label": "Lingua",
+
+  "site.tagline": "Gli utenti GitHub più attivi per paese",
+  "site.description": "Gli utenti GitHub più attivi di ogni paese, in classifica per contributi pubblici negli ultimi 12 mesi.",
+  "site.notice": "Le classifiche si sposteranno su contributor[s].top all'inizio del 2027.",
+  "nav.label": "Menu principale",
+  "nav.countries": "Paesi",
+  "nav.world": "Mondo",
+  "nav.badge": "Ottieni un badge",
+  "nav.methodology": "Metodologia",
+  "nav.privacy": "Privacy",
+  "about.text": "Dati dai profili GitHub pubblici. {link}.",
+  "about.source": "Codice sorgente su GitHub",
+  "stars.label": "Stella su GitHub",
+  "stars.aria": "Aggiungi una stella a contributor.top su GitHub",
+  "theme.light": "Chiaro",
+  "theme.dark": "Scuro",
+  "theme.toDark": "Passa al tema scuro",
+  "theme.toLight": "Passa al tema chiaro",
+
+  "home.title": "Gli utenti GitHub più attivi per paese",
+  "home.h1": "Gli utenti GitHub più attivi per paese",
+  "home.intro": "Classifica per contributi pubblici negli ultimi 12 mesi. Ogni paese viene aggiornato circa ogni due giorni.",
+  "home.collecting": "raccolta dati…",
+  "home.world": "Classifica mondiale",
+  "home.worldNote": "tutti i paesi insieme",
+
+  "world.title": "Gli utenti GitHub più attivi del mondo",
+  "world.description": "Gli utenti GitHub più attivi di tutto il mondo, dall'unione delle classifiche di ogni paese per contributi pubblici negli ultimi 12 mesi.",
+  "world.h1": "Mondo",
+  "world.json": "Classifica mondiale in JSON",
+  "world.intro": "Unione delle classifiche di tutti i paesi (contributi pubblici). Sono incluse solo le persone la cui località corrisponde a un paese, quindi non è una classifica mondiale completa; gli account con attività che sembra automatizzata sono esclusi. Vedi la {link}.",
+  "world.methodology": "metodologia",
+  "world.empty": "Ancora nessun dato sui paesi.",
+
+  "country.title": "{country}: gli utenti GitHub più attivi",
+  "country.titleBy": "{country}: gli utenti GitHub più attivi per {what}",
+  "country.what.public": "contributi pubblici",
+  "country.what.all": "contributi pubblici e privati",
+  "country.what.commits": "commit",
+  "country.description": {
+    "one": "{country}: lo sviluppatore più attivo su GitHub per {what} negli ultimi 12 mesi{top}. Aggiornato il {date}.",
+    "many": "{country}: i {n} di sviluppatori più attivi su GitHub per {what} negli ultimi 12 mesi{top}. Aggiornato il {date}.",
+    "other": "{country}: i {n} sviluppatori più attivi su GitHub per {what} negli ultimi 12 mesi{top}. Aggiornato il {date}."
+  },
+  "country.top": ": {logins} e altri",
+  "country.collectingDescription": "{country}: la classifica degli utenti GitHub più attivi è in fase di raccolta.",
+  "country.updated": "Aggiornato il {date}",
+  "country.users": {
+    "one": "{n} utente con una località corrispondente",
+    "many": "{n} di utenti con una località corrispondente",
+    "other": "{n} utenti con una località corrispondente"
+  },
+  "country.considered": "considerati i {n} più seguiti (≥ {min} follower)",
+  "country.tabs": "Classifica",
+  "country.json": "{country}: classifica in JSON",
+  "country.inList": "Sei in lista?",
+  "country.addBadge": "Aggiungi un badge al tuo profilo GitHub →",
+  "country.collecting": "Raccolta dati… Il primo aggiornamento di un paese può richiedere un giorno o due.",
+
+  "tab.public": "Contributi pubblici",
+  "tab.public.short": "Pubblici",
+  "tab.public.note": "Contributi visibili a tutti negli ultimi 12 mesi.",
+  "tab.all": "Tutti i contributi",
+  "tab.all.short": "Tutti",
+  "tab.all.note": "Contributi pubblici più quelli privati; i privati contano solo per chi li mostra sul proprio profilo.",
+  "tab.commits": "Commit",
+  "tab.commits.short": "Commit",
+  "tab.commits.note": "Commit pubblici negli ultimi 12 mesi.",
+
+  "table.showTop": "Mostra i primi",
+  "table.sizes": "Numero di persone mostrate",
+  "table.developer": "Sviluppatore",
+  "table.contributions": "Contributi",
+  "table.noscript": "Sono mostrati i primi {first} su {n}; per gli altri serve JavaScript.",
+  "row.commits": {
+    "one": "{n} commit pubblico",
+    "many": "{n} di commit pubblici",
+    "other": "{n} commit pubblici"
+  },
+  "row.prs": {
+    "one": "{n} pull request pubblica",
+    "many": "{n} di pull request pubbliche",
+    "other": "{n} pull request pubbliche"
+  },
+  "row.issues": {
+    "one": "{n} issue pubblica",
+    "many": "{n} di issue pubbliche",
+    "other": "{n} issue pubbliche"
+  },
+  "row.reviews": {
+    "one": "{n} review pubblica",
+    "many": "{n} di review pubbliche",
+    "other": "{n} review pubbliche"
+  },
+  "row.private": {
+    "one": "{n} contributo privato",
+    "many": "{n} di contributi privati",
+    "other": "{n} contributi privati"
+  },
+  "row.privateShare": "{n}% di contributi privati",
+  "row.automated": "Commit probabilmente automatizzati, fuori dalla classifica mondiale",
+
+  "badge.title": "Ottieni il tuo badge contributor.top",
+  "badge.description": "Aggiungi al README del tuo profilo GitHub un badge con la tua posizione tra gli utenti GitHub più attivi del tuo paese.",
+  "badge.h1": "Ottieni il tuo badge",
+  "badge.intro": "Mostra la tua posizione nel README del tuo profilo GitHub. Il badge si aggiorna da solo a ogni aggiornamento del tuo paese.",
+  "badge.examples": "Esempi",
+  "badge.explain": "Un badge per ogni classifica: contributi pubblici, tutti i contributi e commit pubblici nel tuo paese, più la tua posizione nella classifica mondiale. Oro, argento e bronzo per i primi 3, blu per tutti gli altri.",
+  "badge.login": "Il tuo login GitHub",
+  "badge.loginHint": "(facoltativo, compila il modello)",
+  "badge.ranking": "Classifica",
+  "badge.style": "Stile",
+  "badge.every": "Tutti e quattro",
+  "badge.copy": "Copia",
+  "badge.copied": "Copiato",
+  "badge.note": "Se non hai inserito il tuo login, sostituisci {placeholder} con il tuo. Un badge mostra la tua posizione quando entri in quella classifica (vedi {link}). Se sei in un'altra classifica, fino ad allora riporta «unranked»; se non sei ancora in nessuna, shields.io lo mostra come non trovato. Il link apre la classifica del tuo paese (o quella mondiale) con la tua riga evidenziata.",
+  "badge.who": "chi viene considerato",
+
+  "find.title": "Trova uno sviluppatore",
+  "find.looking": "Ricerca in corso…",
+  "find.notFound": "Questo sviluppatore non è ancora in questa classifica.",
+  "find.see": "Vedi chi viene considerato.",
+
+  "notFound.title": "Non trovato",
+  "notFound.text": "Questa pagina non esiste.",
+  "notFound.link": "Vedi tutti i paesi",
+
+  "doc.translated": "Tradotto dall'inglese. Se la traduzione differisce dalla {english}, vale quella inglese. Hai trovato un errore? {report}.",
+  "doc.english": "versione inglese",
+  "doc.report": "Segnalacelo"
+}

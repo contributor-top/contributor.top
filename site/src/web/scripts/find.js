@@ -10,6 +10,9 @@
   const data = JSON.parse(document.querySelector('meta[name="find-data"]')?.getAttribute("content") || "{}");
   const titles = data.slugs || {};
   const sizes = data.sizes || [];
+  // This page's language: its prefix ("" or "/ru") and texts.
+  const base = typeof data.base === "string" ? data.base : "";
+  const text = data.text || {};
   /** The size to open the ranking at: one that shows the row (no more rows load than that), or a larger saved one. */
   const sizeFor = (rank) => {
     const needed = sizes.find((s) => s >= rank) ?? sizes.at(-1) ?? 0;
@@ -31,10 +34,10 @@
     const show = () => {
       const status = document.getElementById("status");
       if (!status) return;
-      status.textContent = "This developer is not in this ranking yet. ";
+      status.textContent = `${text.notFound || ""} `;
       const link = document.createElement("a");
-      link.href = "/methodology/";
-      link.textContent = "See who is considered.";
+      link.href = `${base}/methodology/`;
+      link.textContent = text.see || "";
       status.append(link);
     };
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", show, { once: true });
@@ -66,7 +69,7 @@
           link.href = `/rows/${rows}/${start + 1}/`;
           document.head.append(link);
         }
-        location.replace(`${page}?top=${size}#${name}`);
+        location.replace(`${base}${page}?top=${size}#${name}`);
       };
       // The world has one page: the badge's place is never looked up as a country.
       if (tabName === "world") return open("world", "/world/");

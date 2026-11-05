@@ -1,0 +1,135 @@
+{
+  "lang.name": "Español",
+  "lang.code": "es",
+  "lang.label": "Idioma",
+
+  "site.tagline": "Los usuarios de GitHub más activos por país",
+  "site.description": "Los usuarios de GitHub más activos de cada país, según sus contribuciones públicas de los últimos 12 meses.",
+  "site.notice": "Los rankings se mudarán a contributor[s].top a principios de 2027.",
+  "nav.label": "Principal",
+  "nav.countries": "Países",
+  "nav.world": "Mundo",
+  "nav.badge": "Obtener una insignia",
+  "nav.methodology": "Metodología",
+  "nav.privacy": "Privacidad",
+  "about.text": "Datos de perfiles públicos de GitHub. {link}.",
+  "about.source": "Código fuente en GitHub",
+  "stars.label": "Estrella en GitHub",
+  "stars.aria": "Dar una estrella a contributor.top en GitHub",
+  "theme.light": "Claro",
+  "theme.dark": "Oscuro",
+  "theme.toDark": "Cambiar al tema oscuro",
+  "theme.toLight": "Cambiar al tema claro",
+
+  "home.title": "Los usuarios de GitHub más activos por país",
+  "home.h1": "Usuarios de GitHub más activos por país",
+  "home.intro": "Clasificados por contribuciones públicas de los últimos 12 meses. Cada país se actualiza aproximadamente cada dos días.",
+  "home.collecting": "recopilando datos…",
+  "home.world": "Ranking mundial",
+  "home.worldNote": "de todos los países juntos",
+
+  "world.title": "Los usuarios de GitHub más activos del mundo",
+  "world.description": "Los usuarios de GitHub más activos de todo el mundo: los rankings de todos los países juntos, por contribuciones públicas de los últimos 12 meses.",
+  "world.h1": "Mundo",
+  "world.json": "Ranking mundial en JSON",
+  "world.intro": "Reúne los rankings de todos los países (contribuciones públicas). Solo se incluyen personas cuya ubicación coincide con un país, así que no es un ranking mundial exhaustivo, y se excluyen las cuentas cuya actividad parece automatizada. Consulta la {link}.",
+  "world.methodology": "metodología",
+  "world.empty": "Aún no hay datos de países.",
+
+  "country.title": "{country}: los usuarios de GitHub más activos",
+  "country.titleBy": "{country}: los usuarios de GitHub más activos por {what}",
+  "country.what.public": "contribuciones públicas",
+  "country.what.all": "contribuciones públicas y privadas",
+  "country.what.commits": "commits",
+  "country.description": {
+    "one": "{country}: top {n} desarrollador de GitHub por {what} en los últimos 12 meses{top}. Actualizado el {date}.",
+    "many": "{country}: top {n} de desarrolladores de GitHub por {what} en los últimos 12 meses{top}. Actualizado el {date}.",
+    "other": "{country}: top {n} desarrolladores de GitHub por {what} en los últimos 12 meses{top}. Actualizado el {date}."
+  },
+  "country.top": ": {logins} y más",
+  "country.collectingDescription": "{country}: se está recopilando el ranking de los usuarios de GitHub más activos.",
+  "country.updated": "Actualizado el {date}",
+  "country.users": {
+    "one": "{n} usuario con una ubicación coincidente",
+    "many": "{n} de usuarios con una ubicación coincidente",
+    "other": "{n} usuarios con una ubicación coincidente"
+  },
+  "country.considered": "se consideran los {n} más seguidos (≥ {min} seguidores)",
+  "country.tabs": "Ranking",
+  "country.json": "{country}: ranking en JSON",
+  "country.inList": "¿Estás en la lista?",
+  "country.addBadge": "Añade una insignia a tu perfil de GitHub →",
+  "country.collecting": "Recopilando datos… La primera actualización de un país puede tardar uno o dos días.",
+
+  "tab.public": "Contribuciones públicas",
+  "tab.public.short": "Públicas",
+  "tab.public.note": "Contribuciones visibles para todos en los últimos 12 meses.",
+  "tab.all": "Todas las contribuciones",
+  "tab.all.short": "Todas",
+  "tab.all.note": "Contribuciones públicas más privadas; las privadas solo cuentan para quienes las muestran en su perfil.",
+  "tab.commits": "Commits",
+  "tab.commits.short": "Commits",
+  "tab.commits.note": "Commits públicos en los últimos 12 meses.",
+
+  "table.showTop": "Mostrar top",
+  "table.sizes": "Número de personas mostradas",
+  "table.developer": "Desarrollador",
+  "table.contributions": "Contribuciones",
+  "table.noscript": "Se muestran los primeros {first} de {n}; para ver el resto se necesita JavaScript.",
+  "row.commits": {
+    "one": "{n} commit público",
+    "many": "{n} de commits públicos",
+    "other": "{n} commits públicos"
+  },
+  "row.prs": {
+    "one": "{n} pull request público",
+    "many": "{n} de pull requests públicos",
+    "other": "{n} pull requests públicos"
+  },
+  "row.issues": {
+    "one": "{n} issue público",
+    "many": "{n} de issues públicos",
+    "other": "{n} issues públicos"
+  },
+  "row.reviews": {
+    "one": "{n} revisión pública",
+    "many": "{n} de revisiones públicas",
+    "other": "{n} revisiones públicas"
+  },
+  "row.private": {
+    "one": "{n} contribución privada",
+    "many": "{n} de contribuciones privadas",
+    "other": "{n} contribuciones privadas"
+  },
+  "row.privateShare": "{n} % de contribuciones privadas",
+  "row.automated": "Commits probablemente automatizados; no entra en el ranking mundial",
+
+  "badge.title": "Consigue tu insignia de contributor.top",
+  "badge.description": "Añade al README de tu perfil de GitHub una insignia con tu puesto entre los usuarios de GitHub más activos de tu país.",
+  "badge.h1": "Consigue tu insignia",
+  "badge.intro": "Muestra tu puesto en el README de tu perfil de GitHub. La insignia se actualiza sola cada vez que se actualiza tu país.",
+  "badge.examples": "Ejemplos",
+  "badge.explain": "Una insignia por ranking: contribuciones públicas, todas las contribuciones y commits públicos en tu país, y tu puesto en el ranking mundial. Oro, plata y bronce para los 3 primeros, azul para el resto.",
+  "badge.login": "Tu usuario de GitHub",
+  "badge.loginHint": "(opcional, se rellena en la plantilla)",
+  "badge.ranking": "Ranking",
+  "badge.style": "Estilo",
+  "badge.every": "Las cuatro",
+  "badge.copy": "Copiar",
+  "badge.copied": "Copiado",
+  "badge.note": "Si no lo has indicado, sustituye {placeholder} por tu usuario. Una insignia muestra tu puesto cuando estás en ese ranking (consulta {link}). Si estás en otro ranking, hasta entonces muestra «unranked»; si aún no estás en ninguno, shields.io la muestra como no encontrada. El enlace abre el ranking de tu país (o el mundial) con tu fila resaltada.",
+  "badge.who": "a quién se tiene en cuenta",
+
+  "find.title": "Buscar un desarrollador",
+  "find.looking": "Buscando…",
+  "find.notFound": "Este desarrollador aún no está en este ranking.",
+  "find.see": "Consulta a quién se tiene en cuenta.",
+
+  "notFound.title": "No encontrado",
+  "notFound.text": "Esta página no existe.",
+  "notFound.link": "Ver todos los países",
+
+  "doc.translated": "Traducido del inglés. Si la traducción difiere de la {english}, prevalece la original. ¿Has encontrado un error? {report}.",
+  "doc.english": "versión en inglés",
+  "doc.report": "Avísanos"
+}

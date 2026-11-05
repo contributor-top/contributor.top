@@ -2,8 +2,10 @@
 import { ClientRouter } from "astro:transitions";
 import "../styles/global.css";
 import { jsonForScript } from "../../collector/safe-json.ts";
+import LanguagePicker from "../components/LanguagePicker.astro";
 import RepoCard from "../components/RepoCard.astro";
 import ThemeToggle from "../components/ThemeToggle.astro";
+import { codeOf, DEFAULT_LANG, i18n, LANGS, parts, prefixOf, unprefixed } from "../i18n/index.ts";
 import { config } from "../lib/site.ts";
 import themeInit from "../scripts/theme-init.js?raw";
 
@@ -15,35 +17,35 @@ type Props = {
   /** schema.org structured data for this page. */
   jsonLd?: Record<string, unknown> | undefined;
 };
-const {
-  title,
-  description = "The most active GitHub users in every country, ranked by public contributions over the last 12 months.",
-  noindex = false,
-  jsonLd,
-} = Astro.props;
+const { lang, code, t, href } = i18n(Astro.currentLocale);
+const { title, description = t("site.description"), noindex = false, jsonLd } = Astro.props;
 const fullTitle = title === "contributor.top" ? title : `${title} | contributor.top`;
-// Canonical URL: always the clean path (no ?top=…), with the trailing slash the site uses.
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
+// This page in every language (hreflang); the canonical URL is this language's, always the clean path (no ?top=…),
+// with the trailing slash the site uses.
+const path = unprefixed(Astro.url.pathname);
+const urlIn = (l: string) => new URL(prefixOf(l) + path, Astro.site).href;
+const canonical = urlIn(lang);
 const ogImage = new URL("/og.png", Astro.site).href;
 const nav = [
-  ["Countries", "/"],
-  ["World", "/world/"],
-  ["Get a badge", "/badge/"],
-  ["Methodology", "/methodology/"],
-  ["Privacy", "/privacy/"],
+  [t("nav.countries"), "/"],
+  [t("nav.world"), "/world/"],
+  [t("nav.badge"), "/badge/"],
+  [t("nav.methodology"), "/methodology/"],
+  [t("nav.privacy"), "/privacy/"],
 ] as const;
-const current = Astro.url.pathname;
-const isCurrent = (href: string) => (href === "/" ? current === "/" : current.startsWith(href));
+const isCurrent = (page: string) => (page === "/" ? path === "/" : path.startsWith(page));
 ---
 
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang={code} data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
+    {!noindex && LANGS.map((l) => <link rel="alternate" hreflang={codeOf(l)} href={urlIn(l)} />)}
+    {!noindex && <link rel="alternate" hreflang="x-default" href={urlIn(DEFAULT_LANG)} />}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="contributor.top" />
     <meta property="og:title" content={fullTitle} />
@@ -72,20 +74,26 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
   </head>
   <body>
     <div class="layout">
-      <aside transition:persist="sidebar">
+      {/* Kept across page switches within a language; another language brings its own. */}
+      <aside transition:persist={`sidebar-${lang}`}>
         <div class="brand">
-          <a class="logo" href="/">contributor<span>.top</span></a>
-          <p class="tagline muted">The most active GitHub users by country</p>
+          <a class="logo" href={href("/")}>contributor<span>.top</span></a>
+          <p class="tagline muted">{t("site.tagline")}</p>
         </div>
-        <nav aria-label="Main">
-          {nav.map(([label, href]) => <a href={href} aria-current={isCurrent(href) ? "page" : undefined}>{label}</a>)}
+        <nav class="main" aria-label={t("nav.label")}>
+          {nav.map(([label, page]) => <a href={href(page)} aria-current={isCurrent(page) ? "page" : undefined}>{label}</a>)}
         </nav>
         <div class="tools">
           <RepoCard />
           <ThemeToggle />
+          <LanguagePicker />
         </div>
         <p class="about muted">
-          Data from public GitHub profiles. <a href={`https://github.com/${config.site.repo}`}>Source on GitHub</a>.
+          {
+            parts(t("about.text")).map((part) =>
+              part === "{link}" ? <a href={`https://github.com/${config.site.repo}`}>{t("about.source")}</a> : part,
+            )
+          }
         </p>
       </aside>
       <main>
@@ -96,12 +104,14 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
 </html>
 
 <script>
-  // The sidebar is not re-rendered on navigation, so the current page is marked here.
+  // The sidebar is not re-rendered on navigation within a language, so the current page is marked here. The first
+  // link is the language's home page ("/" or "/ru/"): current only there.
   document.addEventListener("astro:page-load", () => {
     const here = location.pathname;
-    for (const link of document.querySelectorAll<HTMLAnchorElement>('nav[aria-label="Main"] a')) {
+    const links = [...document.querySelectorAll<HTMLAnchorElement>("nav.main a")];
+    for (const link of links) {
       const path = link.pathname;
-      const current = path === "/" ? here === "/" : here.startsWith(path);
+      const current = link === links[0] ? here === path : here.startsWith(path);
       if (current) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
     }
@@ -205,6 +215,15 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
     }
     .about {
       display: none;
+    }
+  }
+  /* The narrowest phones (320 px): the logo and the tools still share one line in every language. */
+  @media (max-width: 380px) {
+    .logo {
+      font-size: 20px;
+    }
+    .tools {
+      gap: 10px;
     }
   }
 </style>

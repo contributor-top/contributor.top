@@ -1,9 +1,18 @@
 // Integration: builds the whole site from hostile data and inspects the output.
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
-import { beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { LOGIN, SLUG } from "../src/collector/patterns.ts";
 
 // On the project's disk, not in the system temp directory: Astro moves built files into the output with rename(),
@@ -36,6 +45,8 @@ function files(dir: string): string[] {
     return statSync(path).isDirectory() ? files(path) : [path];
   });
 }
+
+afterAll(() => rmSync(root, { recursive: true, force: true }));
 
 beforeAll(() => {
   mkdirSync(presetsDir);
@@ -284,5 +295,37 @@ describe("site built from hostile data", () => {
         expect(csp, page).toContain(hash);
       }
     }
+  });
+
+  it("builds every page in every language and the row fragments once", () => {
+    const html = readFileSync(join(out, "ru", "cote_divoire", "index.html"), "utf8");
+    expect(html).toContain('<html lang="ru"');
+    expect(html).toContain(new Intl.DisplayNames(["ru"], { type: "region" }).of("CI"));
+    for (const path of ["ru/world", "ru/badge", "ru/methodology", "ru/privacy", "ru/big_land/all"]) {
+      expect(existsSync(join(out, path, "index.html")), path).toBe(true);
+    }
+    expect(existsSync(join(out, "ru", "rows"))).toBe(false);
+    expect(readFileSync(join(out, "sitemap.xml"), "utf8")).toContain("<loc>https://contributor.top/ru/world/</loc>");
+  });
+
+  it("links each page to itself in every language, and puts each in its own canonical URL", () => {
+    const html = readFileSync(join(out, "ru", "cote_divoire", "index.html"), "utf8");
+    expect(html).toContain('<link rel="canonical" href="https://contributor.top/ru/cote_divoire/">');
+    expect(html).toContain('<link rel="alternate" hreflang="en" href="https://contributor.top/cote_divoire/">');
+    expect(html).toContain('<link rel="alternate" hreflang="x-default" href="https://contributor.top/cote_divoire/">');
+    // Pages kept out of search results name no other versions.
+    expect(readFileSync(join(out, "ru", "find", "index.html"), "utf8")).not.toContain('rel="alternate"');
+  });
+
+  it("translates the first rows on the page and hands the browser what it needs for the rest", () => {
+    const html = readFileSync(join(out, "ru", "big_land", "index.html"), "utf8");
+    expect(html).toMatch(/aria-label="1 публичный коммит"/);
+    const words = JSON.parse((html.match(/data-i18n="([^"]*)"/)?.[1] ?? "{}").replaceAll("&quot;", '"'));
+    expect(words.locale).toBe("ru");
+    expect(Object.keys(words.messages)).toContain("row.commits");
+    // Fragments are the same for every language: English, with the raw numbers for ranking.js.
+    const fragment = readFileSync(join(out, "rows", "big_land", "public", "11", "index.html"), "utf8");
+    expect(fragment).toMatch(/data-k="row.commits" data-n="1"/);
+    expect(readFileSync(join(out, "big_land", "index.html"), "utf8")).not.toContain("data-i18n=");
   });
 });

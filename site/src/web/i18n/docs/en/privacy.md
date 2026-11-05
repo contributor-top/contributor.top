@@ -1,5 +1,4 @@
 ---
-layout: ../layouts/Markdown.astro
 title: Privacy and opt-out
 description: What data contributor.top uses and how to be removed.
 ---

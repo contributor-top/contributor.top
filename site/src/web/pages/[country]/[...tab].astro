@@ -3,41 +3,37 @@ import type { GetStaticPaths } from "astro";
 import type { Tab } from "../../../collector/rank.ts";
 import RankingHead from "../../components/RankingHead.astro";
 import RankingTable from "../../components/RankingTable.astro";
+import { i18n } from "../../i18n/index.ts";
 import Base from "../../layouts/Base.astro";
-import {
-  type CountryEntry,
-  countryEntries,
-  formatDate,
-  formatNumber,
-  rowsBase,
-  TAB_META,
-  tabHref,
-} from "../../lib/site.ts";
+import { type CountryEntry, countryEntries, rowsBase, TAB_PATHS, TABS, tabHref } from "../../lib/site.ts";
 
 export const getStaticPaths = (() =>
   countryEntries.flatMap((entry) =>
-    (Object.keys(TAB_META) as Tab[])
-      .filter((tab) => entry.data || tab === "public")
-      .map((tab) => ({ params: { country: entry.slug, tab: TAB_META[tab].path || undefined }, props: { entry, tab } })),
+    TABS.filter((tab) => entry.data || tab === "public").map((tab) => ({
+      params: { country: entry.slug, tab: TAB_PATHS[tab] || undefined },
+      props: { entry, tab },
+    })),
   )) satisfies GetStaticPaths;
 
 type Props = { entry: CountryEntry; tab: Tab };
 const { entry, tab } = Astro.props;
+const { t, href, dateTime, country: nameOf } = i18n(Astro.currentLocale);
 const data = entry.data;
-const tabs = Object.entries(TAB_META) as [Tab, (typeof TAB_META)[Tab]][];
+const country = nameOf(entry);
 
-const what = { public: "public contributions", all: "public and private contributions", commits: "commits" }[tab];
-const title =
-  tab === "public"
-    ? `Most active GitHub users in ${entry.title}`
-    : `Most active GitHub users in ${entry.title} by ${what}`;
+const what = t(`country.what.${tab}`);
+const title = tab === "public" ? t("country.title", { country }) : t("country.titleBy", { country, what });
 const top3 = data?.tabs[tab].slice(0, 3).map((r) => r.login) ?? [];
 const description = data
-  ? `Top ${data.tabs[tab].length} developers in ${entry.title} ranked by ${what} on GitHub over the last 12 months` +
-    (top3.length ? `: ${top3.join(", ")} and more.` : ".") +
-    ` Updated ${formatDate(data.updatedAt)}.`
-  : `The ranking of the most active GitHub users in ${entry.title} is being collected.`;
-const url = new URL(Astro.url.pathname, Astro.site).href;
+  ? t("country.description", {
+      n: data.tabs[tab].length,
+      country,
+      what,
+      top: top3.length ? t("country.top", { logins: top3.join(", ") }) : "",
+      date: dateTime(data.updatedAt),
+    })
+  : t("country.collectingDescription", { country });
+const url = new URL(href(tabHref(entry.slug, tab)), Astro.site).href;
 const more = rowsBase(`${entry.slug}/${tab}`);
 // Dataset helps Google Dataset Search; ItemList and breadcrumbs describe the page itself.
 const jsonLd = data
@@ -52,7 +48,7 @@ const jsonLd = data
           dateModified: data.updatedAt,
           license: "https://opensource.org/license/mit",
           isAccessibleForFree: true,
-          spatialCoverage: { "@type": "Place", name: entry.title },
+          spatialCoverage: { "@type": "Place", name: country },
           creator: { "@type": "Organization", name: "contributor.top", url: Astro.site?.href },
         },
         {
@@ -69,8 +65,8 @@ const jsonLd = data
         {
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Countries", item: Astro.site?.href },
-            { "@type": "ListItem", position: 2, name: entry.title, item: url },
+            { "@type": "ListItem", position: 1, name: t("nav.countries"), item: new URL(href("/"), Astro.site).href },
+            { "@type": "ListItem", position: 2, name: country, item: url },
           ],
         },
       ],
@@ -80,43 +76,35 @@ const jsonLd = data
 
 <Base title={title} description={description} noindex={!data} jsonLd={jsonLd}>
   <RankingHead slot="head" count={data?.tabs[tab].length ?? 0} more={more} />
-  <h1>{entry.title}</h1>
+  <h1>{country}</h1>
   {
     data ? (
       <>
         <p class="muted meta">
-          <span>Updated {formatDate(data.updatedAt)}</span>
-          <span>{formatNumber(data.totalUsers)} users with a matching location</span>
-          <span>
-            {formatNumber(data.considered)} most-followed (≥ {formatNumber(data.minFollowers)} followers) considered
-          </span>
+          <span>{t("country.updated", { date: dateTime(data.updatedAt) })}</span>
+          <span>{t("country.users", { n: data.totalUsers })}</span>
+          <span>{t("country.considered", { n: data.considered, min: data.minFollowers })}</span>
         </p>
-        <nav class="tabs" aria-label="Ranking">
-          {tabs.map(([key, meta]) => (
-            <a href={tabHref(entry.slug, key)} aria-current={key === tab ? "page" : undefined}>
-              <span class="long">{meta.label}</span>
+        <nav class="tabs" aria-label={t("country.tabs")}>
+          {TABS.map((key) => (
+            <a href={href(tabHref(entry.slug, key))} aria-current={key === tab ? "page" : undefined}>
+              <span class="long">{t(`tab.${key}`)}</span>
               <span class="short" aria-hidden="true">
-                {meta.short}
+                {t(`tab.${key}.short`)}
               </span>
             </a>
           ))}
-          <a class="json" href={`/api/${entry.slug}.json`} aria-label={`${entry.title} ranking as JSON`}>
+          <a class="json" href={`/api/${entry.slug}.json`} aria-label={t("country.json", { country })}>
             JSON
           </a>
         </nav>
         <p class="muted">
-          {TAB_META[tab].note} In the list? <a href="/badge/">Add a badge to your GitHub profile →</a>
+          {t(`tab.${tab}.note`)} {t("country.inList")} <a href={href("/badge/")}>{t("country.addBadge")}</a>
         </p>
-        <RankingTable
-          rows={data.tabs[tab]}
-          breakdown={data.breakdown}
-          names={data.names}
-          tab={tab}
-          more={more}
-        />
+        <RankingTable rows={data.tabs[tab]} breakdown={data.breakdown} names={data.names} tab={tab} more={more} />
       </>
     ) : (
-      <p class="empty">Collecting data… The first update of a country can take a day or two.</p>
+      <p class="empty">{t("country.collecting")}</p>
     )
   }
 </Base>

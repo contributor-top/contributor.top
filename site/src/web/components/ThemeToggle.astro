@@ -1,8 +1,20 @@
 ---
 // One borderless icon that switches between Light and Dark. Light is the default.
+import { i18n } from "../i18n/index.ts";
+
+const { t } = i18n(Astro.currentLocale);
 ---
 
-<button type="button" class="theme needs-js" id="theme-toggle" aria-label="Switch to dark theme">
+<button
+  type="button"
+  class="theme needs-js"
+  id="theme-toggle"
+  aria-label={t("theme.toDark")}
+  data-light={t("theme.light")}
+  data-dark={t("theme.dark")}
+  data-to-light={t("theme.toLight")}
+  data-to-dark={t("theme.toDark")}
+>
   <svg data-icon="light" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
     <circle cx="8" cy="8" r="3" fill="currentColor"></circle>
     <g stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
@@ -12,19 +24,23 @@
   <svg data-icon="dark" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
     <path fill="currentColor" d="M9.6 1.2a6.9 6.9 0 1 0 5.2 8.9A5.6 5.6 0 0 1 9.6 1.2Z"></path>
   </svg>
-  <span class="label">Light</span>
+  <span class="label">{t("theme.light")}</span>
 </button>
 
 <script>
-  const root = document.documentElement;
-  const button = document.getElementById("theme-toggle");
-  if (button) {
+  // On every page load: a sidebar in another language comes with its own button. Each button is set up once.
+  document.addEventListener("astro:page-load", () => {
+    const root = document.documentElement;
+    const button = document.getElementById("theme-toggle");
+    if (!button || button.dataset["ready"]) return;
+    button.dataset["ready"] = "true";
     const label = button.querySelector(".label");
-    // Icons switch in CSS from html[data-theme]; the script only updates the text.
+    // Icons switch in CSS from html[data-theme]; the script only updates the text, in the page's language.
+    const text = button.dataset;
     const sync = () => {
       const dark = root.dataset["theme"] === "dark";
-      if (label) label.textContent = dark ? "Dark" : "Light";
-      button.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+      if (label) label.textContent = (dark ? text["dark"] : text["light"]) ?? "";
+      button.setAttribute("aria-label", (dark ? text["toLight"] : text["toDark"]) ?? "");
     };
     button.addEventListener("click", () => {
       const next = root.dataset["theme"] === "dark" ? "light" : "dark";
@@ -35,7 +51,7 @@
       sync();
     });
     sync();
-  }
+  });
 </script>
 
 <style>
@@ -61,5 +77,11 @@
   }
   :global(html[data-theme="dark"]) .theme [data-icon="dark"] {
     display: inline;
+  }
+  /* Phones: the icon only, next to the star and the language (the button keeps its label for screen readers). */
+  @media (max-width: 860px) {
+    .label {
+      display: none;
+    }
   }
 </style>

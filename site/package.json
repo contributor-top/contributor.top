@@ -15,7 +15,7 @@
     "lint": "biome ci .",
     "fix": "biome check --write . && prettier --write \"**/*.{yml,yaml,md}\" \"../{presets,docs,.github,.config}/**/*.{yml,yaml,md,json}\" \"../*.{yml,yaml,md}\"",
     "format:check": "prettier --check \"**/*.{yml,yaml,md}\" \"../{presets,docs,.github,.config}/**/*.{yml,yaml,md,json}\" \"../*.{yml,yaml,md}\"",
-    "typecheck": "tsc --noEmit && astro check",
+    "typecheck": "astro sync && tsc --noEmit && astro check",
     "knip": "knip",
     "test": "vitest run --coverage",
     "test:watch": "vitest",

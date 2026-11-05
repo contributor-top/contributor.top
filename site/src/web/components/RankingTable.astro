@@ -1,7 +1,8 @@
 ---
 import type { CountryData, Row } from "../../collector/country-data.ts";
 import type { Tab } from "../../collector/rank.ts";
-import { chunkStarts, FIRST_ROWS, sizesFor } from "../lib/site.ts";
+import { DEFAULT_LANG, i18n, type Key } from "../i18n/index.ts";
+import { chunkStarts, countryByTitle, FIRST_ROWS, sizesFor } from "../lib/site.ts";
 import ranking from "../scripts/ranking.js?raw";
 import RankingRows from "./RankingRows.astro";
 
@@ -16,11 +17,36 @@ type Props = {
 const { rows, breakdown, names, tab = "public", more } = Astro.props;
 const { choices, defaultTop } = sizesFor(rows.length);
 const starts = chunkStarts(rows.length);
+const { lang, locale, t, forms, country } = i18n(Astro.currentLocale);
+// Rows loaded later come in English (one fragment for every language): ranking.js puts them into this language.
+const ROW_MESSAGES: Key[] = [
+  "row.commits",
+  "row.prs",
+  "row.issues",
+  "row.reviews",
+  "row.private",
+  "row.privateShare",
+  "row.automated",
+];
+const words =
+  lang === DEFAULT_LANG
+    ? undefined
+    : JSON.stringify({
+        locale,
+        messages: Object.fromEntries(ROW_MESSAGES.map((key) => [key, forms(key)])),
+        // The world ranking names each person's country.
+        countries: Object.fromEntries(
+          [...new Set(rows.flatMap((r) => (r.country ? [r.country] : [])))].map((title) => [
+            title,
+            country(countryByTitle(title)),
+          ]),
+        ),
+      });
 ---
 
 <div class="toolbar needs-js">
-  <span class="muted">Show top</span>
-  <div class="segmented" role="group" aria-label="Number of people shown" data-top-switch>
+  <span class="muted">{t("table.showTop")}</span>
+  <div class="segmented" role="group" aria-label={t("table.sizes")} data-top-switch>
     {choices.map((c) => <button type="button" data-top-value={c} data-label={c}>{c}</button>)}
   </div>
 </div>
@@ -32,9 +58,14 @@ const starts = chunkStarts(rows.length);
   data-more={starts.length > 0 ? more : undefined}
   data-starts={starts.join(",")}
   data-count={rows.length}
+  data-i18n={words}
 >
   <thead>
-    <tr><th scope="col" class="r">#</th><th scope="col">Developer</th><th scope="col" class="c">Contributions</th></tr>
+    <tr>
+      <th scope="col" class="r">#</th><th scope="col">{t("table.developer")}</th><th scope="col" class="c">
+        {t("table.contributions")}
+      </th>
+    </tr>
   </thead>
   <tbody>
     <RankingRows rows={rows.slice(0, FIRST_ROWS)} breakdown={breakdown} names={names} tab={tab} />
@@ -43,7 +74,7 @@ const starts = chunkStarts(rows.length);
 {
   starts.length > 0 && (
     <noscript>
-      <p class="muted">The top {FIRST_ROWS} of {rows.length} are shown; the rest need JavaScript.</p>
+      <p class="muted">{t("table.noscript", { first: FIRST_ROWS, n: rows.length })}</p>
     </noscript>
   )
 }
