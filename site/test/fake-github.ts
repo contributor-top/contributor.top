@@ -8,8 +8,6 @@ export type FakeUser = {
   location: string | null;
   followers: number;
   status?: string | null;
-  /** GitHub display name; null when not set. */
-  name?: string | null;
   total?: number;
   restricted?: number;
   commits?: number;
@@ -58,6 +56,8 @@ const nodeId = (id: number) => `U_${id}`;
 
 export class FakeGitHub {
   readonly calls: { kind: "count" | "page" | "details" | "statuses" | "repos"; size: number }[] = [];
+  /** The text of every GraphQL query, to check what the collector asks GitHub for. */
+  readonly queries: string[] = [];
   /** Raw responses served before normal handling, one per request (status codes, broken bodies). */
   readonly queued: RawResponse[] = [];
   /** Detail requests with more IDs than this fail as RESOURCE_LIMITS_EXCEEDED. */
@@ -96,6 +96,7 @@ export class FakeGitHub {
 
   private handle(body: { query: string; variables: Record<string, unknown> }): RawResponse {
     const { query, variables } = body;
+    this.queries.push(query);
     if (query.includes("nodes(ids")) return this.nodes(query, variables["ids"] as string[]);
     if (query.includes("user(login")) return this.repos(variables["login"] as string);
     const matched = this.matches(parseSearch(variables["q"] as string));
@@ -157,7 +158,6 @@ export class FakeGitHub {
       return {
         databaseId: u.id,
         login: u.login,
-        name: u.name,
         location: u.location,
         followers: { totalCount: u.followers },
         status,

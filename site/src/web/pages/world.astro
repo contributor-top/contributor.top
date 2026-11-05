@@ -3,10 +3,9 @@ import RankingHead from "../components/RankingHead.astro";
 import RankingTable from "../components/RankingTable.astro";
 import { i18n, parts } from "../i18n/index.ts";
 import Base from "../layouts/Base.astro";
-import { rowsBase, worldNames, worldRows } from "../lib/site.ts";
+import { rowsBase, worldRows } from "../lib/site.ts";
 
 const rows = worldRows();
-const names = worldNames();
 const { t, href } = i18n(Astro.currentLocale);
 ---
 
@@ -31,7 +30,7 @@ const { t, href } = i18n(Astro.currentLocale);
   </p>
   {
     rows.length > 0 ? (
-      <RankingTable rows={rows} names={names} more={rowsBase("world")} />
+      <RankingTable rows={rows} more={rowsBase("world")} />
     ) : (
       <p class="muted">{t("world.empty")}</p>
     )

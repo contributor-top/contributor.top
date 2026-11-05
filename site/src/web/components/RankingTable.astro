@@ -9,12 +9,11 @@ import RankingRows from "./RankingRows.astro";
 type Props = {
   rows: (Row & { country?: string })[];
   breakdown?: CountryData["breakdown"];
-  names?: CountryData["names"];
   tab?: Tab;
   /** rowsBase() of this ranking: its rows after the first FIRST_ROWS, a fragment per step (pages/rows). */
   more: string;
 };
-const { rows, breakdown, names, tab = "public", more } = Astro.props;
+const { rows, breakdown, tab = "public", more } = Astro.props;
 const { choices, defaultTop } = sizesFor(rows.length);
 const starts = chunkStarts(rows.length);
 const { lang, locale, t, forms, country } = i18n(Astro.currentLocale);
@@ -68,7 +67,7 @@ const words =
     </tr>
   </thead>
   <tbody>
-    <RankingRows rows={rows.slice(0, FIRST_ROWS)} breakdown={breakdown} names={names} tab={tab} />
+    <RankingRows rows={rows.slice(0, FIRST_ROWS)} breakdown={breakdown} tab={tab} />
   </tbody>
 </table>
 {
@@ -111,7 +110,7 @@ const words =
   }
   /* Column widths must not depend on rows that arrive after the first paint (ranking.js), or the table shifts
      sideways when they do: the rank column fits three digits from the start, the contributions column is only as
-     wide as its content, and the developer column takes the rest (instead of a share set by the longest names). */
+     wide as its content, and the developer column takes the rest (instead of a share set by the longest logins). */
   .ranking .r {
     width: 56px;
     text-align: right;
@@ -170,9 +169,9 @@ const words =
   .ranking .who a {
     color: var(--login);
   }
-  /* One line: login, display name (cut with an ellipsis, long before the login gives way), country. The line takes
-     the width the column has and never sets it (contain): a long name would otherwise widen the table past a
-     phone's screen. On phones the login has the first line to itself and the rest goes under it. */
+  /* The login, then (world ranking) the country, on one line. The line takes the width the column has and never
+     sets it (contain), so nothing in it can widen the table past a phone's screen. On phones the login has the
+     first line to itself and the country goes under it. */
   .ranking .who > div {
     flex: 1;
     min-width: 0;
@@ -190,15 +189,6 @@ const words =
   /* The separator comes from here, so it shows only between two things. */
   .ranking .line > .country::before {
     content: "· ";
-  }
-  .ranking .line > .name {
-    flex-shrink: 1000;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: var(--muted);
-    font-size: 13px;
   }
   .ranking .who {
     display: flex;
@@ -256,17 +246,12 @@ const words =
     .ranking .who a {
       overflow-wrap: anywhere;
     }
-    /* The login on a line of its own (a very long one may wrap), the name and the country under it. */
+    /* The login on a line of its own (a very long one may wrap), the country under it. */
     .ranking .line {
       flex-wrap: wrap;
     }
     .ranking .line > a {
       flex: 1 1 100%;
-    }
-    /* The name and the country share the second line: the name takes the room the country leaves. */
-    .ranking .line > .name {
-      flex: 1 1 0;
-      max-width: max-content;
     }
     .ranking .line > a + .country::before {
       content: none;

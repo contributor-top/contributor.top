@@ -7,7 +7,7 @@ description: Qué datos usa contributor.top y cómo quitarte de ellos.
 
 ## Qué usamos
 
-Solo datos públicos de los perfiles de GitHub: el ID numérico de tu cuenta, tu nombre de usuario, tu nombre visible, tu número de seguidores y tus contribuciones de los últimos 12 meses. El nombre visible aparece junto a tu nombre de usuario en el sitio, igual que en GitHub, pero no forma parte de los archivos JSON; cambia cuando lo cambias en GitHub, en la siguiente actualización de tu país. No guardamos tu email, tu biografía, tu empresa, tu estado ni el texto exacto de tu ubicación. Los datos no se venden ni se comparten con reclutadores ni portales de empleo.
+Solo datos públicos de los perfiles de GitHub: el ID numérico de tu cuenta, tu nombre de usuario, tu número de seguidores y tus contribuciones de los últimos 12 meses. No guardamos tu nombre visible, tu email, tu biografía, tu empresa, tu estado ni el texto exacto de tu ubicación. Los datos no se venden ni se comparten con reclutadores ni portales de empleo.
 
 ## Cómo quitarte
 

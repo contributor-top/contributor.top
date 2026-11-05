@@ -1,5 +1,5 @@
 import type { Config } from "./config.ts";
-import { type CountryData, countryDataSchema, displayName } from "./country-data.ts";
+import { type CountryData, countryDataSchema } from "./country-data.ts";
 import { fetchPeople, fetchRepoActivity, fetchStatuses, type Person, type RepoActivity } from "./details.ts";
 import type { GitHubGraphQL } from "./github.ts";
 import { decide, optoutHash } from "./optout.ts";
@@ -68,12 +68,6 @@ function toCountryData(slug: string, preset: Preset, people: readonly Person[], 
       },
     ]),
   );
-  const names = Object.fromEntries(
-    shown.flatMap((p) => {
-      const name = displayName(p.name, p.login);
-      return name ? [[String(p.id), name]] : [];
-    }),
-  );
   return countryDataSchema.parse({
     slug,
     title: preset.title,
@@ -84,7 +78,6 @@ function toCountryData(slug: string, preset: Preset, people: readonly Person[], 
     presetChecksum: presetChecksum(preset),
     tabs,
     breakdown,
-    names,
   });
 }
 

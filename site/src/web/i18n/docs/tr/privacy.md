@@ -7,7 +7,7 @@ description: contributor.top'un hangi verileri kullandığı ve listeden nasıl 
 
 ## Neleri kullanıyoruz
 
-Yalnızca GitHub profillerindeki herkese açık veriler: sayısal hesap kimliğiniz (ID), kullanıcı adınız, görünen adınız, takipçi sayınız ve son 12 aydaki katkı sayılarınız. Görünen ad, GitHub'da olduğu gibi sitede kullanıcı adınızın yanında gösterilir ama JSON dosyalarında yer almaz; GitHub'da değiştirdiğinizde ülkeniz bir sonraki güncellendiğinde burada da değişir. E-postanızı, biyografinizi, şirketinizi, durumunuzu (status) veya konumunuzun tam metnini saklamayız. Veriler satılmaz; işe alım uzmanlarıyla veya iş ilanı siteleriyle paylaşılmaz.
+Yalnızca GitHub profillerindeki herkese açık veriler: sayısal hesap kimliğiniz (ID), kullanıcı adınız, takipçi sayınız ve son 12 aydaki katkı sayılarınız. Görünen adınızı, e-postanızı, biyografinizi, şirketinizi, durumunuzu (status) veya konumunuzun tam metnini saklamayız. Veriler satılmaz; işe alım uzmanlarıyla veya iş ilanı siteleriyle paylaşılmaz.
 
 ## Kendinizi çıkarın
 

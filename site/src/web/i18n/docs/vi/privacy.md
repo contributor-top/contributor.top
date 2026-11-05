@@ -7,7 +7,7 @@ description: contributor.top dùng dữ liệu gì và cách để được gỡ
 
 ## Chúng tôi dùng gì
 
-Chỉ dữ liệu công khai từ hồ sơ GitHub: ID tài khoản dạng số, tên đăng nhập, tên hiển thị, số người theo dõi và số đóng góp trong 12 tháng qua của bạn. Tên hiển thị được hiện cạnh tên đăng nhập trên trang, giống như trên GitHub, nhưng không có trong các tệp JSON; tên này thay đổi khi bạn đổi nó trên GitHub, vào lần cập nhật kế tiếp của quốc gia bạn. Chúng tôi không lưu email, tiểu sử, công ty, trạng thái hay nguyên văn vị trí của bạn. Dữ liệu không được bán và không được chia sẻ với nhà tuyển dụng hay trang việc làm.
+Chỉ dữ liệu công khai từ hồ sơ GitHub: ID tài khoản dạng số, tên đăng nhập, số người theo dõi và số đóng góp trong 12 tháng qua của bạn. Chúng tôi không lưu tên hiển thị, email, tiểu sử, công ty, trạng thái hay nguyên văn vị trí của bạn. Dữ liệu không được bán và không được chia sẻ với nhà tuyển dụng hay trang việc làm.
 
 ## Tự gỡ mình khỏi bảng xếp hạng
 

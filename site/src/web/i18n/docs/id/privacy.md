@@ -7,7 +7,7 @@ description: Data apa yang digunakan contributor.top dan cara menghapus diri And
 
 ## Data yang kami gunakan
 
-Hanya data publik dari profil GitHub: ID akun numerik, nama pengguna, nama tampilan, jumlah pengikut, dan jumlah kontribusi Anda selama 12 bulan terakhir. Nama tampilan ditampilkan di samping nama pengguna Anda di situs, seperti di GitHub, tetapi tidak termasuk dalam file JSON; nama ini ikut berubah saat Anda mengubahnya di GitHub, pada pembaruan negara Anda berikutnya. Kami tidak menyimpan email, bio, perusahaan, status, atau teks lengkap lokasi Anda. Data tidak dijual dan tidak dibagikan kepada perekrut atau situs lowongan kerja.
+Hanya data publik dari profil GitHub: ID akun numerik, nama pengguna, jumlah pengikut, dan jumlah kontribusi Anda selama 12 bulan terakhir. Kami tidak menyimpan nama tampilan, email, bio, perusahaan, status, atau teks lengkap lokasi Anda. Data tidak dijual dan tidak dibagikan kepada perekrut atau situs lowongan kerja.
 
 ## Hapus diri Anda
 
