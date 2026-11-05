@@ -51,8 +51,13 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
             <div>
               <div class="line">
                 <a href={`https://github.com/${row.login}`}>{row.login}</a>
-                {name && <span class="name">{name}</span>}
-                {row.country && <span class="country muted">· {row.country}</span>}
+                {/* dir="auto": a right-to-left name (Arabic, Hebrew) does not reorder the text around it. */}
+                {name && (
+                  <span class="name" dir="auto">
+                    {name}
+                  </span>
+                )}
+                {row.country && <span class="country muted">{row.country}</span>}
               </div>
               {b && (
                 <div class="stats">

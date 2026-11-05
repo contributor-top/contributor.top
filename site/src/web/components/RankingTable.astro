@@ -139,21 +139,29 @@ const starts = chunkStarts(rows.length);
   .ranking .who a {
     color: var(--login);
   }
-  /* Login, then the display name (shortened first when the row is narrow), then the country. */
+  /* One line: login, display name (cut with an ellipsis, long before the login gives way), country. The line takes
+     the width the column has and never sets it (contain): a long name would otherwise widen the table past a
+     phone's screen. On phones the login has the first line to itself and the rest goes under it. */
   .ranking .who > div {
+    flex: 1;
     min-width: 0;
   }
   .ranking .line {
     display: flex;
     align-items: baseline;
-    gap: 6px;
+    gap: 0 6px;
     min-width: 0;
+    contain: inline-size;
   }
   .ranking .line > * {
     flex-shrink: 0;
   }
+  /* The separator comes from here, so it shows only between two things. */
+  .ranking .line > .country::before {
+    content: "· ";
+  }
   .ranking .line > .name {
-    flex-shrink: 1;
+    flex-shrink: 1000;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -217,9 +225,20 @@ const starts = chunkStarts(rows.length);
     .ranking .who a {
       overflow-wrap: anywhere;
     }
-    /* A very long login may wrap here rather than push the row wider than the screen. */
+    /* The login on a line of its own (a very long one may wrap), the name and the country under it. */
+    .ranking .line {
+      flex-wrap: wrap;
+    }
     .ranking .line > a {
-      flex-shrink: 1;
+      flex: 1 1 100%;
+    }
+    /* The name and the country share the second line: the name takes the room the country leaves. */
+    .ranking .line > .name {
+      flex: 1 1 0;
+      max-width: max-content;
+    }
+    .ranking .line > a + .country::before {
+      content: none;
     }
     .ranking img,
     .ranking .avatar-placeholder {
