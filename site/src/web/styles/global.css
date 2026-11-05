@@ -83,15 +83,14 @@ a:hover {
   text-decoration: underline;
 }
 
-/* Links inside running text are not told apart by color alone (WCAG 1.4.1): a faint dashed underline, a full one on
-   hover. Menus, the country list and the ranking tables are not running text and keep no underline. */
+/* Links inside running text are not told apart by color alone (WCAG 1.4.1): a faint underline, a full one on hover.
+   Menus, the country list and the ranking tables are not running text and keep no underline. */
 :is(p, article li) a {
-  text-decoration: underline dashed 1px color-mix(in srgb, currentColor 20%, transparent);
+  text-decoration: underline 1px color-mix(in srgb, currentColor 20%, transparent);
   text-underline-offset: 3px;
 }
 
 :is(p, article li) a:hover {
-  text-decoration-style: solid;
   text-decoration-color: currentColor;
 }
 
