@@ -6,20 +6,20 @@ import type { APIRoute, GetStaticPaths } from "astro";
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import type { Tab } from "../../../../collector/rank.ts";
 import RankingRows from "../../../components/RankingRows.astro";
-import { collected, rowSteps, TABS, worldNames, worldRows } from "../../../lib/site.ts";
+import { collected, rowSteps, TABS, worldRows } from "../../../lib/site.ts";
 
 export const getStaticPaths = (() => [
   ...collected.flatMap(({ slug, data }) =>
     TABS.flatMap((tab) =>
       rowSteps(data.tabs[tab]).map(({ start, rows }) => ({
         params: { key: `${slug}/${tab}/${start + 1}` },
-        props: { rows, breakdown: data.breakdown, names: data.names, tab },
+        props: { rows, breakdown: data.breakdown, tab },
       })),
     ),
   ),
   ...rowSteps(worldRows()).map(({ start, rows }) => ({
     params: { key: `world/${start + 1}` },
-    props: { rows, breakdown: undefined, names: worldNames(), tab: "public" as Tab },
+    props: { rows, breakdown: undefined, tab: "public" as Tab },
   })),
 ]) satisfies GetStaticPaths;
 

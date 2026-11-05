@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { badgeColor, buildBadges } from "../src/collector/badges.ts";
-import { type CountryData, countryDataSchema, displayName } from "../src/collector/country-data.ts";
+import { type CountryData, countryDataSchema } from "../src/collector/country-data.ts";
 import { dataDir, loadCountries, presetsDir } from "../src/collector/data-dir.ts";
 import { isLikelyAutomated } from "../src/collector/flags.ts";
 import { worldRanking } from "../src/collector/world.ts";
@@ -31,15 +31,7 @@ describe("country data schema", () => {
     expect(countryDataSchema.safeParse({ ...country("x", "X", []), email: "a@b.c" }).success).toBe(false);
   });
 
-  it("keeps display names clean: no control or bidi characters, no padding, at most 100 characters", () => {
-    expect(displayName("  Ada\u202E \t Lovelace\u2066\n", "ada")).toBe("Ada Lovelace");
-    expect(displayName("Ada\u0000Lovelace", "ada")).toBe("AdaLovelace");
-    expect(displayName("👩‍💻 Ada", "ada")).toBe("👩‍💻 Ada");
-    expect(displayName("ADA", "ada")).toBeUndefined();
-    expect(displayName(" \u200E ", "ada")).toBeUndefined();
-    expect(displayName(null, "ada")).toBeUndefined();
-    expect([...(displayName("🙂".repeat(150), "ada") ?? "")]).toHaveLength(100);
-
+  it("still accepts the clean display names of older files, and nothing else in their place", () => {
     const named = (names: Record<string, string>) =>
       countryDataSchema.safeParse({ ...country("xx", "Xx", [row(1, "a", 1)]), names }).success;
     expect(named({ "1": "Ada Lovelace" })).toBe(true);

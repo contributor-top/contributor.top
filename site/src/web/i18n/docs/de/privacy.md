@@ -7,7 +7,7 @@ description: Welche Daten contributor.top verwendet und wie du dich entfernen l�
 
 ## Was wir verwenden
 
-Nur öffentliche Daten aus GitHub-Profilen: deine numerische Konto-ID, dein Login, dein Anzeigename, deine Follower-Zahl und die Anzahl deiner Beiträge der letzten 12 Monate. Der Anzeigename wird auf der Website wie auf GitHub neben deinem Login angezeigt, ist aber nicht Teil der JSON-Dateien; er ändert sich, wenn du ihn auf GitHub änderst, bei der nächsten Aktualisierung deines Landes. Wir speichern weder deine E-Mail-Adresse noch deine Bio, Firma, deinen Status oder den genauen Text deines Standorts. Die Daten werden nicht verkauft und nicht an Recruiter oder Jobbörsen weitergegeben.
+Nur öffentliche Daten aus GitHub-Profilen: deine numerische Konto-ID, dein Login, deine Follower-Zahl und die Anzahl deiner Beiträge der letzten 12 Monate. Wir speichern weder deinen Anzeigenamen noch deine E-Mail-Adresse, Bio, Firma, deinen Status oder den genauen Text deines Standorts. Die Daten werden nicht verkauft und nicht an Recruiter oder Jobbörsen weitergegeben.
 
 ## Dich entfernen
 

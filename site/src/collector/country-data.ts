@@ -32,20 +32,9 @@ const ranking = z.array(row).superRefine((rows, ctx) => {
   }
 });
 
-/** Characters a display name never keeps: control characters, line breaks and bidi overrides that can reorder the row. */
+/** Characters a stored display name never has: control characters, line breaks and bidi overrides. */
 const UNSAFE = /[\p{Cc}\p{Zl}\p{Zp}\u061C\u200E\u200F\u202A-\u202E\u2066-\u2069]/u;
-const UNSAFE_ALL = new RegExp(UNSAFE.source, "gu");
 const MAX_NAME = 100;
-
-/**
- * The GitHub display name as shown next to the login: unsafe characters dropped, spaces collapsed, at most
- * MAX_NAME characters. None when it is empty or only repeats the login.
- */
-export function displayName(name: string | null | undefined, login: string): string | undefined {
-  const collapsed = (name ?? "").replace(UNSAFE_ALL, "").replace(/\s+/gu, " ").trim();
-  const clean = [...collapsed].slice(0, MAX_NAME).join("").trim();
-  return clean === "" || clean.toLowerCase() === login.toLowerCase() ? undefined : clean;
-}
 
 const displayNameText = z
   .string()
@@ -89,7 +78,10 @@ export const countryDataSchema = z
       .optional(),
     tabs: z.object({ public: ranking, all: ranking, commits: ranking }).strict(),
     breakdown: z.record(z.string().regex(/^-?\d+$/), breakdown),
-    /** GitHub display names by ID (see displayName), only for people in a ranking. Shown on pages, not in the API. */
+    /**
+     * GitHub display names by ID, in files collected while the site showed them (Nov 2026). No longer collected or
+     * shown: accepted only so that older files stay valid; each country loses them at its next collection.
+     */
     names: z.record(z.string().regex(/^-?\d+$/), displayNameText).optional(),
   })
   .strict();

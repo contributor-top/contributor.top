@@ -314,29 +314,19 @@ describe("collecting a country", () => {
     expect(data.updatedAt).toBe(NOW.toISOString());
   });
 
-  it("publishes display names only for ranked people, cleaned, and not when they repeat the login", async () => {
-    const top = { total: 10_000, restricted: 0 };
-    const users = [
-      user(1, "Poseidonia", 1, { ...top, name: "  Ada\u202E  Lovelace\n" }),
-      user(2, "Poseidonia", 1, { ...top, name: "USER-2" }),
-      user(3, "Poseidonia", 1, { ...top, name: null }),
-      user(4, "Poseidonia", 1, { ...top, name: "   " }),
-      ...Array.from({ length: 36 }, (_, i) => user(i + 5, "Poseidonia", 1, { name: `Person ${i + 5}` })),
-    ];
-    const { data } = await collectCountry(client(new FakeGitHub(users)), {
+  it("neither asks GitHub for display names nor publishes any", async () => {
+    const users = Array.from({ length: 12 }, (_, i) => user(i + 1, "Poseidonia", 1));
+    const github = new FakeGitHub(users);
+    const { data } = await collectCountry(client(github), {
       slug: "atlantis",
       presets: PRESETS,
       config: config({ consider: 40, topN: 10 }),
       optout: { key: KEY, hashes: new Set() },
       now: NOW,
     });
-    const ranked = new Set(Object.values(data.tabs).flatMap((rows) => rows.map((r) => String(r.id))));
-    const names = data.names ?? {};
-    expect(names["1"]).toBe("Ada Lovelace");
-    for (const id of ["2", "3", "4"]) expect(names).not.toHaveProperty(id);
-    expect(ranked.size).toBeLessThan(users.length);
-    expect(Object.keys(names).sort()).toEqual([...ranked].filter((id) => !["2", "3", "4"].includes(id)).sort());
-    for (const id of Object.keys(names)) if (id !== "1") expect(names[id]).toBe(`Person ${id}`);
+    expect(data.tabs.public.length).toBeGreaterThan(0);
+    expect(data).not.toHaveProperty("names");
+    expect(github.queries.some((q) => q.split(/[^A-Za-z]+/).includes("name"))).toBe(false);
   });
 
   it("applies post_filter only to people matched by its term", async () => {
@@ -411,7 +401,7 @@ describe("collecting a country", () => {
     const person = { id: 8, login: "user-7", followers: 1, total: 0, restricted: 0, commits: 50_000, prs: 0 };
     const { activity, failed } = await fetchRepoActivity(
       client(github),
-      [{ ...person, issues: 0, reviews: 0, name: null, location: null, status: null }],
+      [{ ...person, issues: 0, reviews: 0, location: null, status: null }],
       config().ranking.automated,
     );
     expect(activity.size).toBe(0);

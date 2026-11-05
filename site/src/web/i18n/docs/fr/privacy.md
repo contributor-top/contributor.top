@@ -7,7 +7,7 @@ description: Quelles données contributor.top utilise et comment s'en faire reti
 
 ## Ce que nous utilisons
 
-Uniquement des données publiques des profils GitHub : l'identifiant numérique de votre compte, votre login, votre nom d'affichage, votre nombre d'abonnés et vos nombres de contributions des 12 derniers mois. Le nom d'affichage apparaît à côté de votre login sur le site, comme sur GitHub, mais ne figure pas dans les fichiers JSON ; il change quand vous le modifiez sur GitHub, à la prochaine mise à jour de votre pays. Nous ne conservons pas votre e-mail, votre bio, votre entreprise, votre statut ni le texte exact de votre localisation. Les données ne sont pas vendues et ne sont pas partagées avec des recruteurs ou des sites d'offres d'emploi.
+Uniquement des données publiques des profils GitHub : l'identifiant numérique de votre compte, votre login, votre nombre d'abonnés et vos nombres de contributions des 12 derniers mois. Nous ne conservons pas votre nom d'affichage, votre e-mail, votre bio, votre entreprise, votre statut ni le texte exact de votre localisation. Les données ne sont pas vendues et ne sont pas partagées avec des recruteurs ou des sites d'offres d'emploi.
 
 ## Vous retirer
 

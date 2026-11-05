@@ -7,7 +7,7 @@ description: Jakich danych używa contributor.top i jak z niego zniknąć.
 
 ## Czego używamy
 
-Tylko publicznych danych z profili GitHub: numerycznego ID konta, loginu, wyświetlanej nazwy, liczby obserwujących i liczby kontrybucji z ostatnich 12 miesięcy. Wyświetlana nazwa jest pokazywana na stronie obok loginu, tak jak na GitHubie, ale nie trafia do plików JSON; zmienia się, gdy zmienisz ją na GitHubie, przy następnej aktualizacji twojego kraju. Nie przechowujemy twojego adresu e-mail, opisu (bio), firmy, statusu ani dokładnego tekstu lokalizacji. Dane nie są sprzedawane ani przekazywane rekruterom czy portalom z ofertami pracy.
+Tylko publicznych danych z profili GitHub: numerycznego ID konta, loginu, liczby obserwujących i liczby kontrybucji z ostatnich 12 miesięcy. Nie przechowujemy twojej wyświetlanej nazwy, adresu e-mail, opisu (bio), firmy, statusu ani dokładnego tekstu lokalizacji. Dane nie są sprzedawane ani przekazywane rekruterom czy portalom z ofertami pracy.
 
 ## Jak się usunąć
 

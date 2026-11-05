@@ -101,7 +101,7 @@ const jsonLd = data
         <p class="muted">
           {t(`tab.${tab}.note`)} {t("country.inList")} <a href={href("/badge/")}>{t("country.addBadge")}</a>
         </p>
-        <RankingTable rows={data.tabs[tab]} breakdown={data.breakdown} names={data.names} tab={tab} more={more} />
+        <RankingTable rows={data.tabs[tab]} breakdown={data.breakdown} tab={tab} more={more} />
       </>
     ) : (
       <p class="empty">{t("country.collecting")}</p>

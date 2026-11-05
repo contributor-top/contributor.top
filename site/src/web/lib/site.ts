@@ -70,6 +70,3 @@ export const worldRows = (): WorldRow[] =>
     config.ranking.world_top_n,
     config.ranking.automated,
   );
-
-/** Display names from every listed country, for the world page (a person listed twice has the same name). */
-export const worldNames = (): Record<string, string> => Object.assign({}, ...collected.map((c) => c.data.names ?? {}));
