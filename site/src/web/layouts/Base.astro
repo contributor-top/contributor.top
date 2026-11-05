@@ -89,6 +89,7 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
         </p>
       </aside>
       <main>
+        {config.site.notice && <p class="notice muted">{config.site.notice}</p>}
         <slot />
       </main>
     </div>
@@ -168,6 +169,11 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
   }
   main {
     min-width: 0;
+  }
+  /* An announcement (config.yml site.notice): small grey text, part of the page from the first paint. */
+  .notice {
+    margin: 0 0 16px;
+    font-size: 12px;
   }
 
   /* Phones and narrow windows: a compact header above the content. */

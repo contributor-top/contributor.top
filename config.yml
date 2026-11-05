@@ -3,6 +3,8 @@
 
 site:
   repo: contributor-top/contributor.top # GitHub owner/name shown in the source block
+  # A quiet line above every page, plain text. Remove it to hide the line.
+  notice: The rankings will move to contributors.top in early 2027.
 
 ranking:
   top_n: 512 # people shown per country and tab

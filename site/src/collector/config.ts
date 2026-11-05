@@ -5,7 +5,12 @@ const share = z.number().gt(0).lt(1);
 
 export const configSchema = z
   .object({
-    site: z.object({ repo: z.string().regex(/^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/) }).strict(),
+    site: z
+      .object({
+        repo: z.string().regex(/^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/),
+        notice: z.string().trim().min(1).max(160).optional(), // a quiet line above every page, plain text
+      })
+      .strict(),
     ranking: z
       .object({
         top_n: z.number().int().positive(),
