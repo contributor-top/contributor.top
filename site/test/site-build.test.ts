@@ -119,6 +119,15 @@ describe("site built from hostile data", () => {
     expect(readFileSync(join(out, "cote_divoire", "index.html"), "utf8")).toContain("Côte d&#39;Ivoire");
   });
 
+  it("marks each update date with a time element that carries the ISO timestamp", () => {
+    const stamp = /<time datetime="2026-10-28T12:00:00\.000Z"/;
+    expect(readFileSync(join(out, "cote_divoire", "index.html"), "utf8")).toMatch(stamp);
+    expect(readFileSync(join(out, "index.html"), "utf8")).toMatch(stamp);
+    expect(readFileSync(join(out, "cote_divoire", "index.html"), "utf8")).toMatch(
+      /<span[^>]*>Updated <time datetime="2026-10-28T12:00:00\.000Z"[^>]*>[^<]+<\/time><\/span>/,
+    );
+  });
+
   it("shows no display names, even from older files that carry them", () => {
     for (const file of files(out).filter((f) => f.endsWith(".html") || f.endsWith(".json"))) {
       const text = readFileSync(file, "utf8");

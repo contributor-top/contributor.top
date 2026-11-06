@@ -41,7 +41,9 @@ const jsonLd = {
       entries.map((c) => (
         <li>
           <a href={href(`/${c.slug}/`)}>{c.name}</a>
-          <span class="muted">{c.data ? day(c.data.updatedAt) : t("home.collecting")}</span>
+          <span class="muted">
+            {c.data ? <time datetime={c.data.updatedAt}>{day(c.data.updatedAt)}</time> : t("home.collecting")}
+          </span>
         </li>
       ))
     }
