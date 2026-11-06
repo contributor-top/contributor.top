@@ -6,6 +6,6 @@ const { t, href } = i18n(Astro.currentLocale);
 ---
 
 <Base title={t("notFound.title")} noindex>
-  <h1>{t("notFound.title")}</h1>
+  <h1 data-not-found>{t("notFound.title")}</h1>
   <p class="muted">{t("notFound.text")} <a href={href("/")}>{t("notFound.link")}</a>.</p>
 </Base>

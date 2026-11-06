@@ -42,12 +42,14 @@ const path = here === "/404/" || here === "/404.html" ? "/" : here;
 
 <script>
   // After a page switch within the language, point every link at the new page; close the list on a click outside
-  // it or on Escape.
+  // it or on Escape. The 404 page (any address at all, even //other.site/) links to the home pages, and a path never
+  // starts with two slashes, which would make the link leave the site.
   document.addEventListener("astro:page-load", () => {
     const picker = document.querySelector<HTMLDetailsElement>("details.lang");
     if (!picker) return;
     const own = picker.dataset["prefix"] ?? "";
-    const path = location.pathname.slice(own.length) || "/";
+    const lost = document.querySelector("[data-not-found]") !== null;
+    const path = lost ? "/" : `/${location.pathname.slice(own.length).replace(/^\/+/, "")}`;
     for (const link of picker.querySelectorAll<HTMLAnchorElement>("a[data-prefix]")) {
       link.href = (link.dataset["prefix"] ?? "") + path;
     }

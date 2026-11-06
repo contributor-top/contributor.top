@@ -71,6 +71,21 @@ describe("translations", () => {
       expect(privacy).toContain("`contributor.top opt-in`");
     });
 
+    // Translations come from outside contributors: Markdown only (raw HTML would reach the page untouched, e.g. a
+    // <meta> redirect the CSP cannot stop), and links out of the site only to the project and committers.top.
+    it("has no raw HTML in Methodology and Privacy, and links only to known sites", () => {
+      for (const doc of ["methodology", "privacy"]) {
+        const path = join(dir, "docs", lang, `${doc}.md`);
+        const prose = readFileSync(path, "utf8").replace(/`[^`]*`/g, "");
+        expect(prose, path).not.toMatch(/<[a-z!/?]/i);
+        const known = /^(https:\/\/github\.com\/contributor-top\/|https:\/\/committers\.top\b)/;
+        const links = [...prose.matchAll(/\]\(([^)]*)\)/g)].map((m) => m[1] ?? "");
+        // Bare addresses become links too (GFM).
+        const bare = [...prose.matchAll(/\b[a-z][a-z0-9+.-]*:\/\/[^\s)\]>]+/gi)].map((m) => m[0]);
+        for (const href of [...links, ...bare].filter((h) => !/^[/#]/.test(h))) expect(href, path).toMatch(known);
+      }
+    });
+
     it("never takes the address of a country", () => {
       const slugs = readdirSync("../presets").map((f) => f.replace(/\.yml$/, ""));
       expect(slugs).not.toContain(lang);

@@ -48,6 +48,10 @@ const app =
   env["COLLECTOR_APP_ID"] && env["COLLECTOR_APP_KEY"]
     ? { appId: env["COLLECTOR_APP_ID"], privateKey: env["COLLECTOR_APP_KEY"] }
     : null;
+// Read once and kept only here: git and every other child process inherit the environment, and with the App key
+// anything could mint tokens with all of the App's permissions.
+delete env["COLLECTOR_APP_KEY"];
+delete env["OPTOUT_KEY"];
 const appToken = app ? installationToken({ ...app, repo }) : null;
 const token: () => Promise<string> =
   appToken ?? (async () => env["GITHUB_TOKEN"] || execFileSync("gh", ["auth", "token"], { encoding: "utf8" }).trim());
@@ -113,6 +117,15 @@ function purge(slug: string, data: CountryData, ids: ReadonlySet<number>): void 
   const purged = purgeCountry(data, ids);
   countries.set(slug, purged);
   writeCountry(purged);
+  privacyChanged = true;
+}
+// Display names are no longer stored: files collected while the site showed them lose them now, not only at their
+// country's next collection (which, for a country that keeps failing, might not come).
+for (const [slug, data] of countries) {
+  if (!data.names) continue;
+  const { names: _, ...rest } = data;
+  countries.set(slug, rest);
+  writeCountry(rest);
   privacyChanged = true;
 }
 // Everyone on the opt-out list leaves the published data now, however they were added (status or by hand).
