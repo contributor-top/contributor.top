@@ -28,20 +28,12 @@ const htmlPages = (path) =>
  */
 const CSP_META = /<meta http-equiv="content-security-policy" content="[^"]*">/i;
 const CHARSET = '<meta charset="utf-8">';
-const cspFirst = {
-  name: "csp-first",
-  hooks: {
-    "astro:build:done": ({ dir }) => {
-      for (const page of htmlPages(fileURLToPath(dir))) {
-        const html = readFileSync(page, "utf8");
-        // Fragments (pages/rows) are inserted into a page that has its CSP; they have no document of their own.
-        if (!html.includes("<html")) continue;
-        const meta = html.match(CSP_META)?.[0];
-        if (!meta || !html.includes(CHARSET)) throw new Error(`${page}: no CSP or charset meta to reorder`);
-        writeFileSync(page, html.replace(meta, "").replace(CHARSET, CHARSET + meta));
-      }
-    },
-  },
+const cspFirst = (page, html) => {
+  // Fragments (pages/rows) are inserted into a page that has its CSP; they have no document of their own.
+  if (!html.includes("<html")) return html;
+  const meta = html.match(CSP_META)?.[0];
+  if (!meta || !html.includes(CHARSET)) throw new Error(`${page}: no CSP or charset meta to reorder`);
+  return html.replace(meta, "").replace(CHARSET, CHARSET + meta);
 };
 
 /**
@@ -52,38 +44,47 @@ const cspFirst = {
 // Minified chunks: import"./a.js" and from"./a.js"; import("./a.js") loads later, on demand, and is left out.
 const STATIC_IMPORT = /(?:import|from) *["']([.][/][^"']+[.]js)["']/g;
 const MODULE_SCRIPT = /<script type="module" src="([/]_astro[/][^"]+[.]js)"/g;
-const preloadModules = {
-  name: "preload-modules",
+const preloader = (root) => {
+  const importsOf = new Map();
+  const imports = (file) => {
+    if (!importsOf.has(file)) {
+      const code = readFileSync(join(root, file), "utf8");
+      importsOf.set(
+        file,
+        [...code.matchAll(STATIC_IMPORT)].map((m) => posix.join(posix.dirname(file), m[1])),
+      );
+    }
+    return importsOf.get(file);
+  };
+  return (html) => {
+    const entries = [...html.matchAll(MODULE_SCRIPT)].map((m) => m[1]);
+    const needed = new Set();
+    const visit = (file) => {
+      for (const dep of imports(file)) {
+        if (needed.has(dep)) continue;
+        needed.add(dep);
+        visit(dep);
+      }
+    };
+    for (const entry of entries) visit(entry);
+    for (const entry of entries) needed.delete(entry);
+    if (needed.size === 0) return html;
+    const links = [...needed].sort().map((href) => `<link rel="modulepreload" href="${href}">`);
+    return html.replace("</head>", `${links.join("")}</head>`);
+  };
+};
+
+/** Both rewrites in one pass over the built pages: each of the thousands of files is read and written once. */
+const postProcess = {
+  name: "post-process",
   hooks: {
     "astro:build:done": ({ dir }) => {
       const root = fileURLToPath(dir);
-      const importsOf = new Map();
-      const imports = (file) => {
-        if (!importsOf.has(file)) {
-          const code = readFileSync(join(root, file), "utf8");
-          importsOf.set(
-            file,
-            [...code.matchAll(STATIC_IMPORT)].map((m) => posix.join(posix.dirname(file), m[1])),
-          );
-        }
-        return importsOf.get(file);
-      };
+      const preload = preloader(root);
       for (const page of htmlPages(root)) {
         const html = readFileSync(page, "utf8");
-        const entries = [...html.matchAll(MODULE_SCRIPT)].map((m) => m[1]);
-        const needed = new Set();
-        const visit = (file) => {
-          for (const dep of imports(file)) {
-            if (needed.has(dep)) continue;
-            needed.add(dep);
-            visit(dep);
-          }
-        };
-        for (const entry of entries) visit(entry);
-        for (const entry of entries) needed.delete(entry);
-        if (needed.size === 0) continue;
-        const links = [...needed].sort().map((href) => `<link rel="modulepreload" href="${href}">`);
-        writeFileSync(page, html.replace("</head>", `${links.join("")}</head>`));
+        const done = preload(cspFirst(page, html));
+        if (done !== html) writeFileSync(page, done);
       }
     },
   },
@@ -99,7 +100,7 @@ const languages = readdirSync(new URL("./src/web/i18n/", import.meta.url))
 const others = languages.filter((lang) => lang !== "en");
 
 export default defineConfig({
-  integrations: [cspFirst, preloadModules],
+  integrations: [postProcess],
   site: "https://contributor.top",
   i18n: {
     locales: languages,

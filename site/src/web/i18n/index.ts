@@ -37,9 +37,16 @@ export const unprefixed = (path: string): string => {
 /** Splits a message on its remaining placeholders: "See {link}." → ["See ", "{link}", "."]. */
 export const parts = (message: string): string[] => message.split(/(\{\w+\})/).filter(Boolean);
 
-/** Everything a page needs to speak one language. */
-export function i18n(lang: string | undefined) {
+const made = new Map<string, I18n>();
+/** Everything a page needs to speak one language: made once per language (every component of every page asks). */
+export function i18n(lang: string | undefined): I18n {
   const current = lang && dictionaries.has(lang) ? lang : DEFAULT_LANG;
+  const tools = made.get(current) ?? make(current);
+  made.set(current, tools);
+  return tools;
+}
+
+function make(current: string) {
   const dict = dictionary(current);
   const code = codeOf(current);
   // English keeps the site's day-month-year dates ("28 Oct 2026").
@@ -86,4 +93,4 @@ export function i18n(lang: string | undefined) {
   };
 }
 
-export type I18n = ReturnType<typeof i18n>;
+export type I18n = ReturnType<typeof make>;

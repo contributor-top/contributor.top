@@ -64,9 +64,13 @@ export const TABS = Object.keys(TAB_PATHS) as Tab[];
 export const tabHref = (slug: string, tab: Tab): string => `/${slug}/${TAB_PATHS[tab] ? `${TAB_PATHS[tab]}/` : ""}`;
 
 /** The world ranking from every listed country, without commit farms; the same function builds the world badges. */
-export const worldRows = (): WorldRow[] =>
-  worldRanking(
+let world: WorldRow[] | undefined;
+export const worldRows = (): WorldRow[] => {
+  // Computed once: every language's world page, its row fragments and /api/world.json ask for it.
+  world ??= worldRanking(
     collected.map((c) => c.data),
     config.ranking.world_top_n,
     config.ranking.automated,
   );
+  return world;
+};
