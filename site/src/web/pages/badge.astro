@@ -170,7 +170,8 @@ const PLACEHOLDER = t("badge.placeholder");
             .join("\n");
           const query = new URLSearchParams({ ranking: which, style: chosen });
           if (name !== placeholder) query.set("login", name);
-          history.replaceState(null, "", `?${query}`);
+          // Keeps the router's state (its place in history and the scroll position) and only changes the address.
+          history.replaceState(history.state, "", `?${query}`);
         };
 
         login.addEventListener("input", render);
