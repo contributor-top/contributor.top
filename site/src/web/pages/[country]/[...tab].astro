@@ -3,7 +3,7 @@ import type { GetStaticPaths } from "astro";
 import type { Tab } from "../../../collector/rank.ts";
 import RankingHead from "../../components/RankingHead.astro";
 import RankingTable from "../../components/RankingTable.astro";
-import { i18n } from "../../i18n/index.ts";
+import { i18n, parts } from "../../i18n/index.ts";
 import Base from "../../layouts/Base.astro";
 import { type CountryEntry, countryEntries, rowsBase, TAB_PATHS, TABS, tabHref } from "../../lib/site.ts";
 
@@ -81,7 +81,13 @@ const jsonLd = data
     data ? (
       <>
         <p class="muted meta">
-          <span>{t("country.updated", { date: dateTime(data.updatedAt) })}</span>
+          <span>
+            {
+              parts(t("country.updated")).map((part) =>
+                part === "{date}" ? <time datetime={data.updatedAt}>{dateTime(data.updatedAt)}</time> : part,
+              )
+            }
+          </span>
           <span>{t("country.users", { n: data.totalUsers })}</span>
           <span>{t("country.considered", { n: data.considered, min: data.minFollowers })}</span>
         </p>
