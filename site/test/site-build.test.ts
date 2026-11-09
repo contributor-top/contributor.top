@@ -14,6 +14,7 @@ import {
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { LOGIN, SLUG } from "../src/collector/patterns.ts";
+import { inlineScript } from "../src/web/lib/inline.ts";
 
 // On the project's disk, not in the system temp directory: Astro moves built files into the output with rename(),
 // which fails (EXDEV) where /tmp is another file system, as on some CI runners.
@@ -38,6 +39,9 @@ const country = (slug: string, title: string, rows: ReturnType<typeof row>[]) =>
 
 /** Built HTML documents: every page, without the row fragments (pages/rows). */
 const documents = () => files(out).filter((f) => f.endsWith(".html") && !f.startsWith(join(out, "rows")));
+
+/** An inline script as the pages carry it: minified from its source file. */
+const embedded = (name: string) => inlineScript(name, readFileSync(`src/web/scripts/${name}.js`, "utf8"));
 
 function files(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -212,7 +216,7 @@ describe("site built from hostile data", () => {
 
   it("starts the badge-link lookup inline on /find/, before the stylesheet, with the data from the build", () => {
     const html = readFileSync(join(out, "find", "index.html"), "utf8");
-    const script = html.indexOf(`<script>${readFileSync("src/web/scripts/find.js", "utf8")}</script>`);
+    const script = html.indexOf(`<script>${embedded("find")}</script>`);
     expect(script).toBeGreaterThan(0);
     expect(script).toBeLessThan(html.indexOf('<link rel="stylesheet"'));
     const meta = html.match(/<meta name="find-data" content="([^"]*)"/)?.[1] ?? "";
@@ -248,7 +252,11 @@ describe("site built from hostile data", () => {
     for (const fragment of [step(11), step(51)]) {
       expect(fragment.trimStart().startsWith("<tr")).toBe(true);
       expect(fragment).not.toMatch(/<html|<head|<script/);
+      expect(fragment).toContain('loading="lazy"');
     }
+    // The page's own rows are always at the top: their avatars do not wait for layout.
+    expect(html).toContain('loading="eager"');
+    expect(html).not.toContain('loading="lazy"');
     expect(existsSync(join(out, "rows", "big_land", "public", "101"))).toBe(false);
     // A ranking that fits its smallest size has no fragments and fetches nothing.
     expect(existsSync(join(out, "rows", "cote_divoire"))).toBe(false);
@@ -261,8 +269,7 @@ describe("site built from hostile data", () => {
   it("starts fetching the steps a size needs from <head>, before the stylesheet", () => {
     const html = readFileSync(join(out, "big_land", "index.html"), "utf8");
     const meta = html.indexOf('<meta name="ranking"');
-    const early = readFileSync("src/web/scripts/ranking-early.js", "utf8");
-    const script = html.indexOf(`<script data-astro-rerun>${early}</script>`);
+    const script = html.indexOf(`<script data-astro-rerun>${embedded("ranking-early")}</script>`);
     expect(meta).toBeGreaterThan(0);
     expect(script).toBeGreaterThan(meta);
     expect(script).toBeLessThan(html.indexOf('<link rel="stylesheet"'));
@@ -270,7 +277,7 @@ describe("site built from hostile data", () => {
 
   it("runs the ranking script inline, right after the table, before the first paint and after every page switch", () => {
     const html = readFileSync(join(out, "cote_divoire", "index.html"), "utf8");
-    const script = `</table><script data-astro-rerun>${readFileSync("src/web/scripts/ranking.js", "utf8")}</script>`;
+    const script = `</table><script data-astro-rerun>${embedded("ranking")}</script>`;
     expect(html).toContain(script);
     expect(html).not.toMatch(/RankingTable\.astro_astro_type_script/);
   });

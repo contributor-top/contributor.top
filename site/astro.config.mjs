@@ -3,17 +3,15 @@ import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
+import { inlineScript } from "./src/web/lib/inline.ts";
 
-// The only inline scripts: the theme and the ranking's linked row must apply before first paint (no flash, no jump),
-// and the badge-link lookup on /find/ must start while the page is parsed. Each hash is computed from the same file
-// the page embeds, so the CSP and the script can never drift apart.
-const inlineHash = (path) =>
-  `sha256-${createHash("sha256")
-    .update(readFileSync(new URL(path, import.meta.url), "utf8"))
-    .digest("base64")}`;
-const inlineHashes = ["theme-init", "find", "ranking", "ranking-early"].map((name) =>
-  inlineHash(`./src/web/scripts/${name}.js`),
-);
+// The only inline scripts (see src/web/lib/inline.ts). Each hash is computed from the same minified text the page
+// embeds, so the CSP and the script can never drift apart.
+const inlineHash = (name) => {
+  const source = readFileSync(new URL(`./src/web/scripts/${name}.js`, import.meta.url), "utf8");
+  return `sha256-${createHash("sha256").update(inlineScript(name, source)).digest("base64")}`;
+};
+const inlineHashes = ["theme-init", "find", "ranking", "ranking-early"].map(inlineHash);
 
 /** Every built page. */
 const htmlPages = (path) =>

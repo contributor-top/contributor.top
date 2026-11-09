@@ -1,7 +1,7 @@
 ---
 import { i18n } from "../i18n/index.ts";
 import Base from "../layouts/Base.astro";
-import { collected, countryEntries } from "../lib/site.ts";
+import { countryEntries } from "../lib/site.ts";
 
 const { t, href, day, country, locale } = i18n(Astro.currentLocale);
 const site = (path: string) => new URL(href(path), Astro.site).href;
@@ -10,26 +10,14 @@ const entries = countryEntries
   .map((c) => ({ ...c, name: country(c) }))
   .sort((a, b) => a.name.localeCompare(b.name, locale));
 
+// The site itself. The countries are plain links in the page already; listing them again here only made the most
+// visited page heavier, and search engines show no list result for them.
 const jsonLd = {
   "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebSite",
-      name: "contributor.top",
-      url: site("/"),
-      description: t("site.description"),
-    },
-    {
-      "@type": "ItemList",
-      name: t("nav.countries"),
-      itemListElement: collected.map((c, i) => ({
-        "@type": "ListItem",
-        position: i + 1,
-        name: country(c),
-        url: site(`/${c.slug}/`),
-      })),
-    },
-  ],
+  "@type": "WebSite",
+  name: "contributor.top",
+  url: site("/"),
+  description: t("site.description"),
 };
 ---
 
