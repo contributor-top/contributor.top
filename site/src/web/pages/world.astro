@@ -3,13 +3,45 @@ import RankingHead from "../components/RankingHead.astro";
 import RankingTable from "../components/RankingTable.astro";
 import { i18n, parts } from "../i18n/index.ts";
 import Base from "../layouts/Base.astro";
-import { rowsBase, worldRows } from "../lib/site.ts";
+import { rowsBase, updates, worldRows } from "../lib/site.ts";
 
 const rows = worldRows();
 const { t, href } = i18n(Astro.currentLocale);
+const title = t("world.title");
+const description = t("world.description");
+// As on a country page: Dataset for Google Dataset Search, ItemList for the page itself. Updated with the latest country.
+const jsonLd =
+  rows.length > 0
+    ? {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Dataset",
+            name: title,
+            description,
+            url: new URL(href("/world/"), Astro.site).href,
+            dateModified: updates.at(-1),
+            license: "https://opensource.org/license/mit",
+            isAccessibleForFree: true,
+            creator: { "@type": "Organization", name: "contributor.top", url: Astro.site?.href },
+          },
+          {
+            "@type": "ItemList",
+            name: title,
+            numberOfItems: rows.length,
+            itemListElement: rows.slice(0, 10).map((r) => ({
+              "@type": "ListItem",
+              position: r.rank,
+              url: `https://github.com/${r.login}`,
+              name: r.login,
+            })),
+          },
+        ],
+      }
+    : undefined;
 ---
 
-<Base title={t("world.title")} description={t("world.description")}>
+<Base title={title} description={description} jsonLd={jsonLd}>
   <RankingHead slot="head" count={rows.length} more={rowsBase("world")} />
   <div class="head">
     <h1>{t("world.h1")}</h1>

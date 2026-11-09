@@ -310,6 +310,20 @@ describe("site built from hostile data", () => {
     }
   });
 
+  it("describes the pages for search: a descriptive home title, the world ranking as a dataset", () => {
+    expect(readFileSync(join(out, "index.html"), "utf8")).toContain(
+      "<title>Most active GitHub users by country | contributor.top</title>",
+    );
+    const world = readFileSync(join(out, "world", "index.html"), "utf8");
+    const ld = JSON.parse(world.match(/<script type="application\/ld\+json">(.*?)<\/script>/)?.[1] ?? "{}");
+    const [dataset, list] = ld["@graph"] ?? [];
+    expect(dataset["@type"]).toBe("Dataset");
+    expect(dataset.url).toBe("https://contributor.top/world/");
+    expect(dataset.dateModified).toMatch(/^20[0-9]{2}-/);
+    expect(list["@type"]).toBe("ItemList");
+    expect(list.itemListElement[0].position).toBe(1);
+  });
+
   it("builds every page in every language and the row fragments once", () => {
     const html = readFileSync(join(out, "ru", "cote_divoire", "index.html"), "utf8");
     expect(html).toContain('<html lang="ru"');

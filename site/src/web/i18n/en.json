@@ -21,7 +21,7 @@
   "theme.toDark": "Switch to dark theme",
   "theme.toLight": "Switch to light theme",
 
-  "home.title": "contributor.top",
+  "home.title": "Most active GitHub users by country",
   "home.h1": "Most active GitHub users by country",
   "home.intro": "Ranked by public contributions in the last 12 months. Each country is updated about every two days.",
   "home.collecting": "collecting data…",
