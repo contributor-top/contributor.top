@@ -63,7 +63,7 @@ jobs:
     name: deploy
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
     permissions:
       pages: write
       id-token: write
@@ -73,7 +73,5 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
-        with:
-          # Pages usually syncs in under a minute, but sometimes takes longer than the default 10 minutes; a timeout
-          # cancels the deployment, and later attempts for the same commit (the deployment ID) tend to hang as well.
-          timeout: 1200000
+        # No timeout input: the action caps it at its default of 10 minutes. When a deployment hangs, see the
+        # runbook (docs/runbook.md, "A deploy hangs in syncing_files").
