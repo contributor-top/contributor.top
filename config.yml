@@ -17,10 +17,13 @@ ranking:
   # - or one repository of their own, with fewer than `quiet_stars` stars, holds at least `quiet_share` of the commits
   #   (farms that also open pull requests hide from the ratio);
   # - but never when at least `popular_share` of the commits go to someone else's repository with `popular_stars` or
-  #   more (maintainers of big community projects who commit directly, such as FreeBSD ports or Liferay).
+  #   more, or to any repository of an organization that has one (maintainers of big community projects who commit
+  #   directly, such as FreeBSD ports or Liferay; Arch Linux packagers, whose release tool commits to a package
+  #   record repository nobody stars).
   # The repository check is one extra request per account above `min_commits` (~150 a cycle); when it fails, only the
   # ratio applies. Measured Nov 2026 on the 374 accounts with 10k+ commits: the ratio alone flags 82, nearly all
-  # farms; the repository check clears 4 maintainers and adds 4 one-repository farms.
+  # farms; the repository check clears 4 maintainers and adds 4 one-repository farms. Counting the organization's
+  # most starred repository clears 2 more of the 83 then marked (an Arch Linux packager, a company blog).
   automated:
     min_commits: 20000
     ratio: 50

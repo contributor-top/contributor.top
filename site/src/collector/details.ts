@@ -139,7 +139,15 @@ const REPOSITORIES = `query($login: String!) {
     contributionsCollection {
       commitContributionsByRepository(maxRepositories: 10) {
         contributions { totalCount }
-        repository { stargazerCount owner { login } }
+        repository {
+          stargazerCount
+          owner {
+            login
+            ... on Organization {
+              repositories(first: 1, orderBy: { field: STARGAZERS, direction: DESC }) { nodes { stargazerCount } }
+            }
+          }
+        }
       }
     }
   }
@@ -152,7 +160,14 @@ const repositoriesSchema = z.object({
     commitContributionsByRepository: z.array(
       z.object({
         contributions: z.object({ totalCount: count }),
-        repository: z.object({ stargazerCount: count, owner: z.object({ login: z.string() }) }),
+        repository: z.object({
+          stargazerCount: count,
+          owner: z.object({
+            login: z.string(),
+            // Organizations only: their most starred repository.
+            repositories: z.object({ nodes: z.array(z.object({ stargazerCount: count })) }).optional(),
+          }),
+        }),
       }),
     ),
   }),
@@ -162,7 +177,9 @@ export type RepoActivity = { readonly quiet: number; readonly popular: number };
 
 /**
  * For accounts with at least min_commits: commits in their busiest own repository with fewer than quiet_stars
- * stars, and in other owners' repositories with at least popular_stars. Best effort: a user that cannot be read
+ * stars, and in other owners' widely used projects: a repository with at least popular_stars, or any repository of an
+ * organization that has one (Arch Linux keeps its package records in a repository nobody stars, but the organization
+ * is no small one, and only it can let someone commit there). Best effort: a user that cannot be read
  * (an error, renamed since, a request GitHub gives up on) is left out, and only the commit ratio applies to them.
  * Running out of time or a revoked token still stop the run.
  */
@@ -208,7 +225,9 @@ async function readRepositories(
   for (const { contributions, repository } of parsed.data.contributionsCollection.commitContributionsByRepository) {
     const commits = Math.max(0, contributions.totalCount);
     if (own(repository.owner.login) && repository.stargazerCount < rule.quiet_stars) quiet = Math.max(quiet, commits);
-    if (!own(repository.owner.login) && repository.stargazerCount >= rule.popular_stars) popular += commits;
+    const ownerTop = repository.owner.repositories?.nodes[0]?.stargazerCount ?? 0;
+    const widelyUsed = Math.max(repository.stargazerCount, ownerTop) >= rule.popular_stars;
+    if (!own(repository.owner.login) && widelyUsed) popular += commits;
   }
   return { quiet, popular };
 }

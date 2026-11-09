@@ -373,6 +373,18 @@ describe("collecting a country", () => {
       }),
       user(3, "Atlantis", 10, { commits: 30_000, prs: 0, reposFail: true }),
       user(4, "Atlantis", 10, { commits: 19_999, prs: 0 }),
+      // A distribution packager: a release tool commits to a repository nobody stars, of a big organization.
+      user(5, "Atlantis", 10, {
+        commits: 30_000,
+        prs: 100,
+        repos: [{ owner: "distro", stars: 20, orgTopStars: 8_000, commits: 27_000 }],
+      }),
+      // Generated pages pushed to an organization of its own that nobody stars either.
+      user(6, "Atlantis", 10, {
+        commits: 30_000,
+        prs: 4,
+        repos: [{ owner: "docs-dump", stars: 0, orgTopStars: 8, commits: 29_000 }],
+      }),
     ];
     const github = new FakeGitHub(users);
     const cfg = config();
@@ -387,13 +399,15 @@ describe("collecting a country", () => {
     expect(data.breakdown["2"]).toMatchObject({ quiet: 0, popular: 24_000 });
     expect(data.breakdown["3"]).not.toHaveProperty("quiet");
     expect(data.breakdown["4"]).not.toHaveProperty("quiet");
-    expect(JSON.stringify(data)).not.toMatch(/big-org|someone/);
+    expect(data.breakdown["5"]).toMatchObject({ quiet: 0, popular: 27_000 });
+    expect(data.breakdown["6"]).toMatchObject({ quiet: 0, popular: 0 });
+    expect(JSON.stringify(data)).not.toMatch(/big-org|someone|distro|docs-dump/);
     // One request for each account above min_commits (3 fails twice, each retried once by the client), none below it.
-    expect(github.calls.filter((c) => c.kind === "repos")).toHaveLength(6);
+    expect(github.calls.filter((c) => c.kind === "repos")).toHaveLength(8);
     expect(stats.repoFailed).toBe(1);
     const rule = cfg.ranking.automated;
     const flagged = (id: number) => isLikelyAutomated(data.breakdown[String(id)] as Activity, rule);
-    expect([1, 2, 3, 4].map(flagged)).toEqual([true, false, true, false]);
+    expect([1, 2, 3, 4, 5, 6].map(flagged)).toEqual([true, false, true, false, false, true]);
   });
 
   it("drops a repository read that comes back for another account (renamed since)", async () => {
