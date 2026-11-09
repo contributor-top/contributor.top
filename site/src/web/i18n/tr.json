@@ -79,8 +79,9 @@
   "row.issues": { "one": "{n} herkese açık issue", "other": "{n} herkese açık issue" },
   "row.reviews": { "one": "{n} herkese açık inceleme", "other": "{n} herkese açık inceleme" },
   "row.private": { "one": "{n} özel katkı", "other": "{n} özel katkı" },
-  "row.privateShare": "%{n} özel",
-  "row.automated": "Commit'ler büyük olasılıkla otomatik; dünya sıralamasında yer almıyor",
+  "row.privateShare": "Katkıların %{n} kadarı özel ve doğrulanamıyor; %{limit} ve üzeri işaretlenir.",
+  "row.automated.ratio": "Büyük olasılıkla otomatik; dünya sıralamasında yer almıyor. Commit: {commits}; pull request, issue ve inceleme: {others}; oran {ratio}:1, {limit}:1 ve üzeri işaretlenir.",
+  "row.automated.quiet": "Büyük olasılıkla otomatik; dünya sıralamasında yer almıyor. Commit: {commits}; bunların %{share} kadarı yıldızı {stars} altında olan tek bir kendi deposunda; %{limit} ve üzeri işaretlenir.",
 
   "badge.title": "contributor.top rozetinizi alın",
   "badge.description": "Ülkenizdeki en aktif GitHub kullanıcıları arasındaki sıranızı gösteren bir rozeti GitHub profil README'nize ekleyin.",

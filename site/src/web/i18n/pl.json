@@ -108,8 +108,9 @@
     "many": "{n} prywatnych kontrybucji",
     "other": "{n} prywatnej kontrybucji"
   },
-  "row.privateShare": "{n}% prywatnych",
-  "row.automated": "Commity prawdopodobnie zautomatyzowane; poza rankingiem światowym",
+  "row.privateShare": "Prywatne: {n}% wkładu, nie da się tego sprawdzić; oznaczamy od {limit}%.",
+  "row.automated.ratio": "Prawdopodobnie zautomatyzowane; poza rankingiem światowym. Commity: {commits}; pull requesty, issues i recenzje: {others}; to {ratio} do 1, oznaczamy od {limit} do 1.",
+  "row.automated.quiet": "Prawdopodobnie zautomatyzowane; poza rankingiem światowym. Commity: {commits}; {share}% z nich w jednym własnym repozytorium z liczbą gwiazdek poniżej {stars}, oznaczamy od {limit}%.",
 
   "badge.title": "Zdobądź odznakę contributor.top",
   "badge.description": "Dodaj do README swojego profilu GitHub odznakę z twoim miejscem wśród najaktywniejszych użytkowników GitHuba w twoim kraju.",

@@ -69,9 +69,15 @@ beforeAll(() => {
     row(1, "farm-bot", 13, 900000),
     row(2, "Octo-Cat", 11, 50),
     row(3, "zed", 12, 40),
+    row(4, "quiet-farm", 14, 30),
   ]);
   // A commit farm: almost nothing but commits. It stays in its country, marked, and is left out of the world.
   ci.breakdown["13"] = { commits: 900000, prs: 1, issues: 0, reviews: 0, private: 0 };
+  // Pull requests enough for the ratio, but three quarters of the commits in one repository of its own nobody stars;
+  // almost everything else it does is private.
+  Object.assign(ci.breakdown, {
+    14: { commits: 40000, prs: 2000, issues: 0, reviews: 0, private: 400000, quiet: 30000, popular: 0 },
+  });
   // A maintainer committing straight to a widely used project: few pull requests, but not automated.
   Object.assign(ci.breakdown, {
     12: { commits: 30000, prs: 0, issues: 0, reviews: 0, private: 0, quiet: 0, popular: 29000 },
@@ -198,8 +204,27 @@ describe("site built from hostile data", () => {
     expect(existsSync(join(out, "u", "farm-bot.json"))).toBe(true);
     const country = readFileSync(join(out, "cote_divoire", "index.html"), "utf8");
     const farmRow = country.slice(country.indexOf('id="farm-bot"'), country.indexOf('id="octo-cat"'));
-    expect(farmRow).toContain("likely automated");
-    expect(country.slice(country.indexOf('id="octo-cat"'))).not.toContain("likely automated");
+    // Every mark names its rule and the numbers behind it.
+    expect(farmRow).toContain(
+      "Likely automated, not in the world ranking. Commits: 900,000; pull requests, issues and reviews: 1; that is 900,000 to 1, marked from 50 to 1.",
+    );
+    const quietRow = country.slice(country.indexOf('id="quiet-farm"'));
+    expect(quietRow).toContain(
+      "Commits: 40,000; 75% of them in one repository of their own with fewer than 10 stars, marked from 60%.",
+    );
+    expect(country.slice(country.indexOf('id="octo-cat"'), country.indexOf('id="quiet-farm"'))).not.toContain(
+      "Likely automated",
+    );
+    expect(quietRow).not.toContain("are private");
+    const all = readFileSync(join(out, "cote_divoire", "all", "index.html"), "utf8");
+    expect(all.slice(all.indexOf('id="quiet-farm"'))).toContain(
+      "90% of contributions are private and cannot be checked; marked from 90%.",
+    );
+    // The browser gets the numbers to put the message into the page's language.
+    const ru = readFileSync(join(out, "ru", "cote_divoire", "index.html"), "utf8");
+    const big = new Intl.NumberFormat("ru").format(900000);
+    expect(ru).toContain(`Коммитов: ${big}; PR, issues и ревью: 1; это ${big} к 1, отмечаем от 50 к 1.`);
+    expect(ru).toMatch(/data-k="row.automated.quiet" data-v="[^"]*&quot;share&quot;:75/);
     expect(existsSync(join(out, "u", "ghost.json"))).toBe(false);
     expect(existsSync(join(out, "u", "ghost.world.json"))).toBe(false);
   });

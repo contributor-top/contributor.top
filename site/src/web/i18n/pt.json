@@ -101,8 +101,9 @@
     "many": "{n} de contribuições privadas",
     "other": "{n} contribuições privadas"
   },
-  "row.privateShare": "{n}% de contribuições privadas",
-  "row.automated": "Commits provavelmente automatizados; fora do ranking mundial",
+  "row.privateShare": "{n}% das contribuições são privadas e não podem ser verificadas; marcado a partir de {limit}%.",
+  "row.automated.ratio": "Provavelmente automatizado; fora do ranking mundial. Commits: {commits}; pull requests, issues e revisões: {others}; ou seja, {ratio} para 1, marcado a partir de {limit} para 1.",
+  "row.automated.quiet": "Provavelmente automatizado; fora do ranking mundial. Commits: {commits}; {share}% deles em um único repositório próprio com menos de {stars} estrelas, marcado a partir de {limit}%.",
 
   "badge.title": "Obtenha seu badge do contributor.top",
   "badge.description": "Adicione ao README do seu perfil do GitHub um badge com a sua posição entre os usuários mais ativos do GitHub no seu país.",

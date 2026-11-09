@@ -1,6 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { compactNumber, isMostlyPrivate, privateShare } from "../src/collector/flags.ts";
+import { automatedReason, compactNumber, isMostlyPrivate, privateShare } from "../src/collector/flags.ts";
 
 describe("privateShare", () => {
   it("is the private part of all contributions, 0 when there are none", () => {
@@ -20,6 +20,27 @@ describe("privateShare", () => {
     expect(isMostlyPrivate(21, 79, 0.8)).toBe(false);
     expect(isMostlyPrivate(0, 0, 0.8)).toBe(false);
     expect(isMostlyPrivate(0, 5, 0.8)).toBe(true);
+  });
+});
+
+describe("automatedReason", () => {
+  const rule = {
+    min_commits: 20000,
+    ratio: 50,
+    quiet_stars: 10,
+    quiet_share: 0.6,
+    popular_stars: 1000,
+    popular_share: 0.5,
+  };
+  const a = { commits: 30000, prs: 0, issues: 0, reviews: 0 };
+
+  it("names the rule that marks an account, so its tooltip can show the numbers", () => {
+    expect(automatedReason(a, rule)).toBe("ratio");
+    expect(automatedReason({ ...a, prs: 1000, quiet: 18000 }, rule)).toBe("quiet");
+    expect(automatedReason({ ...a, prs: 1000, quiet: 17999 }, rule)).toBeNull();
+    expect(automatedReason({ ...a, prs: 1000 }, rule)).toBeNull();
+    expect(automatedReason({ ...a, commits: 19999 }, rule)).toBeNull();
+    expect(automatedReason({ ...a, popular: 15000 }, rule)).toBeNull();
   });
 });
 

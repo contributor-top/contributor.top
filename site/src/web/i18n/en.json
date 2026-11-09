@@ -79,8 +79,9 @@
   "row.issues": { "one": "{n} public issue", "other": "{n} public issues" },
   "row.reviews": { "one": "{n} public review", "other": "{n} public reviews" },
   "row.private": { "one": "{n} private contribution", "other": "{n} private contributions" },
-  "row.privateShare": "{n}% private",
-  "row.automated": "Commits are likely automated, not in the world ranking",
+  "row.privateShare": "{n}% of contributions are private and cannot be checked; marked from {limit}%.",
+  "row.automated.ratio": "Likely automated, not in the world ranking. Commits: {commits}; pull requests, issues and reviews: {others}; that is {ratio} to 1, marked from {limit} to 1.",
+  "row.automated.quiet": "Likely automated, not in the world ranking. Commits: {commits}; {share}% of them in one repository of their own with fewer than {stars} stars, marked from {limit}%.",
 
   "badge.title": "Get your contributor.top badge",
   "badge.description": "Add a badge with your rank among the most active GitHub users in your country to your GitHub profile README.",
