@@ -77,9 +77,9 @@
   "row.issues": { "other": "公開Issue{n}件" },
   "row.reviews": { "other": "公開レビュー{n}件" },
   "row.private": { "other": "非公開コントリビューション{n}件" },
-  "row.privateShare": "貢献の{n}%が非公開で、確認できません。{limit}%以上で表示されます。",
-  "row.automated.ratio": "自動化の可能性が高いため、世界ランキングに含まれません。コミット：{commits}、プルリクエスト・Issue・レビュー：{others}。比率は{ratio}対1で、{limit}対1以上で表示されます。",
-  "row.automated.quiet": "自動化の可能性が高いため、世界ランキングに含まれません。コミット：{commits}、そのうち{share}%がスター{stars}未満の自分のリポジトリ1つに集中しています。{limit}%以上で表示されます。",
+  "row.privateShare": "{n}%が非公開で確認できません（{limit}%以上で表示）。",
+  "row.automated.ratio": "自動化の可能性が高い：プルリクエスト・Issue・レビュー1件あたりコミット{ratio}件（基準{limit}）。世界ランキングには含まれません。",
+  "row.automated.quiet": "自動化の可能性が高い：コミットの{share}%がスター{stars}未満の自分のリポジトリ1つに集中（基準{limit}%）。世界ランキングには含まれません。",
 
   "badge.title": "contributor.topのバッジを入手",
   "badge.description": "国内で最もアクティブなGitHubユーザーの中でのあなたの順位を示すバッジを、GitHubプロフィールのREADMEに追加しましょう。",

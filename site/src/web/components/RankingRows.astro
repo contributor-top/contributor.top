@@ -32,20 +32,20 @@ const stats = (b: CountryData["breakdown"][string]) =>
 const publicOf = (b: CountryData["breakdown"][string]) => b.commits + b.prs + b.issues + b.reviews;
 const rule = config.ranking.automated;
 const privateLimit = Math.round(config.ranking.private_flag_share * 100);
-/** Why a row is marked automated: the rule's message and its numbers, floored so they never overstate. */
+/**
+ * Why a row is marked automated: the rule's message with its one number and the limit (the counts it comes from are
+ * under the name; the formulas are in Methodology). Floored, so a number never overstates.
+ */
 const automatedNote = (b: CountryData["breakdown"][string]) => {
   const reason = automatedReason(b, rule);
   if (reason === null) return null;
   const vars =
     reason === "ratio"
       ? {
-          commits: b.commits,
-          others: otherActivity(b),
           ratio: Math.floor(b.commits / Math.max(1, otherActivity(b))),
           limit: rule.ratio,
         }
       : {
-          commits: b.commits,
           share: Math.floor(((b.quiet ?? 0) / b.commits) * 100),
           stars: rule.quiet_stars,
           limit: Math.round(rule.quiet_share * 100),

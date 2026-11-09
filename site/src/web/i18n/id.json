@@ -77,9 +77,9 @@
   "row.issues": { "other": "{n} issue publik" },
   "row.reviews": { "other": "{n} review publik" },
   "row.private": { "other": "{n} kontribusi privat" },
-  "row.privateShare": "{n}% kontribusi bersifat privat dan tidak dapat diperiksa; ditandai mulai {limit}%.",
-  "row.automated.ratio": "Kemungkinan besar otomatis, tidak masuk peringkat dunia. Commit: {commits}; pull request, issue, dan review: {others}; artinya {ratio} banding 1, ditandai mulai {limit} banding 1.",
-  "row.automated.quiet": "Kemungkinan besar otomatis, tidak masuk peringkat dunia. Commit: {commits}; {share}% di antaranya di satu repositori milik sendiri dengan kurang dari {stars} bintang, ditandai mulai {limit}%.",
+  "row.privateShare": "{n}% privat, tidak dapat diperiksa (ditandai mulai {limit}%).",
+  "row.automated.ratio": "Kemungkinan otomatis: {ratio} commit per pull request, issue, atau review (batas {limit}). Tidak masuk peringkat dunia.",
+  "row.automated.quiet": "Kemungkinan otomatis: {share}% commit di satu repositori milik sendiri dengan kurang dari {stars} bintang (batas {limit}%). Tidak masuk peringkat dunia.",
 
   "badge.title": "Dapatkan badge contributor.top Anda",
   "badge.description": "Tambahkan badge berisi peringkat Anda di antara pengguna GitHub paling aktif di negara Anda ke README profil GitHub Anda.",
