@@ -62,7 +62,7 @@
   "tab.public.note": "Đóng góp mà mọi người đều thấy trong 12 tháng qua.",
   "tab.all": "Tất cả đóng góp",
   "tab.all.short": "Tất cả",
-  "tab.all.note": "Đóng góp công khai cộng riêng tư; đóng góp riêng tư chỉ được tính với những người hiển thị chúng trên hồ sơ.",
+  "tab.all.note": "Đóng góp công khai cộng riêng tư; đóng góp riêng tư chỉ được tính với những người hiển thị chúng trên hồ sơ. Đóng góp riêng tư không thể kiểm chứng, nên những người có dưới {n}% đóng góp công khai không được tính.",
   "tab.commits": "Commit",
   "tab.commits.short": "Commit",
   "tab.commits.note": "Commit công khai trong 12 tháng qua.",

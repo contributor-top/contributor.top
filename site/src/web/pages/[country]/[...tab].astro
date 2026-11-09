@@ -5,7 +5,7 @@ import RankingHead from "../../components/RankingHead.astro";
 import RankingTable from "../../components/RankingTable.astro";
 import { i18n, parts } from "../../i18n/index.ts";
 import Base from "../../layouts/Base.astro";
-import { type CountryEntry, countryEntries, rowsBase, TAB_PATHS, TABS, tabHref } from "../../lib/site.ts";
+import { type CountryEntry, config, countryEntries, rowsBase, TAB_PATHS, TABS, tabHref } from "../../lib/site.ts";
 
 export const getStaticPaths = (() =>
   countryEntries.flatMap((entry) =>
@@ -105,7 +105,7 @@ const jsonLd = data
           </a>
         </nav>
         <p class="muted">
-          {t(`tab.${tab}.note`)} {t("country.inList")} <a href={href("/badge/")}>{t("country.addBadge")}</a>
+          {t(`tab.${tab}.note`, { n: Math.round(config.ranking.min_public_share * 100) })} {t("country.inList")} <a href={href("/badge/")}>{t("country.addBadge")}</a>
         </p>
         <RankingTable rows={data.tabs[tab]} breakdown={data.breakdown} tab={tab} more={more} />
       </>

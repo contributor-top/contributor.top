@@ -62,7 +62,7 @@
   "tab.public.note": "过去 12 个月中所有人可见的贡献。",
   "tab.all": "全部贡献",
   "tab.all.short": "全部",
-  "tab.all.note": "公开贡献加私有贡献；私有贡献仅计入在个人资料中显示它们的用户。",
+  "tab.all.note": "公开贡献加私有贡献；私有贡献仅计入在个人资料中显示它们的用户。私有贡献无法核实，因此公开贡献低于 {n}% 的用户不计入。",
   "tab.commits": "提交",
   "tab.commits.short": "提交",
   "tab.commits.note": "过去 12 个月的公开提交。",

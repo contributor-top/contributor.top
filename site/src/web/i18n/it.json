@@ -66,7 +66,7 @@
   "tab.public.note": "Contributi visibili a tutti negli ultimi 12 mesi.",
   "tab.all": "Tutti i contributi",
   "tab.all.short": "Tutti",
-  "tab.all.note": "Contributi pubblici più quelli privati; i privati contano solo per chi li mostra sul proprio profilo.",
+  "tab.all.note": "Contributi pubblici più quelli privati; i privati contano solo per chi li mostra sul proprio profilo. I privati non sono verificabili, quindi chi ha meno del {n}% di contributi pubblici è escluso.",
   "tab.commits": "Commit",
   "tab.commits.short": "Commit",
   "tab.commits.note": "Commit pubblici negli ultimi 12 mesi.",

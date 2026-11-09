@@ -1,6 +1,7 @@
 import type { Config } from "./config.ts";
 import { type CountryData, countryDataSchema } from "./country-data.ts";
 import { fetchPeople, fetchRepoActivity, fetchStatuses, type Person, type RepoActivity } from "./details.ts";
+import { hasEnoughPublic } from "./flags.ts";
 import type { GitHubGraphQL } from "./github.ts";
 import { decide, optoutHash } from "./optout.ts";
 import { type Preset, presetChecksum } from "./preset.ts";
@@ -42,15 +43,24 @@ function isPostFiltered(preset: Preset, location: string | null): boolean {
 
 type Meta = {
   topN: number;
+  /** ranking.min_public_share: the least public share to appear in the "all" ranking. */
+  minPublicShare: number;
   updatedAt: string;
   totalUsers: number;
   threshold: number;
   repos: ReadonlyMap<number, RepoActivity>;
 };
 
+/** Public and private contributions together rank only people with enough public ones (ranking.min_public_share). */
+const enoughPublic = (p: Person, minShare: number) =>
+  hasEnoughPublic(TABS.public(p), Math.max(0, p.restricted), minShare);
+
 function toCountryData(slug: string, preset: Preset, people: readonly Person[], meta: Meta): CountryData {
   const tabs = Object.fromEntries(
-    (Object.keys(TABS) as Tab[]).map((tab) => [tab, rank(people, TABS[tab], meta.topN)]),
+    (Object.keys(TABS) as Tab[]).map((tab) => [
+      tab,
+      rank(tab === "all" ? people.filter((p) => enoughPublic(p, meta.minPublicShare)) : people, TABS[tab], meta.topN),
+    ]),
   ) as Record<Tab, ReturnType<typeof rank>>;
   // Only people who appear in a ranking are published; the rest of the candidates leave no trace.
   const ranked = new Set(Object.values(tabs).flatMap((rows) => rows.map((r) => r.id)));
@@ -170,6 +180,7 @@ export async function collectCountry(
 
   const data = toCountryData(slug, preset, kept, {
     topN: config.ranking.top_n,
+    minPublicShare: config.ranking.min_public_share,
     updatedAt: now.toISOString(),
     totalUsers,
     threshold,

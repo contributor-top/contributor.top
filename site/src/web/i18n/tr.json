@@ -64,7 +64,7 @@
   "tab.public.note": "Son 12 ayda herkesin görebildiği katkılar.",
   "tab.all": "Tüm katkılar",
   "tab.all.short": "Tümü",
-  "tab.all.note": "Herkese açık ve özel katkılar; özel katkılar yalnızca bunları profilinde gösterenler için sayılır.",
+  "tab.all.note": "Herkese açık ve özel katkılar; özel katkılar yalnızca bunları profilinde gösterenler için sayılır. Özel katkılar doğrulanamadığı için herkese açık katkısı %{n} altında olanlar dahil edilmez.",
   "tab.commits": "Commit'ler",
   "tab.commits.short": "Commit'ler",
   "tab.commits.note": "Son 12 aydaki herkese açık commit'ler.",

@@ -14,6 +14,7 @@ export const configSchema = z
         consider: z.number().int().positive(),
         world_top_n: z.number().int().positive(),
         private_flag_share: share,
+        min_public_share: share,
         automated: z
           .object({
             min_commits: z.number().int().positive(),

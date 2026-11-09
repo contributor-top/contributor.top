@@ -68,7 +68,7 @@
   "tab.public.note": "Kontrybucje widoczne dla wszystkich z ostatnich 12 miesięcy.",
   "tab.all": "Wszystkie kontrybucje",
   "tab.all.short": "Wszystkie",
-  "tab.all.note": "Publiczne plus prywatne kontrybucje; prywatne liczą się tylko u osób, które pokazują je w profilu.",
+  "tab.all.note": "Publiczne plus prywatne kontrybucje; prywatne liczą się tylko u osób, które pokazują je w profilu. Prywatnych nie da się sprawdzić, więc pomijamy osoby, u których publiczne stanowią mniej niż {n}%.",
   "tab.commits": "Commity",
   "tab.commits.short": "Commity",
   "tab.commits.note": "Publiczne commity z ostatnich 12 miesięcy.",

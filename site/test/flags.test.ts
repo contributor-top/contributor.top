@@ -1,6 +1,12 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { automatedReason, compactNumber, isMostlyPrivate, privateShare } from "../src/collector/flags.ts";
+import {
+  automatedReason,
+  compactNumber,
+  hasEnoughPublic,
+  isMostlyPrivate,
+  privateShare,
+} from "../src/collector/flags.ts";
 
 describe("privateShare", () => {
   it("is the private part of all contributions, 0 when there are none", () => {
@@ -41,6 +47,16 @@ describe("automatedReason", () => {
     expect(automatedReason({ ...a, prs: 1000 }, rule)).toBeNull();
     expect(automatedReason({ ...a, commits: 19999 }, rule)).toBeNull();
     expect(automatedReason({ ...a, popular: 15000 }, rule)).toBeNull();
+  });
+});
+
+describe("hasEnoughPublic", () => {
+  it("needs the share of public contributions, exactly at the boundary, and nothing without private ones", () => {
+    expect(hasEnoughPublic(10, 990, 0.01)).toBe(true);
+    expect(hasEnoughPublic(9, 991, 0.01)).toBe(false);
+    expect(hasEnoughPublic(0, 72086, 0.01)).toBe(false);
+    expect(hasEnoughPublic(0, 0, 0.01)).toBe(true);
+    expect(hasEnoughPublic(5, 0, 0.01)).toBe(true);
   });
 });
 

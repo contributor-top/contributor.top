@@ -105,8 +105,12 @@ function oracle(users: FakeUser[], slug: string, cfg: Config, optedOutIds: Set<n
     if (statusSays(u, "contributor.top opt-out")) return false;
     return owns(slug, u.location as string);
   });
-  const order = (score: (u: FakeUser) => number) =>
-    [...kept]
+  // Public and private together only for people whose public share reaches min_public_share.
+  const pub = (u: FakeUser) => Math.max(0, (u.total ?? 0) - (u.restricted ?? 0));
+  const priv = (u: FakeUser) => Math.max(0, u.restricted ?? 0);
+  const enoughPublic = kept.filter((u) => priv(u) === 0 || pub(u) / (pub(u) + priv(u)) >= cfg.ranking.min_public_share);
+  const order = (score: (u: FakeUser) => number, pool = kept) =>
+    [...pool]
       .sort((a, b) => score(b) - score(a) || b.followers - a.followers || byLogin(a, b) || a.id - b.id)
       .slice(0, cfg.ranking.top_n)
       .map((u, i) => ({ rank: i + 1, login: u.login, id: u.id, contributions: score(u) }));
@@ -114,8 +118,8 @@ function oracle(users: FakeUser[], slug: string, cfg: Config, optedOutIds: Set<n
     threshold,
     totalUsers: matches.length,
     considered: kept.length,
-    public: order((u) => Math.max(0, (u.total ?? 0) - (u.restricted ?? 0))),
-    all: order((u) => u.total ?? 0),
+    public: order(pub),
+    all: order((u) => u.total ?? 0, enoughPublic),
     commits: order((u) => u.commits ?? 0),
   };
 }
@@ -271,6 +275,8 @@ describe("collecting a country", () => {
       user(104, "Atlantis", 199, { status: "Contributor.top OPT-IN" }), // opted out before, comes back
       user(105, "Atlantis", 198), // denylisted
       user(106, "Atlantis", 197, { total: 50, restricted: 80 }), // API glitch: never negative
+      user(107, "Atlantis", 196, { total: 1000, restricted: 991 }), // 0.9% public: not in "all"
+      user(108, "Atlantis", 195, { total: 1000, restricted: 990 }), // exactly 1% public: in "all"
     ];
     const cfg = config({ consider: 50, topN: 100, denylist: [105] }); // everyone ranked, so 106 is visible
     const hashes = new Set([optoutHash(103, KEY), optoutHash(104, KEY)]);
@@ -292,6 +298,9 @@ describe("collecting a country", () => {
     expect(result.optedIn).toEqual([optoutHash(104, KEY)]);
     expect(result.stats).toMatchObject({ denied: 1, otherCountry: 1 });
     expect(result.data.tabs.public.find((r) => r.id === 106)?.contributions).toBe(0);
+    const inAll = (id: number) => result.data.tabs.all.some((r) => r.id === id);
+    expect([106, 107, 108].map(inAll)).toEqual([false, false, true]);
+    expect(result.data.tabs.public.some((r) => r.id === 107)).toBe(true);
   });
 
   it("publishes nothing it must not: no location, no status, breakdown only for ranked people", async () => {

@@ -52,6 +52,11 @@
           "exclusiveMinimum": 0,
           "exclusiveMaximum": 1
         },
+        "min_public_share": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 1
+        },
         "automated": {
           "type": "object",
           "properties": {
@@ -103,6 +108,7 @@
         "consider",
         "world_top_n",
         "private_flag_share",
+        "min_public_share",
         "automated"
       ],
       "additionalProperties": false

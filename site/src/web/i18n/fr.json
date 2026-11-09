@@ -66,7 +66,7 @@
   "tab.public.note": "Contributions visibles par tous au cours des 12 derniers mois.",
   "tab.all": "Toutes les contributions",
   "tab.all.short": "Toutes",
-  "tab.all.note": "Contributions publiques et privées ; les privées ne comptent que pour les personnes qui les affichent sur leur profil.",
+  "tab.all.note": "Contributions publiques et privées ; les privées ne comptent que pour les personnes qui les affichent sur leur profil. Les privées sont invérifiables : les personnes ayant moins de {n} % de contributions publiques sont exclues.",
   "tab.commits": "Commits",
   "tab.commits.short": "Commits",
   "tab.commits.note": "Commits publics des 12 derniers mois.",
