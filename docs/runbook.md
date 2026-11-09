@@ -39,6 +39,18 @@ A local run without publishing: `OPTOUT_KEY=<any 32+ characters> COUNTRIES=eston
 - Scheduled workflows in public repositories are disabled after 60 days without activity: re-enable `update.yml` in
   the Actions tab.
 
+## A deploy hangs in `syncing_files`
+
+The **deploy** job waits on `actions/deploy-pages`, the log repeats `Current status: syncing_files` (or an empty status)
+until the timeout, and the deployment is cancelled. Usually the step takes 10–50 seconds. The site holds about 370,000
+files (mostly badges in `u/`), and GitHub Pages sometimes does not finish syncing them; githubstatus.com may show no
+incident.
+
+- Do not rerun the job or dispatch **deploy** for the same commit: the Pages deployment ID is the commit SHA, and after
+  one hang every retry of that commit hangs as well (seen 2026-11-09).
+- Get a new commit onto `main` (any merged pull request) and its deploy goes through. Until then the collector's own
+  deploys, which run on the same commit, hang too.
+
 ## Bad data was published _(planned)_
 
 Restore the previous data with the `data-prev` branch, then run the collector for the affected country with `force`.
