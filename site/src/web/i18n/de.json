@@ -64,7 +64,7 @@
   "tab.public.note": "Für alle sichtbare Beiträge der letzten 12 Monate.",
   "tab.all": "Alle Beiträge",
   "tab.all.short": "Alle",
-  "tab.all.note": "Öffentliche plus private Beiträge; private zählen nur bei Personen, die sie in ihrem Profil anzeigen.",
+  "tab.all.note": "Öffentliche plus private Beiträge; private zählen nur bei Personen, die sie in ihrem Profil anzeigen. Private Beiträge sind nicht überprüfbar, daher fehlen Personen mit weniger als {n} % öffentlichen Beiträgen.",
   "tab.commits": "Commits",
   "tab.commits.short": "Commits",
   "tab.commits.note": "Öffentliche Commits der letzten 12 Monate.",

@@ -62,7 +62,7 @@
   "tab.public.note": "Kontribusi yang terlihat oleh semua orang dalam 12 bulan terakhir.",
   "tab.all": "Semua kontribusi",
   "tab.all.short": "Semua",
-  "tab.all.note": "Kontribusi publik ditambah privat; kontribusi privat hanya dihitung bagi orang yang menampilkannya di profil mereka.",
+  "tab.all.note": "Kontribusi publik ditambah privat; kontribusi privat hanya dihitung bagi orang yang menampilkannya di profil mereka. Kontribusi privat tidak dapat diperiksa, jadi orang dengan kontribusi publik kurang dari {n}% tidak dimasukkan.",
   "tab.commits": "Commit",
   "tab.commits.short": "Commit",
   "tab.commits.note": "Commit publik dalam 12 bulan terakhir.",

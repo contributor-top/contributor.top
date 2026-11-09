@@ -7,6 +7,13 @@ export function privateShare(publicCount: number, privateCount: number): number 
   return total <= 0 ? 0 : privateCount / total;
 }
 
+/**
+ * Enough public activity to rank someone by public and private contributions together: at least minShare of the
+ * total is public. Compared as counts, without division, so the boundary is exact.
+ */
+export const hasEnoughPublic = (publicCount: number, privateCount: number, minShare: number): boolean =>
+  privateCount <= 0 || publicCount >= minShare * (publicCount + privateCount);
+
 /** Rows above this share get a warning in the "all contributions" ranking. */
 export const isMostlyPrivate = (publicCount: number, privateCount: number, threshold: number): boolean =>
   privateCount > 0 && privateShare(publicCount, privateCount) >= threshold;
