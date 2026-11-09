@@ -28,13 +28,13 @@ Sotto ogni nome: `C` commit pubblici, `PR` pull request, `IS` issue, `RV` review
 
 Poche regole, uguali per tutti, impediscono che numeri non verificabili o prodotti da uno script decidano una classifica. Ogni segnalazione mostra al passaggio del mouse la regola che l'ha prodotta e i numeri a cui è stata applicata.
 
-| Regola                   | Quando                                                                                                                                                                | Cosa succede                                                                               |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Quasi tutto privato      | Il {{private_flag}}% o più dei contributi è privato                                                                                                                   | Un lucchetto accanto al totale in **Tutti i contributi**                                   |
-| Quasi niente di pubblico | I contributi pubblici sono meno del {{min_public}}% del totale                                                                                                        | Fuori da **Tutti i contributi**, presente nelle altre classifiche                          |
-| Fabbrica di commit       | {{min_commits}} commit o più, almeno {{ratio}} volte tanti quanti pull request, issue e review insieme                                                                | Un robot nelle classifiche dei paesi; fuori dalla classifica mondiale e dai badge mondiali |
-| Un repository inattivo   | {{min_commits}} commit o più, il {{quiet_share}}% o più in un solo repository proprio con meno di {{quiet_stars}} stelle                                              | Come una fabbrica di commit                                                                |
-| Eccezione                | Il {{popular_share}}% dei commit o più va in un repository altrui con {{popular_stars}} stelle o più, o in un qualsiasi repository di un'organizzazione che ne ha uno | Mai segnalato come automatizzato                                                           |
+| Regola                   | Quando                                                                                                                                                                | Cosa succede                                                      |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Quasi tutto privato      | Il {{private_flag}}% o più dei contributi è privato                                                                                                                   | Un lucchetto accanto al totale in **Tutti i contributi**          |
+| Quasi niente di pubblico | I contributi pubblici sono meno del {{min_public}}% del totale                                                                                                        | Fuori da **Tutti i contributi**, presente nelle altre classifiche |
+| Fabbrica di commit       | {{min_commits}} commit o più, almeno {{ratio}} volte tanti quanti pull request, issue e review insieme                                                                | Fuori da tutte le classifiche                                     |
+| Un repository inattivo   | {{min_commits}} commit o più, il {{quiet_share}}% o più in un solo repository proprio con meno di {{quiet_stars}} stelle                                              | Come una fabbrica di commit                                       |
+| Eccezione                | Il {{popular_share}}% dei commit o più va in un repository altrui con {{popular_stars}} stelle o più, o in un qualsiasi repository di un'organizzazione che ne ha uno | Mai segnalato come automatizzato                                  |
 
 GitHub riporta l'attività privata come un unico numero che non si può scomporre né verificare, quindi conta solo dove il lavoro pubblico la sostiene; un lucchetto da solo non esclude nessuno, perché molte persone lavorano su codice chiuso. Chi fa commit direttamente in un progetto molto usato, come spesso fanno i maintainer di grandi progetti comunitari e di distribuzioni Linux, non è considerato automatizzato: solo il progetto stesso può dargli accesso in scrittura.
 
@@ -47,6 +47,7 @@ Le classifiche seguono solo queste regole e l'ordine indicato sopra; nessuno vie
 - La località del tuo profilo non corrisponde a nessuna stringa del preset del tuo paese. La località è testo libero: aggiungi la tua città o il tuo paese, oppure apri una pull request sul preset.
 - Non sei tra i {{consider}} utenti più seguiti del tuo paese.
 - Quasi tutti i tuoi contributi sono privati (meno del {{min_public}}% pubblici): resti fuori solo da **Tutti i contributi**.
+- I tuoi commit sembrano automatizzati (vedi le regole sopra): questi account non sono in nessuna classifica.
 - I tuoi contributi sono privati e non sono mostrati sul tuo profilo.
 - Hai chiesto di essere rimosso (vedi [Privacy e rimozione](/it/privacy/)).
 

@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import { type Config, loadConfig } from "../src/collector/config.ts";
 import { collectCountry } from "../src/collector/country.ts";
 import { fetchPeople, fetchRepoActivity, fetchStatuses, TooManySkippedError } from "../src/collector/details.ts";
-import { type Activity, isLikelyAutomated } from "../src/collector/flags.ts";
 import { GitHubGraphQL } from "../src/collector/github.ts";
 import { optoutHash } from "../src/collector/optout.ts";
 import type { Preset } from "../src/collector/preset.ts";
@@ -359,7 +358,7 @@ describe("collecting a country", () => {
     expect(stats.postFiltered).toBe(2);
   });
 
-  it("reads repositories only above min_commits, keeps only counts, and survives a failed read", async () => {
+  it("reads repositories only above min_commits, keeps only counts, survives a failed read, ranks no farm", async () => {
     const users = [
       // A farm that also opens pull requests: most commits in one quiet repository of its own.
       user(1, "Atlantis", 10, {
@@ -404,19 +403,17 @@ describe("collecting a country", () => {
       optout: { key: KEY, hashes: new Set() },
       now: NOW,
     });
-    expect(data.breakdown["1"]).toMatchObject({ quiet: 60_000, popular: 1_000 });
+    // Likely automated (1: quiet repository, 3: ratio without repositories, 6: ratio): in no ranking, nothing published.
+    for (const tab of Object.values(data.tabs)) expect(tab.map((r) => r.id).sort()).toEqual([2, 4, 5]);
+    expect(Object.keys(data.breakdown).sort()).toEqual(["2", "4", "5"]);
+    expect(stats.automated).toBe(3);
     expect(data.breakdown["2"]).toMatchObject({ quiet: 0, popular: 24_000 });
-    expect(data.breakdown["3"]).not.toHaveProperty("quiet");
     expect(data.breakdown["4"]).not.toHaveProperty("quiet");
     expect(data.breakdown["5"]).toMatchObject({ quiet: 0, popular: 27_000 });
-    expect(data.breakdown["6"]).toMatchObject({ quiet: 0, popular: 0 });
     expect(JSON.stringify(data)).not.toMatch(/big-org|someone|distro|docs-dump/);
     // One request for each account above min_commits (3 fails twice, each retried once by the client), none below it.
     expect(github.calls.filter((c) => c.kind === "repos")).toHaveLength(8);
     expect(stats.repoFailed).toBe(1);
-    const rule = cfg.ranking.automated;
-    const flagged = (id: number) => isLikelyAutomated(data.breakdown[String(id)] as Activity, rule);
-    expect([1, 2, 3, 4, 5, 6].map(flagged)).toEqual([true, false, true, false, false, true]);
   });
 
   it("drops a repository read that comes back for another account (renamed since)", async () => {

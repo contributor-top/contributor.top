@@ -1,7 +1,7 @@
 import type { Config } from "./config.ts";
 import { type CountryData, countryDataSchema } from "./country-data.ts";
 import { fetchPeople, fetchRepoActivity, fetchStatuses, type Person, type RepoActivity } from "./details.ts";
-import { hasEnoughPublic } from "./flags.ts";
+import { type AutomatedRule, hasEnoughPublic, isLikelyAutomated } from "./flags.ts";
 import type { GitHubGraphQL } from "./github.ts";
 import { decide, optoutHash } from "./optout.ts";
 import { type Preset, presetChecksum } from "./preset.ts";
@@ -20,6 +20,8 @@ type CountryStats = {
   readonly postFiltered: number;
   /** Accounts above ranking.automated.min_commits whose repositories could not be read (only the ratio applies). */
   readonly repoFailed: number;
+  /** Accounts left out of every ranking because their commits look automated. */
+  readonly automated: number;
 };
 
 export type CountryResult = {
@@ -45,6 +47,8 @@ type Meta = {
   topN: number;
   /** ranking.min_public_share: the least public share to appear in the "all" ranking. */
   minPublicShare: number;
+  /** ranking.automated: accounts it marks are in no ranking. */
+  automated: AutomatedRule;
   updatedAt: string;
   totalUsers: number;
   threshold: number;
@@ -55,11 +59,21 @@ type Meta = {
 const enoughPublic = (p: Person, minShare: number) =>
   hasEnoughPublic(TABS.public(p), Math.max(0, p.restricted), minShare);
 
+/** Commits that look automated (ranking.automated), judged with the repository numbers when they were read. */
+const looksAutomated = (p: Person, meta: Pick<Meta, "automated" | "repos">) =>
+  isLikelyAutomated({ ...p, ...meta.repos.get(p.id) }, meta.automated);
+
 function toCountryData(slug: string, preset: Preset, people: readonly Person[], meta: Meta): CountryData {
+  // Likely automated commits would take a place from a person in every ranking, so they are in none (as in the world).
+  const eligible = people.filter((p) => !looksAutomated(p, meta));
   const tabs = Object.fromEntries(
     (Object.keys(TABS) as Tab[]).map((tab) => [
       tab,
-      rank(tab === "all" ? people.filter((p) => enoughPublic(p, meta.minPublicShare)) : people, TABS[tab], meta.topN),
+      rank(
+        tab === "all" ? eligible.filter((p) => enoughPublic(p, meta.minPublicShare)) : eligible,
+        TABS[tab],
+        meta.topN,
+      ),
     ]),
   ) as Record<Tab, ReturnType<typeof rank>>;
   // Only people who appear in a ranking are published; the rest of the candidates leave no trace.
@@ -181,11 +195,23 @@ export async function collectCountry(
   const data = toCountryData(slug, preset, kept, {
     topN: config.ranking.top_n,
     minPublicShare: config.ranking.min_public_share,
+    automated: config.ranking.automated,
     updatedAt: now.toISOString(),
     totalUsers,
     threshold,
     repos: repos.activity,
   });
-  const stats = { candidates: found.length, skipped, denied, otherCountry, postFiltered, repoFailed: repos.failed };
+  const automated = kept.filter((p) =>
+    looksAutomated(p, { automated: config.ranking.automated, repos: repos.activity }),
+  ).length;
+  const stats = {
+    candidates: found.length,
+    skipped,
+    denied,
+    otherCountry,
+    postFiltered,
+    repoFailed: repos.failed,
+    automated,
+  };
   return { data, optedOut, optedIn, stats };
 }

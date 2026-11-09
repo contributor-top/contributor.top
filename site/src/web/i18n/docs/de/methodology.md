@@ -28,13 +28,13 @@ Unter jedem Namen: `C` öffentliche Commits, `PR` Pull Requests, `IS` Issues, `R
 
 Einige wenige Regeln, für alle gleich, verhindern, dass Zahlen, die sich nicht überprüfen lassen oder die ein Skript erzeugt hat, über ein Ranking entscheiden. Jede Markierung zeigt beim Darüberfahren die Regel dahinter und die Zahlen, auf die sie angewendet wurde.
 
-| Regel                  | Wann                                                                                                                                                                                  | Was passiert                                                                  |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Überwiegend privat     | {{private_flag}} % oder mehr der Beiträge sind privat                                                                                                                                 | Ein Schloss neben der Gesamtzahl in **Alle Beiträge**                         |
-| Fast nichts öffentlich | Öffentliche Beiträge machen weniger als {{min_public}} % der Gesamtzahl aus                                                                                                           | Nicht in **Alle Beiträge**, aber in den anderen Rankings                      |
-| Commit-Farm            | {{min_commits}} Commits oder mehr, mindestens {{ratio}}-mal so viele wie Pull Requests, Issues und Reviews zusammen                                                                   | Ein Roboter in den Länder-Rankings; nicht im Weltranking und ohne Welt-Badges |
-| Ein stilles Repository | {{min_commits}} Commits oder mehr, davon {{quiet_share}} % oder mehr in einem eigenen Repository mit weniger als {{quiet_stars}} Sternen                                              | Wie bei einer Commit-Farm                                                     |
-| Ausnahme               | {{popular_share}} % der Commits oder mehr gehen in ein fremdes Repository mit {{popular_stars}} Sternen oder mehr oder in ein beliebiges Repository einer Organisation, die eines hat | Nie als automatisiert markiert                                                |
+| Regel                  | Wann                                                                                                                                                                                  | Was passiert                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Überwiegend privat     | {{private_flag}} % oder mehr der Beiträge sind privat                                                                                                                                 | Ein Schloss neben der Gesamtzahl in **Alle Beiträge**    |
+| Fast nichts öffentlich | Öffentliche Beiträge machen weniger als {{min_public}} % der Gesamtzahl aus                                                                                                           | Nicht in **Alle Beiträge**, aber in den anderen Rankings |
+| Commit-Farm            | {{min_commits}} Commits oder mehr, mindestens {{ratio}}-mal so viele wie Pull Requests, Issues und Reviews zusammen                                                                   | In keinem Ranking                                        |
+| Ein stilles Repository | {{min_commits}} Commits oder mehr, davon {{quiet_share}} % oder mehr in einem eigenen Repository mit weniger als {{quiet_stars}} Sternen                                              | Wie bei einer Commit-Farm                                |
+| Ausnahme               | {{popular_share}} % der Commits oder mehr gehen in ein fremdes Repository mit {{popular_stars}} Sternen oder mehr oder in ein beliebiges Repository einer Organisation, die eines hat | Nie als automatisiert markiert                           |
 
 GitHub meldet private Aktivität als eine einzige Zahl, die sich weder aufschlüsseln noch überprüfen lässt; sie zählt daher nur, wo öffentliche Arbeit sie stützt. Ein Schloss allein entfernt niemanden, denn viele arbeiten an Closed-Source-Code. Wer direkt in ein weit verbreitetes Projekt committet, wie es Maintainer großer Community-Projekte und Linux-Distributionen oft tun, gilt nicht als automatisiert: Nur das Projekt selbst kann dort Schreibrechte geben.
 
@@ -47,6 +47,7 @@ Die Rankings folgen nur diesen Regeln und der obigen Reihenfolge; niemand wird v
 - Der Standort in deinem Profil passt zu keiner Angabe im Preset deines Landes. Der Standort ist Freitext: Trage deine Stadt oder dein Land ein oder öffne einen Pull Request für das Preset.
 - Du gehörst nicht zu den {{consider}} Nutzern mit den meisten Followern in deinem Land.
 - Fast alle deine Beiträge sind privat (unter {{min_public}} % öffentlich): Dann fehlst du nur in **Alle Beiträge**.
+- Deine Commits wirken automatisiert (siehe die Regeln oben): Solche Konten stehen in keinem Ranking.
 - Deine Beiträge sind privat und werden in deinem Profil nicht angezeigt.
 - Du hast um Entfernung gebeten (siehe [Datenschutz und Opt-out](/de/privacy/)).
 
