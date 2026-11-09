@@ -1,8 +1,9 @@
 ---
 import { i18n, prefixOf } from "../i18n/index.ts";
 import Base from "../layouts/Base.astro";
+import { inlineScript } from "../lib/inline.ts";
 import { config, countryEntries } from "../lib/site.ts";
-import find from "../scripts/find.js?raw";
+import findSource from "../scripts/find.js?raw";
 
 // Badge links point here: /find/?login=…&tab=… opens that person's row in their best country ranking,
 // or, with tab=world, in the world ranking. The lookup is the inline script in <head> (its hash is in the CSP).
@@ -19,7 +20,7 @@ const data = {
 <Base title={t("find.title")} noindex>
   <Fragment slot="head">
     <meta name="find-data" content={JSON.stringify(data)} />
-    <script is:inline set:html={find} />
+    <script is:inline set:html={inlineScript("find", findSource)} />
   </Fragment>
   <h1>{t("find.title")}</h1>
   <p id="status" class="muted">{t("find.looking")}</p>

@@ -2,8 +2,9 @@
 import type { CountryData, Row } from "../../collector/country-data.ts";
 import type { Tab } from "../../collector/rank.ts";
 import { DEFAULT_LANG, i18n, type Key } from "../i18n/index.ts";
+import { inlineScript } from "../lib/inline.ts";
 import { chunkStarts, countryByTitle, FIRST_ROWS, sizesFor } from "../lib/site.ts";
-import ranking from "../scripts/ranking.js?raw";
+import rankingSource from "../scripts/ranking.js?raw";
 import RankingRows from "./RankingRows.astro";
 
 type Props = {
@@ -67,7 +68,7 @@ const words =
     </tr>
   </thead>
   <tbody>
-    <RankingRows rows={rows.slice(0, FIRST_ROWS)} breakdown={breakdown} tab={tab} />
+    <RankingRows rows={rows.slice(0, FIRST_ROWS)} breakdown={breakdown} tab={tab} eager />
   </tbody>
 </table>
 {
@@ -79,7 +80,7 @@ const words =
 }
 
 {/* Before the first paint: marks and scrolls to a linked row. Its CSP hash is in astro.config.mjs. */}
-<script is:inline data-astro-rerun set:html={ranking} />
+<script is:inline data-astro-rerun set:html={inlineScript("ranking", rankingSource)} />
 
 <style is:global>
   /* Global, but every selector starts at the toolbar or the ranking table: Astro's scoped styles would put a

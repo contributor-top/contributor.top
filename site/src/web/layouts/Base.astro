@@ -6,8 +6,9 @@ import LanguagePicker from "../components/LanguagePicker.astro";
 import RepoCard from "../components/RepoCard.astro";
 import ThemeToggle from "../components/ThemeToggle.astro";
 import { codeOf, DEFAULT_LANG, i18n, LANGS, parts, prefixOf, unprefixed } from "../i18n/index.ts";
+import { inlineScript } from "../lib/inline.ts";
 import { config } from "../lib/site.ts";
-import themeInit from "../scripts/theme-init.js?raw";
+import themeInitSource from "../scripts/theme-init.js?raw";
 
 type Props = {
   title: string;
@@ -65,7 +66,7 @@ const isCurrent = (page: string) => (page === "/" ? path === "/" : path.startsWi
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     {jsonLd && <script type="application/ld+json" set:html={jsonForScript(jsonLd)} />}
     {/* Runs before paint: saved theme (light by default) and the "js" class. Its CSP hash is in astro.config.mjs. */}
-    <script is:inline set:html={themeInit} />
+    <script is:inline set:html={inlineScript("theme-init", themeInitSource)} />
     {/* Page-specific early work, before the stylesheet (which Astro links last): a script here does not wait for it. */}
     <slot name="head" />
     {/* Links load the next page in the background and swap it in: no reload, no blank flash, no animation
