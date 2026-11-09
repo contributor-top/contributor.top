@@ -1,0 +1,12 @@
+---
+// Renders its content with the {{names}} of rule numbers filled in from config.yml (lib/rule-numbers.ts), in the
+// page's language. The content is trusted Markdown from the repository; only the numbers are inserted.
+import { i18n } from "../i18n/index.ts";
+import { fillNumbers, ruleNumbers } from "../lib/rule-numbers.ts";
+import { config } from "../lib/site.ts";
+
+const { number } = i18n(Astro.currentLocale);
+const html = await Astro.slots.render("default");
+---
+
+<Fragment set:html={fillNumbers(html, ruleNumbers(config), number)} />

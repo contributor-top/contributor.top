@@ -349,6 +349,24 @@ describe("site built from hostile data", () => {
     expect(list.itemListElement[0].position).toBe(1);
   });
 
+  it("states the rules of Methodology with the numbers the collector uses, in every language", () => {
+    const en = readFileSync(join(out, "methodology", "index.html"), "utf8");
+    expect(en).toContain("1,000 most-followed users");
+    expect(en).toContain("90% or more of the contributions are private");
+    expect(en).toContain("Public contributions are under 1% of the total");
+    expect(en).toContain("20,000 commits or more, at least 50 times as many as pull requests, issues and reviews");
+    expect(en).toContain("60% of them or more in one repository of their own with fewer than 10 stars");
+    expect(en).toContain("50% of the commits or more go to someone else");
+    expect(en).toContain("repository with 1,000 stars or more, or to any repository of an organization");
+    const de = readFileSync(join(out, "de", "methodology", "index.html"), "utf8");
+    expect(de).toContain("20.000 Commits oder mehr");
+    for (const page of documents().filter((p) => p.includes("methodology"))) {
+      const html = readFileSync(page, "utf8");
+      // The article only: the inline scripts of every page contain "}}".
+      expect(html.slice(html.indexOf("<article>"), html.indexOf("</article>")), page).not.toMatch(/[{][{]|[}][}]/);
+    }
+  });
+
   it("builds every page in every language and the row fragments once", () => {
     const html = readFileSync(join(out, "ru", "cote_divoire", "index.html"), "utf8");
     expect(html).toContain('<html lang="ru"');

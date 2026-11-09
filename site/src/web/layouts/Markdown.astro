@@ -2,6 +2,7 @@
 // Methodology and Privacy: the page's Markdown in this language (i18n/docs/<language>/<doc>.md), English where a
 // translation is missing. A translation says that the English text applies and where to report a mistake.
 import { getEntry, render } from "astro:content";
+import RuleNumbers from "../components/RuleNumbers.astro";
 import { DEFAULT_LANG, i18n, parts, prefixOf } from "../i18n/index.ts";
 import { config } from "../lib/site.ts";
 import Base from "./Base.astro";
@@ -29,7 +30,7 @@ const report = `https://github.com/${config.site.repo}/issues/new?template=trans
     )
   }
   <article>
-    <Content />
+    <RuleNumbers><Content /></RuleNumbers>
   </article>
   {
     translated && (
@@ -78,5 +79,35 @@ const report = `https://github.com/${config.site.repo}/issues/new?template=trans
     border-radius: 4px;
     padding: 0 4px;
     font-size: 0.92em;
+  }
+  /* The rules table of Methodology: read row by row, so rows are ruled and cells start at the top. */
+  article :global(table) {
+    width: 100%;
+    margin: 16px 0;
+    border-collapse: collapse;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  article :global(:is(th, td)) {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+  article :global(th) {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  article :global(td:first-child) {
+    font-weight: 600;
+  }
+  @media (max-width: 560px) {
+    article :global(table) {
+      font-size: 13px;
+    }
+    article :global(:is(th, td)) {
+      padding: 6px 6px 6px 0;
+    }
   }
 </style>
