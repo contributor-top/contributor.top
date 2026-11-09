@@ -16,7 +16,7 @@ export type FakeUser = {
   reviews?: number;
   org?: boolean;
   /** Commits per repository, busiest first (commitContributionsByRepository). */
-  repos?: { owner: string; stars: number; commits: number }[];
+  repos?: { owner: string; stars: number; commits: number; orgTopStars?: number }[];
   /** The repository request for this user always fails with a 502. */
   reposFail?: boolean;
 };
@@ -136,7 +136,13 @@ export class FakeGitHub {
       contributionsCollection: {
         commitContributionsByRepository: (u.repos ?? []).map((r) => ({
           contributions: { totalCount: r.commits },
-          repository: { stargazerCount: r.stars, owner: { login: r.owner } },
+          repository: {
+            stargazerCount: r.stars,
+            owner: {
+              login: r.owner,
+              ...(r.orgTopStars === undefined ? {} : { repositories: { nodes: [{ stargazerCount: r.orgTopStars }] } }),
+            },
+          },
         })),
       },
     };
