@@ -10,7 +10,7 @@ ranking:
   default_top: 100 # size selected by default
   consider: 1000 # most-followed candidates examined per country
   world_top_n: 512
-  private_flag_share: 0.9 # in "all contributions", warn when this share of contributions is private
+  private_flag_share: 0.95 # in "all contributions", warn when this share of contributions is private
   # In "all contributions", leave out people whose public contributions are less than this share of the total. Private
   # activity is one number GitHub gives without any detail, so it needs some public work to stand on. Measured Nov 2026
   # over the top 10 of 150 countries: 72 of the 1500 places had no public contributions at all and 462 had less than 1%,

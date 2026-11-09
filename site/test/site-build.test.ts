@@ -76,7 +76,7 @@ beforeAll(() => {
   // Pull requests enough for the ratio, but three quarters of the commits in one repository of its own nobody stars;
   // almost everything else it does is private.
   Object.assign(ci.breakdown, {
-    14: { commits: 40000, prs: 2000, issues: 0, reviews: 0, private: 400000, quiet: 30000, popular: 0 },
+    14: { commits: 40000, prs: 2000, issues: 0, reviews: 0, private: 900000, quiet: 30000, popular: 0 },
   });
   // A maintainer committing straight to a widely used project: few pull requests, but not automated.
   Object.assign(ci.breakdown, {
@@ -217,7 +217,7 @@ describe("site built from hostile data", () => {
     );
     expect(quietRow).not.toContain("cannot be checked");
     const all = readFileSync(join(out, "cote_divoire", "all", "index.html"), "utf8");
-    expect(all.slice(all.indexOf('id="quiet-farm"'))).toContain("90% private, cannot be checked (marked from 90%).");
+    expect(all.slice(all.indexOf('id="quiet-farm"'))).toContain("95% private, cannot be checked (marked from 95%).");
     // The browser gets the numbers to put the message into the page's language.
     const ru = readFileSync(join(out, "ru", "cote_divoire", "index.html"), "utf8");
     const big = new Intl.NumberFormat("ru").format(900000);
@@ -350,7 +350,7 @@ describe("site built from hostile data", () => {
   it("states the rules of Methodology with the numbers the collector uses, in every language", () => {
     const en = readFileSync(join(out, "methodology", "index.html"), "utf8");
     expect(en).toContain("1,000 most-followed users");
-    expect(en).toContain("90% or more of the contributions are private");
+    expect(en).toContain("95% or more of the contributions are private");
     expect(en).toContain("Public contributions are under 1% of the total");
     expect(en).toContain("20,000 commits or more, at least 50 times as many as pull requests, issues and reviews");
     expect(en).toContain("60% of them or more in one repository of their own with fewer than 10 stars");
