@@ -77,8 +77,9 @@
   "row.issues": { "other": "공개 이슈 {n}개" },
   "row.reviews": { "other": "공개 리뷰 {n}개" },
   "row.private": { "other": "비공개 기여 {n}개" },
-  "row.privateShare": "{n}% 비공개",
-  "row.automated": "커밋이 자동화된 것으로 보여 세계 순위에서 제외됨",
+  "row.privateShare": "기여의 {n}%가 비공개라 확인할 수 없음. {limit}%부터 표시.",
+  "row.automated.ratio": "자동화된 것으로 보여 세계 순위에서 제외됨. 커밋: {commits}, 풀 리퀘스트·이슈·리뷰: {others}. 비율 {ratio} 대 1, {limit} 대 1부터 표시.",
+  "row.automated.quiet": "자동화된 것으로 보여 세계 순위에서 제외됨. 커밋: {commits}, 그중 {share}%가 별 {stars}개 미만인 본인 저장소 하나에 집중. {limit}%부터 표시.",
 
   "badge.title": "contributor.top 배지 받기",
   "badge.description": "내 국가에서 가장 활발한 GitHub 사용자 중 내 순위를 보여 주는 배지를 GitHub 프로필 README에 추가하세요.",

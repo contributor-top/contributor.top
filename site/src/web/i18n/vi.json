@@ -77,8 +77,9 @@
   "row.issues": { "other": "{n} issue công khai" },
   "row.reviews": { "other": "{n} review công khai" },
   "row.private": { "other": "{n} đóng góp riêng tư" },
-  "row.privateShare": "{n}% riêng tư",
-  "row.automated": "Commit có thể là tự động, không tính vào bảng xếp hạng thế giới",
+  "row.privateShare": "{n}% đóng góp là riêng tư và không thể kiểm chứng; đánh dấu từ {limit}%.",
+  "row.automated.ratio": "Có thể là tự động, không tính vào bảng xếp hạng thế giới. Commit: {commits}; pull request, issue và review: {others}; tỷ lệ {ratio}:1, đánh dấu từ {limit}:1.",
+  "row.automated.quiet": "Có thể là tự động, không tính vào bảng xếp hạng thế giới. Commit: {commits}; {share}% trong số đó nằm ở một kho của chính họ có ít hơn {stars} sao, đánh dấu từ {limit}%.",
 
   "badge.title": "Nhận huy hiệu contributor.top của bạn",
   "badge.description": "Thêm vào README hồ sơ GitHub một huy hiệu thể hiện thứ hạng của bạn trong số những người dùng GitHub tích cực nhất ở quốc gia của bạn.",

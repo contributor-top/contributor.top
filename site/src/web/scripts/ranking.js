@@ -28,10 +28,17 @@
       .map(Number)
       .filter((n) => n >= 0);
 
+  /** A message with its {placeholders} replaced by the numbers, written the language's way. */
+  const fill = (text, vars, number) => {
+    let label = text;
+    for (const [name, value] of Object.entries(vars)) label = label.replaceAll(`{${name}}`, number.format(value));
+    return label;
+  };
+
   /**
    * Puts rows into the page's language. Fragments are built once, in English, for every language; a page in another
    * one says how to translate them (data-i18n: its locale, the row messages and the country names). A number alone
-   * (data-n) is shown in the language; a tooltip (data-k) gets its message.
+   * (data-n) is shown in the language; a tooltip (data-k) gets its message, with data-n and the numbers of data-v.
    */
   const translate = (words, rows) => {
     const number = new Intl.NumberFormat(words.locale);
@@ -42,7 +49,7 @@
       if (!forms) el.textContent = number.format(n);
       else {
         const text = typeof forms === "string" ? forms : (forms[plural.select(n)] ?? forms.other);
-        el.setAttribute("aria-label", text.replace("{n}", number.format(n)));
+        el.setAttribute("aria-label", fill(text, { n, ...JSON.parse(el.dataset.v ?? "{}") }, number));
       }
     }
     for (const el of rows.querySelectorAll(".country")) {

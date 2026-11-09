@@ -3,7 +3,7 @@
 // loaded when asked for, built once in English for every language). Every number and tooltip carries data-n (the
 // number) and data-k (its message), so ranking.js can put an inserted fragment into the page's language.
 import type { CountryData, Row } from "../../collector/country-data.ts";
-import { compactNumber, isLikelyAutomated, isMostlyPrivate, privateShare } from "../../collector/flags.ts";
+import { automatedReason, compactNumber, isMostlyPrivate, otherActivity, privateShare } from "../../collector/flags.ts";
 import type { Tab } from "../../collector/rank.ts";
 import { i18n } from "../i18n/index.ts";
 import { config, countryByTitle } from "../lib/site.ts";
@@ -30,6 +30,28 @@ const stats = (b: CountryData["breakdown"][string]) =>
     ["private", b.private, "row.private"],
   ] as const;
 const publicOf = (b: CountryData["breakdown"][string]) => b.commits + b.prs + b.issues + b.reviews;
+const rule = config.ranking.automated;
+const privateLimit = Math.round(config.ranking.private_flag_share * 100);
+/** Why a row is marked automated: the rule's message and its numbers, floored so they never overstate. */
+const automatedNote = (b: CountryData["breakdown"][string]) => {
+  const reason = automatedReason(b, rule);
+  if (reason === null) return null;
+  const vars =
+    reason === "ratio"
+      ? {
+          commits: b.commits,
+          others: otherActivity(b),
+          ratio: Math.floor(b.commits / Math.max(1, otherActivity(b))),
+          limit: rule.ratio,
+        }
+      : {
+          commits: b.commits,
+          share: Math.floor(((b.quiet ?? 0) / b.commits) * 100),
+          stars: rule.quiet_stars,
+          limit: Math.round(rule.quiet_share * 100),
+        };
+  return { key: `row.automated.${reason}` as const, vars };
+};
 const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : rank === 3 ? "bronze" : "");
 ---
 
@@ -38,9 +60,9 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
     const b = breakdown?.[String(row.id)];
     const flagged =
       tab === "all" && b !== undefined && isMostlyPrivate(publicOf(b), b.private, config.ranking.private_flag_share);
-    const share = flagged ? Math.round(privateShare(publicOf(b), b.private) * 100) : 0;
+    const share = flagged ? Math.floor(privateShare(publicOf(b), b.private) * 100) : 0;
     // Commit farms stay in country rankings, marked; the world ranking leaves them out.
-    const automated = b !== undefined && isLikelyAutomated(b, config.ranking.automated);
+    const automated = b === undefined ? null : automatedNote(b);
     return (
       <tr id={row.login.toLowerCase()} data-rank={row.rank} class={medal(row.rank) ? `podium ${medal(row.rank)}-row` : undefined}>
         <td class={`r ${medal(row.rank)}`}>{row.rank}</td>
@@ -70,7 +92,15 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
         </td>
         <td class="c">
           {automated && (
-            <span class="flag tip-end" tabindex="0" data-tip data-k="row.automated" aria-label={t("row.automated")} role="img">
+            <span
+              class="flag tip-end"
+              tabindex="0"
+              data-tip
+              data-k={automated.key}
+              data-v={JSON.stringify(automated.vars)}
+              aria-label={t(automated.key, automated.vars)}
+              role="img"
+            >
               <BotIcon />
             </span>
           )}
@@ -81,7 +111,8 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
               data-tip
               data-k="row.privateShare"
               data-n={share}
-              aria-label={t("row.privateShare", { n: share })}
+              data-v={JSON.stringify({ limit: privateLimit })}
+              aria-label={t("row.privateShare", { n: share, limit: privateLimit })}
               role="img"
             >
               <LockIcon />

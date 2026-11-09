@@ -38,13 +38,20 @@ export type AutomatedRule = {
  * - but never for someone whose commits mostly go to another owner's widely used project (a maintainer of FreeBSD
  *   ports or Liferay commits directly, without pull requests).
  * Without the repository numbers (not collected yet, or the request failed) only the first rule applies.
+ * Returns which rule marks the account ("ratio" or "quiet"), or null when none does.
  */
-export function isLikelyAutomated(a: Activity, rule: AutomatedRule): boolean {
-  if (a.commits < rule.min_commits) return false;
-  if (a.popular !== undefined && a.popular >= rule.popular_share * a.commits) return false;
-  if (a.commits >= rule.ratio * Math.max(1, a.prs + a.issues + a.reviews)) return true;
-  return a.quiet !== undefined && a.quiet >= rule.quiet_share * a.commits;
+export function automatedReason(a: Activity, rule: AutomatedRule): AutomatedReason | null {
+  if (a.commits < rule.min_commits) return null;
+  if (a.popular !== undefined && a.popular >= rule.popular_share * a.commits) return null;
+  if (a.commits >= rule.ratio * Math.max(1, otherActivity(a))) return "ratio";
+  return a.quiet !== undefined && a.quiet >= rule.quiet_share * a.commits ? "quiet" : null;
 }
+export type AutomatedReason = "ratio" | "quiet";
+
+export const isLikelyAutomated = (a: Activity, rule: AutomatedRule): boolean => automatedReason(a, rule) !== null;
+
+/** Pull requests, issues and reviews together: the activity a commit farm lacks. */
+export const otherActivity = (a: Activity): number => a.prs + a.issues + a.reviews;
 
 const UNITS: readonly [number, string][] = [
   [1_000_000_000, "B"],
