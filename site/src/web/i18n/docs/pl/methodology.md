@@ -28,13 +28,13 @@ Pod każdym imieniem: `C` publiczne commity, `PR` pull requesty, `IS` issue, `RV
 
 Kilka reguł, jednakowych dla wszystkich, sprawia, że o rankingu nie decydują liczby, których nie da się sprawdzić albo które wygenerował skrypt. Każde oznaczenie po najechaniu kursorem pokazuje regułę, która je nadała, i liczby, do których ją zastosowano.
 
-| Reguła                   | Kiedy                                                                                                                                                                                    | Co się dzieje                                                               |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| Prawie wszystko prywatne | {{private_flag}}% kontrybucji lub więcej jest prywatnych                                                                                                                                 | Kłódka obok sumy w **Wszystkie kontrybucje**                                |
-| Prawie nic publicznego   | Publiczne kontrybucje to mniej niż {{min_public}}% sumy                                                                                                                                  | Poza **Wszystkie kontrybucje**, nadal w pozostałych rankingach              |
-| Farma commitów           | {{min_commits}} commitów lub więcej, co najmniej {{ratio}} razy więcej niż pull requestów, issues i review razem                                                                         | Robot w rankingach krajów; poza rankingiem światowym i światowymi odznakami |
-| Jedno ciche repozytorium | {{min_commits}} commitów lub więcej, z czego {{quiet_share}}% lub więcej w jednym własnym repozytorium z liczbą gwiazdek poniżej {{quiet_stars}}                                         | Tak samo jak farma commitów                                                 |
-| Wyjątek                  | {{popular_share}}% commitów lub więcej trafia do cudzego repozytorium z co najmniej {{popular_stars}} gwiazdkami albo do dowolnego repozytorium organizacji, która ma takie repozytorium | Nigdy nie oznaczamy jako zautomatyzowane                                    |
+| Reguła                   | Kiedy                                                                                                                                                                                    | Co się dzieje                                                  |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Prawie wszystko prywatne | {{private_flag}}% kontrybucji lub więcej jest prywatnych                                                                                                                                 | Kłódka obok sumy w **Wszystkie kontrybucje**                   |
+| Prawie nic publicznego   | Publiczne kontrybucje to mniej niż {{min_public}}% sumy                                                                                                                                  | Poza **Wszystkie kontrybucje**, nadal w pozostałych rankingach |
+| Farma commitów           | {{min_commits}} commitów lub więcej, co najmniej {{ratio}} razy więcej niż pull requestów, issues i review razem                                                                         | Poza wszystkimi rankingami                                     |
+| Jedno ciche repozytorium | {{min_commits}} commitów lub więcej, z czego {{quiet_share}}% lub więcej w jednym własnym repozytorium z liczbą gwiazdek poniżej {{quiet_stars}}                                         | Tak samo jak farma commitów                                    |
+| Wyjątek                  | {{popular_share}}% commitów lub więcej trafia do cudzego repozytorium z co najmniej {{popular_stars}} gwiazdkami albo do dowolnego repozytorium organizacji, która ma takie repozytorium | Nigdy nie oznaczamy jako zautomatyzowane                       |
 
 GitHub podaje prywatną aktywność jako jedną liczbę, której nie da się rozbić ani zweryfikować, więc liczy się ona tylko tam, gdzie wspiera ją praca publiczna; sama kłódka nikogo nie wyklucza, bo wiele osób pracuje nad zamkniętym kodem. Osoby commitujące bezpośrednio do szeroko używanego projektu, jak często robią opiekunowie dużych projektów społecznościowych i dystrybucji Linuksa, nie są uznawane za automaty: tylko sam projekt może dać im prawo zapisu.
 
@@ -47,6 +47,7 @@ Rankingi kierują się wyłącznie tymi regułami i kolejnością opisaną wyże
 - Lokalizacja w twoim profilu nie pasuje do żadnej nazwy z presetu twojego kraju. Lokalizacja to dowolny tekst: dopisz swoje miasto lub kraj albo otwórz pull request do presetu.
 - Nie należysz do {{consider}} najczęściej obserwowanych użytkowników w twoim kraju.
 - Prawie wszystkie twoje kontrybucje są prywatne (publiczne poniżej {{min_public}}%): wtedy nie ma cię tylko w **Wszystkie kontrybucje**.
+- Twoje commity wyglądają na zautomatyzowane (zob. reguły powyżej): takie konta nie trafiają do żadnego rankingu.
 - Twoje kontrybucje są prywatne i nie są pokazywane w profilu.
 - Na twoją prośbę usunęliśmy cię z rankingów (zobacz [Prywatność i rezygnacja](/pl/privacy/)).
 

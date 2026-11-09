@@ -28,13 +28,13 @@ Di bawah setiap nama: `C` commit publik, `PR` pull request, `IS` issue, `RV` rev
 
 Beberapa aturan, sama untuk semua orang, mencegah angka yang tidak bisa diperiksa atau yang dihasilkan skrip menentukan peringkat. Setiap tanda di peringkat menampilkan aturan di baliknya dan angka yang dipakai saat kursor diarahkan ke tanda itu.
 
-| Aturan                       | Kapan                                                                                                                                                                                           | Akibatnya                                                                |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| Hampir semuanya privat       | {{private_flag}}% kontribusi atau lebih bersifat privat                                                                                                                                         | Gembok di samping total di **Semua kontribusi**                          |
-| Hampir tidak ada yang publik | Kontribusi publik kurang dari {{min_public}}% dari total                                                                                                                                        | Tidak masuk **Semua kontribusi**, tetap ada di peringkat lain            |
-| Ladang commit                | {{min_commits}} commit atau lebih, setidaknya {{ratio}} kali jumlah pull request, issue, dan review sekaligus                                                                                   | Robot di peringkat negara; tidak masuk peringkat dunia dan lencana dunia |
-| Satu repositori sepi         | {{min_commits}} commit atau lebih, {{quiet_share}}% atau lebih di satu repositori milik sendiri dengan kurang dari {{quiet_stars}} bintang                                                      | Sama seperti ladang commit                                               |
-| Pengecualian                 | {{popular_share}}% commit atau lebih masuk ke repositori orang lain dengan {{popular_stars}} bintang atau lebih, atau ke repositori mana pun milik organisasi yang punya repositori seperti itu | Tidak pernah ditandai otomatis                                           |
+| Aturan                       | Kapan                                                                                                                                                                                           | Akibatnya                                                     |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Hampir semuanya privat       | {{private_flag}}% kontribusi atau lebih bersifat privat                                                                                                                                         | Gembok di samping total di **Semua kontribusi**               |
+| Hampir tidak ada yang publik | Kontribusi publik kurang dari {{min_public}}% dari total                                                                                                                                        | Tidak masuk **Semua kontribusi**, tetap ada di peringkat lain |
+| Ladang commit                | {{min_commits}} commit atau lebih, setidaknya {{ratio}} kali jumlah pull request, issue, dan review sekaligus                                                                                   | Tidak masuk peringkat mana pun                                |
+| Satu repositori sepi         | {{min_commits}} commit atau lebih, {{quiet_share}}% atau lebih di satu repositori milik sendiri dengan kurang dari {{quiet_stars}} bintang                                                      | Sama seperti ladang commit                                    |
+| Pengecualian                 | {{popular_share}}% commit atau lebih masuk ke repositori orang lain dengan {{popular_stars}} bintang atau lebih, atau ke repositori mana pun milik organisasi yang punya repositori seperti itu | Tidak pernah ditandai otomatis                                |
 
 GitHub melaporkan aktivitas privat sebagai satu angka yang tidak bisa dipecah atau diverifikasi, jadi angka itu hanya dihitung jika didukung kerja publik; gembok saja tidak mengeluarkan siapa pun, karena banyak orang bekerja di kode tertutup. Orang yang melakukan commit langsung ke proyek yang banyak dipakai, seperti yang sering dilakukan pengelola proyek komunitas besar dan distribusi Linux, tidak dianggap otomatis: hanya proyek itu sendiri yang bisa memberi mereka akses tulis.
 
@@ -47,6 +47,7 @@ Peringkat hanya mengikuti aturan ini dan urutan di atas; tidak ada yang dipindah
 - Lokasi profil Anda tidak cocok dengan string mana pun di preset negara Anda. Lokasi adalah teks bebas: tambahkan kota atau negara Anda, atau buka pull request ke preset tersebut.
 - Anda tidak termasuk {{consider}} pengguna dengan pengikut terbanyak di negara Anda.
 - Hampir semua kontribusi Anda privat (kurang dari {{min_public}}% publik): Anda hanya tidak masuk **Semua kontribusi**.
+- Commit Anda tampak otomatis (lihat aturan di atas): akun seperti itu tidak masuk peringkat mana pun.
 - Kontribusi Anda privat dan tidak ditampilkan di profil.
 - Anda meminta untuk dihapus (lihat [Privasi dan keluar dari peringkat](/id/privacy/)).
 

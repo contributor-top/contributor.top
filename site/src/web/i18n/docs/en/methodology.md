@@ -28,13 +28,13 @@ Under every name: `C` public commits, `PR` pull requests, `IS` issues, `RV` revi
 
 A few rules, the same for everyone, keep numbers that cannot be checked, or that a script produced, from deciding a ranking. Every mark in a ranking shows on hover the rule behind it and the numbers it was applied to.
 
-| Rule                  | When                                                                                                                                                                 | What happens                                                                    |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Mostly private        | {{private_flag}}% or more of the contributions are private                                                                                                           | A lock next to the total in **All contributions**                               |
-| Almost nothing public | Public contributions are under {{min_public}}% of the total                                                                                                          | Left out of **All contributions**, still in the other rankings                  |
-| Commit farm           | {{min_commits}} commits or more, at least {{ratio}} times as many as pull requests, issues and reviews together                                                      | A robot in country rankings; left out of the world ranking and the world badges |
-| One quiet repository  | {{min_commits}} commits or more, {{quiet_share}}% of them or more in one repository of their own with fewer than {{quiet_stars}} stars                               | The same as a commit farm                                                       |
-| Exception             | {{popular_share}}% of the commits or more go to someone else's repository with {{popular_stars}} stars or more, or to any repository of an organization that has one | Never marked as automated                                                       |
+| Rule                  | When                                                                                                                                                                 | What happens                                                   |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Mostly private        | {{private_flag}}% or more of the contributions are private                                                                                                           | A lock next to the total in **All contributions**              |
+| Almost nothing public | Public contributions are under {{min_public}}% of the total                                                                                                          | Left out of **All contributions**, still in the other rankings |
+| Commit farm           | {{min_commits}} commits or more, at least {{ratio}} times as many as pull requests, issues and reviews together                                                      | Left out of every ranking                                      |
+| One quiet repository  | {{min_commits}} commits or more, {{quiet_share}}% of them or more in one repository of their own with fewer than {{quiet_stars}} stars                               | The same as a commit farm                                      |
+| Exception             | {{popular_share}}% of the commits or more go to someone else's repository with {{popular_stars}} stars or more, or to any repository of an organization that has one | Never marked as automated                                      |
 
 GitHub reports private activity as a single number that cannot be split or verified, so it counts only where public work backs it up; a lock alone removes no one, as many people work on closed-source code. People who commit straight to a widely used project, as maintainers of large community projects and Linux distributions often do, are not counted as automated: only the project can let them commit there.
 
@@ -47,6 +47,7 @@ The rankings follow only these rules and the order above; no one is moved by han
 - Your profile location does not match any string in your country's preset. Location is free text: add your city or country, or open a pull request to the preset.
 - You are not among the {{consider}} most-followed users in your country.
 - Almost all your contributions are private (under {{min_public}}% public): you are left out of **All contributions** only.
+- Your commits look automated (see the rules above): such accounts are in no ranking.
 - Your contributions are private and not shown on your profile.
 - You asked to be removed (see [Privacy and opt-out](/privacy/)).
 

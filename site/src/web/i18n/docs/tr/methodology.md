@@ -28,13 +28,13 @@ Her ismin altında: `C` herkese açık commit'ler, `PR` pull request'ler, `IS` i
 
 Herkes için aynı olan birkaç kural, doğrulanamayan ya da bir betiğin ürettiği sayıların sıralamayı belirlemesini engeller. Sıralamadaki her işaret, üzerine gelindiğinde arkasındaki kuralı ve uygulandığı sayıları gösterir.
 
-| Kural                                | Ne zaman                                                                                                                                                                   | Sonuç                                                                   |
-| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Neredeyse tamamı özel                | Katkıların %{{private_flag}} veya fazlası özel                                                                                                                             | **Tüm katkılar** sıralamasında toplamın yanında kilit                   |
-| Neredeyse hiç herkese açık katkı yok | Herkese açık katkılar toplamın %{{min_public}} altında                                                                                                                     | **Tüm katkılar** dışında kalır; diğer sıralamalarda yer alır            |
-| Commit çiftliği                      | En az {{min_commits}} commit ve pull request, issue ile incelemelerin toplamının en az {{ratio}} katı                                                                      | Ülke sıralamalarında robot; dünya sıralaması ve dünya rozetleri dışında |
-| Tek sessiz depo                      | En az {{min_commits}} commit ve bunların %{{quiet_share}} veya fazlası yıldızı {{quiet_stars}} altında olan tek bir kendi deposunda                                        | Commit çiftliğiyle aynı                                                 |
-| İstisna                              | Commit'lerin %{{popular_share}} veya fazlası en az {{popular_stars}} yıldızlı başka birinin deposuna ya da böyle bir deposu olan bir kuruluşun herhangi bir deposuna gider | Asla otomatik olarak işaretlenmez                                       |
+| Kural                                | Ne zaman                                                                                                                                                                   | Sonuç                                                        |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Neredeyse tamamı özel                | Katkıların %{{private_flag}} veya fazlası özel                                                                                                                             | **Tüm katkılar** sıralamasında toplamın yanında kilit        |
+| Neredeyse hiç herkese açık katkı yok | Herkese açık katkılar toplamın %{{min_public}} altında                                                                                                                     | **Tüm katkılar** dışında kalır; diğer sıralamalarda yer alır |
+| Commit çiftliği                      | En az {{min_commits}} commit ve pull request, issue ile incelemelerin toplamının en az {{ratio}} katı                                                                      | Hiçbir sıralamada yer almaz                                  |
+| Tek sessiz depo                      | En az {{min_commits}} commit ve bunların %{{quiet_share}} veya fazlası yıldızı {{quiet_stars}} altında olan tek bir kendi deposunda                                        | Commit çiftliğiyle aynı                                      |
+| İstisna                              | Commit'lerin %{{popular_share}} veya fazlası en az {{popular_stars}} yıldızlı başka birinin deposuna ya da böyle bir deposu olan bir kuruluşun herhangi bir deposuna gider | Asla otomatik olarak işaretlenmez                            |
 
 GitHub özel etkinliği bölünemeyen ve doğrulanamayan tek bir sayı olarak bildirir; bu yüzden yalnızca herkese açık çalışma onu desteklediğinde sayılır. Pek çok kişi kapalı kaynak kod üzerinde çalıştığından tek başına kilit kimseyi çıkarmaz. Büyük topluluk projelerinin ve Linux dağıtımlarının bakımcılarının sık yaptığı gibi yaygın kullanılan bir projeye doğrudan commit yapanlar otomatik sayılmaz: oraya commit yetkisini yalnızca projenin kendisi verebilir.
 
@@ -47,6 +47,7 @@ Sıralamalar yalnızca bu kurallara ve yukarıdaki sıralama düzenine uyar; kim
 - Profil konumunuz ülkenizin preset'indeki hiçbir ifadeyle eşleşmiyor. Konum serbest metindir: şehrinizi veya ülkenizi ekleyin ya da preset'e bir pull request açın.
 - Ülkenizde en çok takipçisi olan {{consider}} kullanıcı arasında değilsiniz.
 - Katkılarınızın neredeyse tamamı özel (herkese açık olanlar %{{min_public}} altında): bu durumda yalnızca **Tüm katkılar** sıralamasında yer almazsınız.
+- Commit'leriniz otomatik görünüyor (yukarıdaki kurallara bakın): bu tür hesaplar hiçbir sıralamada yer almaz.
 - Katkılarınız özel ve profilinizde gösterilmiyor.
 - Listeden çıkarılmayı istediniz (bkz. [Gizlilik ve listeden çıkma](/tr/privacy/)).
 

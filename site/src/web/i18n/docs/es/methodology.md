@@ -28,13 +28,13 @@ Debajo de cada nombre: `C` commits públicos, `PR` pull requests, `IS` issues, `
 
 Unas pocas reglas, iguales para todos, evitan que decidan un ranking los números que no se pueden comprobar o que ha generado un script. Cada marca muestra al pasar el cursor la regla que la produce y los números a los que se aplicó.
 
-| Regla                  | Cuándo                                                                                                                                                                   | Qué ocurre                                                                                |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
-| Casi todo privado      | El {{private_flag}} % o más de las contribuciones son privadas                                                                                                           | Un candado junto al total en **Todas las contribuciones**                                 |
-| Casi nada público      | Las contribuciones públicas no llegan al {{min_public}} % del total                                                                                                      | Fuera de **Todas las contribuciones**; sigue en los demás rankings                        |
-| Granja de commits      | {{min_commits}} commits o más, al menos {{ratio}} veces más que pull requests, issues y revisiones juntos                                                                | Un robot en los rankings por país; fuera del ranking mundial y de las insignias mundiales |
-| Un repositorio sin uso | {{min_commits}} commits o más, el {{quiet_share}} % o más en un único repositorio propio con menos de {{quiet_stars}} estrellas                                          | Lo mismo que una granja de commits                                                        |
-| Excepción              | El {{popular_share}} % de los commits o más va a un repositorio ajeno con {{popular_stars}} estrellas o más, o a cualquier repositorio de una organización que tenga uno | Nunca se marca como automatizado                                                          |
+| Regla                  | Cuándo                                                                                                                                                                   | Qué ocurre                                                         |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| Casi todo privado      | El {{private_flag}} % o más de las contribuciones son privadas                                                                                                           | Un candado junto al total en **Todas las contribuciones**          |
+| Casi nada público      | Las contribuciones públicas no llegan al {{min_public}} % del total                                                                                                      | Fuera de **Todas las contribuciones**; sigue en los demás rankings |
+| Granja de commits      | {{min_commits}} commits o más, al menos {{ratio}} veces más que pull requests, issues y revisiones juntos                                                                | Fuera de todos los rankings                                        |
+| Un repositorio sin uso | {{min_commits}} commits o más, el {{quiet_share}} % o más en un único repositorio propio con menos de {{quiet_stars}} estrellas                                          | Lo mismo que una granja de commits                                 |
+| Excepción              | El {{popular_share}} % de los commits o más va a un repositorio ajeno con {{popular_stars}} estrellas o más, o a cualquier repositorio de una organización que tenga uno | Nunca se marca como automatizado                                   |
 
 GitHub informa de la actividad privada como un único número que no se puede desglosar ni verificar, así que solo cuenta cuando la respalda trabajo público; un candado por sí solo no excluye a nadie, porque mucha gente trabaja en código cerrado. Quien hace commits directamente en un proyecto muy usado, como suelen hacer quienes mantienen grandes proyectos comunitarios y distribuciones de Linux, no se considera automatizado: solo el propio proyecto puede darle acceso de escritura.
 
@@ -47,6 +47,7 @@ Los rankings siguen solo estas reglas y el orden de arriba; nadie se mueve a man
 - La ubicación de tu perfil no coincide con ningún texto del preset de tu país. La ubicación es texto libre: añade tu ciudad o tu país, o abre un pull request al preset.
 - No estás entre los {{consider}} usuarios con más seguidores de tu país.
 - Casi todas tus contribuciones son privadas (menos del {{min_public}} % públicas): solo quedas fuera de **Todas las contribuciones**.
+- Tus commits parecen automatizados (ver las reglas de arriba): esas cuentas no aparecen en ningún ranking.
 - Tus contribuciones son privadas y no se muestran en tu perfil.
 - Pediste que te eliminaran (consulta [Privacidad y exclusión](/es/privacy/)).
 

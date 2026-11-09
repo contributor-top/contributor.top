@@ -16,8 +16,8 @@ ranking:
   # over the top 10 of 150 countries: 72 of the 1500 places had no public contributions at all and 462 had less than 1%,
   # among them accounts with one to three million private contributions a year.
   min_public_share: 0.01
-  # Likely automated commits, for accounts with at least `min_commits` a year (left out of the world ranking and the
-  # world badges, marked in country rankings):
+  # Likely automated commits, for accounts with at least `min_commits` a year (left out of every ranking, so they take
+  # no one's place; measured Nov 2026 they held 80 top-10 places in 51 countries, 37 of them first):
   # - a commit farm: at least `ratio` times as many commits as pull requests, issues and reviews together;
   # - or one repository of their own, with fewer than `quiet_stars` stars, holds at least `quiet_share` of the commits
   #   (farms that also open pull requests hide from the ratio);
