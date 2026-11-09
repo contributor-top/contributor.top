@@ -1,0 +1,144 @@
+---
+// A dropdown in the look of the language menu, for choices a <select> would draw in the browser's own style.
+// The button holds the value like a <select> (button.value, a "change" event); see choice.ts. The visible label
+// stays with the page: pass its id as `labelledby`.
+interface Props {
+  id: string;
+  labelledby: string;
+  /** [value, label] pairs, in order. */
+  options: readonly (readonly [string, string])[];
+  /** The value chosen at first; the first option when left out. */
+  value?: string;
+}
+
+const { id, labelledby, options, value = options[0]?.[0] ?? "" } = Astro.props;
+const list = `${id}-list`;
+---
+
+<div class="choice">
+  <button
+    type="button"
+    class="button"
+    id={id}
+    value={value}
+    role="combobox"
+    aria-haspopup="listbox"
+    aria-expanded="false"
+    aria-controls={list}
+    aria-labelledby={labelledby}
+    data-choice
+  >
+    <span class="stack">
+      {
+        options.map(([v, label]) => (
+          <span data-value={v} data-current={v === value ? "" : undefined}>
+            {label}
+          </span>
+        ))
+      }
+    </span>
+    <svg class="chevron" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+      <path d="M3.5 6 8 10.5 12.5 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+    </svg>
+  </button>
+  <ul class="list" id={list} role="listbox" aria-labelledby={labelledby} tabindex="-1" hidden>
+    {
+      options.map(([v, label]) => (
+        <li role="option" id={`${id}-${v}`} data-value={v} aria-selected={v === value ? "true" : "false"}>
+          {label}
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<script>
+  import { wireChoices } from "./choice.ts";
+
+  document.addEventListener("astro:page-load", wireChoices);
+</script>
+
+<style>
+  .choice {
+    position: relative;
+  }
+  .button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    font: inherit;
+    font-size: 14px;
+    text-align: start;
+    color: var(--fg);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 5px 10px;
+    cursor: pointer;
+    /* Its own border shows the press; the phone's tap flash would linger over it. */
+    -webkit-tap-highlight-color: transparent;
+  }
+  .button:hover,
+  .button[aria-expanded="true"] {
+    border-color: var(--muted);
+  }
+  .button:focus-visible {
+    border-radius: 6px;
+  }
+  /* Every label in one grid cell: the button is as wide as the longest, so picking another never resizes it. */
+  .stack {
+    display: grid;
+    flex: 1;
+  }
+  .stack > span {
+    grid-area: 1 / 1;
+    visibility: hidden;
+  }
+  .stack > [data-current] {
+    visibility: visible;
+  }
+  .chevron {
+    flex: none;
+    color: var(--muted);
+  }
+  /* The list of the language menu: as wide as the button, under it. */
+  .list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 20;
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    font-size: 14px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: 0 6px 16px #0000001f;
+  }
+  .list:focus {
+    outline: none;
+  }
+  [role="option"] {
+    padding: 3px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  [role="option"].active {
+    background: var(--surface);
+  }
+  [aria-selected="true"] {
+    font-weight: 600;
+  }
+  /* Fingers need taller rows than a mouse pointer. */
+  @media (pointer: coarse) {
+    .button {
+      padding: 8px 12px;
+    }
+    [role="option"] {
+      padding: 8px 10px;
+    }
+  }
+</style>

@@ -1,5 +1,6 @@
 ---
 import { BADGE_KINDS, badgeColor, WORLD_BADGE } from "../../collector/badges.ts";
+import Choice from "../components/Choice.astro";
 import { i18n, parts } from "../i18n/index.ts";
 import Base from "../layouts/Base.astro";
 import { SITE } from "../lib/site.ts";
@@ -7,7 +8,7 @@ import { SITE } from "../lib/site.ts";
 // The page speaks the visitor's language; the badges themselves (and their snippets) stay in English.
 const { t, href } = i18n(Astro.currentLocale);
 
-const styles = ["flat", "flat-square", "plastic", "for-the-badge", "social"];
+const styles = ["flat", "flat-square", "plastic", "for-the-badge", "social"].map((s) => [s, s] as const);
 const rankings = [
   ["public", t("tab.public")],
   ["all", t("tab.all")],
@@ -70,16 +71,12 @@ const PLACEHOLDER = t("badge.placeholder");
         <input id="login" autocomplete="off" spellcheck="false" placeholder={PLACEHOLDER} maxlength="39" />
       </div>
       <div class="field">
-        <label for="ranking">{t("badge.ranking")}</label>
-        <select id="ranking">
-          {rankings.map(([value, label]) => <option value={value}>{label}</option>)}
-        </select>
+        <label for="ranking" id="ranking-label">{t("badge.ranking")}</label>
+        <Choice id="ranking" labelledby="ranking-label" options={rankings} />
       </div>
       <div class="field">
-        <label for="style">{t("badge.style")}</label>
-        <select id="style">
-          {styles.map((s) => <option value={s}>{s}</option>)}
-        </select>
+        <label for="style" id="style-label">{t("badge.style")}</label>
+        <Choice id="style" labelledby="style-label" options={styles} />
       </div>
     </form>
 
@@ -109,13 +106,14 @@ const PLACEHOLDER = t("badge.placeholder");
 
   <script>
     import { LOGIN } from "../../collector/patterns.ts";
+    import { choose } from "../components/choice.ts";
 
     // Runs on the first load and after every client-side navigation (the page is swapped, not reloaded).
     function init(): void {
       const area = document.getElementById("badge-area");
       const login = document.getElementById("login") as HTMLInputElement | null;
-      const ranking = document.getElementById("ranking") as HTMLSelectElement | null;
-      const style = document.getElementById("style") as HTMLSelectElement | null;
+      const ranking = document.getElementById("ranking") as HTMLButtonElement | null;
+      const style = document.getElementById("style") as HTMLButtonElement | null;
       const md = document.getElementById("md");
       const html = document.getElementById("html");
       if (area && login && ranking && style && md && html) {
@@ -125,22 +123,19 @@ const PLACEHOLDER = t("badge.placeholder");
         const kinds: Record<string, { suffix: string; label: string; place: string }> = JSON.parse(
           area.dataset["kinds"] ?? "{}",
         );
-        const STYLES = [...style.options].map((o) => o.value);
-        const RANKINGS = [...ranking.options].map((o) => o.value);
-
         const params = new URLSearchParams(location.search);
         const fromUrl = params.get("login");
         if (fromUrl && LOGIN.test(fromUrl)) login.value = fromUrl;
-        const styleFromUrl = params.get("style");
-        if (styleFromUrl && STYLES.includes(styleFromUrl)) style.value = styleFromUrl;
+        // choose() takes only one of the choice's own options and ignores anything else.
+        choose(style, params.get("style") ?? "");
         // "three" was the "all of them" choice before the world badge; old links still work.
         const rankingFromUrl = params.get("ranking") === "three" ? "every" : params.get("ranking");
-        if (rankingFromUrl && RANKINGS.includes(rankingFromUrl)) ranking.value = rankingFromUrl;
+        choose(ranking, rankingFromUrl ?? "");
 
         const render = () => {
           const raw = login.value.trim();
           const name = LOGIN.test(raw) ? raw.toLowerCase() : placeholder;
-          // A <select> only ever holds one of its own options.
+          // A choice only ever holds one of its own options.
           const chosen = style.value;
           const which = ranking.value;
           area.dataset["style"] = chosen;
@@ -215,7 +210,6 @@ const PLACEHOLDER = t("badge.placeholder");
     font-weight: 600;
   }
   input,
-  select,
   button {
     font: inherit;
     font-size: 14px;
@@ -231,6 +225,27 @@ const PLACEHOLDER = t("badge.placeholder");
   }
   button:hover {
     border-color: var(--muted);
+  }
+  /* As tall as the choices next to it on a touch screen. */
+  @media (pointer: coarse) {
+    input {
+      padding: 8px 12px;
+    }
+  }
+  /* Phones: the login on a row of its own, the ranking and the style sharing the row under it. */
+  @media (max-width: 560px) {
+    .field {
+      flex: 1 1 120px;
+    }
+    .field.grow {
+      flex-basis: 100%;
+    }
+  }
+  /* The narrowest phones: half a row would wrap a long ranking name, so each field takes a row. */
+  @media (max-width: 359px) {
+    .field {
+      flex-basis: 100%;
+    }
   }
   .h {
     font-size: 14px;
