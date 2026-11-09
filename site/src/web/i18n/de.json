@@ -79,9 +79,9 @@
   "row.issues": { "one": "{n} öffentliches Issue", "other": "{n} öffentliche Issues" },
   "row.reviews": { "one": "{n} öffentliches Review", "other": "{n} öffentliche Reviews" },
   "row.private": { "one": "{n} privater Beitrag", "other": "{n} private Beiträge" },
-  "row.privateShare": "{n} % der Beiträge sind privat und nicht überprüfbar; markiert ab {limit} %.",
-  "row.automated.ratio": "Wahrscheinlich automatisiert, nicht im Weltranking. Commits: {commits}; Pull Requests, Issues und Reviews: {others}; das ist {ratio} zu 1, markiert ab {limit} zu 1.",
-  "row.automated.quiet": "Wahrscheinlich automatisiert, nicht im Weltranking. Commits: {commits}; davon {share} % in einem eigenen Repository mit weniger als {stars} Sternen, markiert ab {limit} %.",
+  "row.privateShare": "{n} % privat, nicht überprüfbar (markiert ab {limit} %).",
+  "row.automated.ratio": "Wahrscheinlich automatisiert: {ratio} Commits pro Pull Request, Issue oder Review (Grenze {limit}). Nicht im Weltranking.",
+  "row.automated.quiet": "Wahrscheinlich automatisiert: {share} % der Commits in einem eigenen Repository mit unter {stars} Sternen (Grenze {limit} %). Nicht im Weltranking.",
 
   "badge.title": "Hol dir dein contributor.top-Badge",
   "badge.description": "Füge deinem GitHub-Profil-README ein Badge mit deinem Rang unter den aktivsten GitHub-Nutzern deines Landes hinzu.",

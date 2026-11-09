@@ -77,9 +77,9 @@
   "row.issues": { "other": "{n} 个公开议题" },
   "row.reviews": { "other": "{n} 次公开审查" },
   "row.private": { "other": "{n} 次私有贡献" },
-  "row.privateShare": "{n}% 的贡献为私有，无法核实；达到 {limit}% 即标记。",
-  "row.automated.ratio": "可能是自动化提交，不计入全球排名。提交：{commits}；拉取请求、议题和审查：{others}；比例为 {ratio} 比 1，达到 {limit} 比 1 即标记。",
-  "row.automated.quiet": "可能是自动化提交，不计入全球排名。提交：{commits}；其中 {share}% 集中在自己一个星标少于 {stars} 的仓库，达到 {limit}% 即标记。",
+  "row.privateShare": "{n}% 为私有，无法核实（达到 {limit}% 即标记）。",
+  "row.automated.ratio": "可能是自动化提交：每个拉取请求、议题或审查对应 {ratio} 次提交（阈值 {limit}）。不计入全球排名。",
+  "row.automated.quiet": "可能是自动化提交：{share}% 的提交集中在自己一个星标少于 {stars} 的仓库（阈值 {limit}%）。不计入全球排名。",
 
   "badge.title": "获取你的 contributor.top 徽章",
   "badge.description": "在 GitHub 个人资料 README 中添加徽章，显示你在本国最活跃 GitHub 用户中的排名。",

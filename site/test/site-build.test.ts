@@ -206,24 +206,22 @@ describe("site built from hostile data", () => {
     const farmRow = country.slice(country.indexOf('id="farm-bot"'), country.indexOf('id="octo-cat"'));
     // Every mark names its rule and the numbers behind it.
     expect(farmRow).toContain(
-      "Likely automated, not in the world ranking. Commits: 900,000; pull requests, issues and reviews: 1; that is 900,000 to 1, marked from 50 to 1.",
+      "Likely automated: 900,000 commits per pull request, issue or review (limit 50). Not in the world ranking.",
     );
     const quietRow = country.slice(country.indexOf('id="quiet-farm"'));
     expect(quietRow).toContain(
-      "Commits: 40,000; 75% of them in one repository of their own with fewer than 10 stars, marked from 60%.",
+      "Likely automated: 75% of commits in one repository of their own with under 10 stars (limit 60%). Not in the world ranking.",
     );
     expect(country.slice(country.indexOf('id="octo-cat"'), country.indexOf('id="quiet-farm"'))).not.toContain(
       "Likely automated",
     );
-    expect(quietRow).not.toContain("are private");
+    expect(quietRow).not.toContain("cannot be checked");
     const all = readFileSync(join(out, "cote_divoire", "all", "index.html"), "utf8");
-    expect(all.slice(all.indexOf('id="quiet-farm"'))).toContain(
-      "90% of contributions are private and cannot be checked; marked from 90%.",
-    );
+    expect(all.slice(all.indexOf('id="quiet-farm"'))).toContain("90% private, cannot be checked (marked from 90%).");
     // The browser gets the numbers to put the message into the page's language.
     const ru = readFileSync(join(out, "ru", "cote_divoire", "index.html"), "utf8");
     const big = new Intl.NumberFormat("ru").format(900000);
-    expect(ru).toContain(`Коммитов: ${big}; PR, issues и ревью: 1; это ${big} к 1, отмечаем от 50 к 1.`);
+    expect(ru).toContain(`коммитов на каждый PR, issue или ревью — ${big} (порог 50)`);
     expect(ru).toMatch(/data-k="row.automated.quiet" data-v="[^"]*&quot;share&quot;:75/);
     expect(existsSync(join(out, "u", "ghost.json"))).toBe(false);
     expect(existsSync(join(out, "u", "ghost.world.json"))).toBe(false);
