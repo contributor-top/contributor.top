@@ -8,7 +8,7 @@ describe("rule numbers in Methodology", () => {
 
   it("fills the names with the configured numbers, written the language's way", () => {
     expect(fillNumbers("{{min_commits}} commits, {{private_flag}}%, {{min_public}}%", numbers, de)).toBe(
-      "20.000 commits, 90%, 1%",
+      "20.000 commits, 95%, 1%",
     );
   });
 
