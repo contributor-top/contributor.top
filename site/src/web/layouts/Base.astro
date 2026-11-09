@@ -19,7 +19,7 @@ type Props = {
 };
 const { lang, code, t, href } = i18n(Astro.currentLocale);
 const { title, description = t("site.description"), noindex = false, jsonLd } = Astro.props;
-const fullTitle = title === "contributor.top" ? title : `${title} | contributor.top`;
+const fullTitle = `${title} | contributor.top`;
 // This page in every language (hreflang); the canonical URL is this language's, always the clean path (no ?top=…),
 // with the trailing slash the site uses.
 const path = unprefixed(Astro.url.pathname);
