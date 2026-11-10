@@ -23,6 +23,8 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
+    outputs:
+      artifact_id: ${{ steps.upload.outputs.artifact_id }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -53,7 +55,8 @@ jobs:
       - run: npm run privacy-check
         env:
           DATA_DIR: ../.data
-      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+      - id: upload
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: site/dist
           # .well-known/security.txt: the action leaves out dot-directories by default.
@@ -70,8 +73,51 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    defaults:
+      run:
+        working-directory: .
     steps:
+      # The Pages API called directly instead of actions/deploy-pages, which names every deployment after the commit
+      # SHA: once a deployment hung in syncing_files, every retry of that commit hung too, until a new commit landed.
+      # Here each attempt gets its own name (commit, run, run attempt, try), and a hung try is cancelled and made once
+      # more under a new name. Runbook: docs/runbook.md, "A deploy hangs in syncing_files".
       - id: deployment
-        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
-        # No timeout input: the action caps it at its default of 10 minutes. When a deployment hangs, see the
-        # runbook (docs/runbook.md, "A deploy hangs in syncing_files").
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ needs.build.outputs.artifact_id }}
+        run: |
+          set -euo pipefail
+          api="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pages/deployments"
+          auth="Authorization: Bearer $GH_TOKEN"
+          for try in 1 2; do
+            version="$GITHUB_SHA-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-$try"
+            oidc=$(curl -fsS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value)
+            echo "::add-mask::$oidc"
+            body=$(jq -n --argjson id "$ARTIFACT_ID" --arg v "$version" --arg t "$oidc" '{artifact_id: $id, pages_build_version: $v, oidc_token: $t}')
+            if ! created=$(curl -fsS -X POST -H "$auth" -H "Accept: application/vnd.github+json" -d "$body" "$api"); then
+              echo "::warning::Could not create Pages deployment $version"
+              continue
+            fi
+            id=$(jq -r '.id // empty' <<< "$created")
+            id=${id:-$version}
+            page_url=$(jq -r '.page_url // empty' <<< "$created")
+            echo "Created Pages deployment $id"
+            status=""
+            deadline=$((SECONDS + 360))
+            while [ "$SECONDS" -lt "$deadline" ]; do
+              sleep 15
+              status=$(curl -fsS -H "$auth" -H "Accept: application/vnd.github+json" "$api/$id" | jq -r '.status // empty') || status=""
+              echo "Status: ${status:-unknown}"
+              case "$status" in
+                succeed)
+                  echo "page_url=$page_url" >> "$GITHUB_OUTPUT"
+                  exit 0
+                  ;;
+                deployment_failed | deployment_content_failed | deployment_cancelled | deployment_lost) break ;;
+              esac
+            done
+            echo "::warning::Pages deployment $id did not finish (last status: ${status:-unknown}); cancelling it"
+            curl -fsS -X POST -H "$auth" -H "Accept: application/vnd.github+json" "$api/$id/cancel" > /dev/null || true
+          done
+          echo "::error::Both tries failed. A rerun or the next deploy starts under new names; see the runbook."
+          exit 1
