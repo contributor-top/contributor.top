@@ -41,18 +41,17 @@ A local run without publishing: `OPTOUT_KEY=<any 32+ characters> COUNTRIES=eston
 
 ## A deploy hangs in `syncing_files`
 
-The **deploy** job's log repeats `Status: syncing_files` (or `unknown`) for six and a half minutes, then warns that it
-cancels the deployment. Usually a deployment takes 10 seconds to 2 minutes. The site holds about 340,000 files (mostly
-badges in `u/`), and GitHub Pages sometimes does not finish syncing them; githubstatus.com may show no incident.
+The **deploy** job's log repeats `Status: syncing_files` (or `unknown`) for ten minutes, then warns that it cancels the
+deployment. Usually a deployment takes 10 seconds to 2 minutes. The site holds about 340,000 files (mostly badges in
+`u/`), and GitHub Pages sometimes does not finish syncing them; githubstatus.com may show no incident.
 
 - A Pages deployment is named after a commit (Pages refuses other names), and a name that hung once keeps hanging; a
-  name that succeeded may be skipped while the job reports success (seen 2026-11-09 and 2026-11-10). So the job picks
-  a name Pages has not seen: the `main` commit for a push, the `data` snapshot commit for a collector deploy. Its log
-  lists the new and the used names.
-- Do not rerun a failed job: its names are used now. The collector's next deploy brings a new snapshot, and a merged
-  pull request a new commit; either deploys. The site keeps serving the last successful deployment meanwhile.
-- A warning that a name "was used before" means no new name was left (a rerun, or a deploy without new data): that
-  deploy may not publish anything.
+  name that succeeded may be skipped while the job reports success (seen 2026-11-09 and 2026-11-10). So a push deploys
+  under its `main` commit, and the collector's deploys under the `data` snapshot it has just pushed; the log's first
+  line lists the names.
+- Do not rerun a failed job or dispatch **deploy** by hand: both reuse a name. The collector's next deploy brings a new
+  snapshot, and a merged pull request a new commit; either deploys. The site keeps serving the last successful
+  deployment meanwhile.
 
 ## Bad data was published _(planned)_
 
