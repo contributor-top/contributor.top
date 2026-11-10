@@ -84,8 +84,8 @@ jobs:
     steps:
       # The Pages API called directly instead of actions/deploy-pages. A deployment is named after a commit (Pages
       # rejects other names), and the action always takes the workflow's commit, so the collector's hourly deploys
-      # reused one name: after a hang every one of them hung too, and after a success some were skipped. Here a
-      # deployment takes a name not used before: the commit for a push, the data snapshot for a collector deploy.
+      # reused one name: after a hang every one of them hung too, and after a success some were skipped. Here a push
+      # deploys under its commit, and a collector deploy under the data snapshot that the collector has just pushed.
       # Runbook: docs/runbook.md, "A deploy hangs in syncing_files".
       - id: deployment
         env:
@@ -97,19 +97,13 @@ jobs:
           api="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pages/deployments"
           auth="Authorization: Bearer $GH_TOKEN"
           accept="Accept: application/vnd.github+json"
-          # Names Pages has not seen go first; a used one only if no new one can be created.
-          fresh=()
-          used=()
-          for name in "$GITHUB_SHA" "$DATA_SHA"; do
-            if [ -z "$name" ] || [[ " ${fresh[*]} ${used[*]} " == *" $name "* ]]; then continue; fi
-            code=$(curl -sS -o /dev/null -w "%{http_code}" -H "$auth" -H "$accept" "$api/$name") || code=000
-            if [ "$code" = 404 ]; then fresh+=("$name"); else used+=("$name"); fi
-          done
-          echo "New names: ${fresh[*]:-none}. Used before: ${used[*]:-none}."
-          created=0
-          for name in "${fresh[@]}" "${used[@]}"; do
-            # After a try under a new name, a used one is not worth it: Pages may skip it while reporting success.
-            if [ "$created" = 1 ] && [[ " ${used[*]} " == *" $name "* ]]; then break; fi
+          # The commit goes second for a collector deploy, used only if Pages refuses the snapshot's name.
+          names=("$GITHUB_SHA")
+          if [ "$GITHUB_EVENT_NAME" != push ] && [ -n "$DATA_SHA" ] && [ "$DATA_SHA" != "$GITHUB_SHA" ]; then
+            names=("$DATA_SHA" "$GITHUB_SHA")
+          fi
+          echo "Names in order: ${names[*]}"
+          for name in "${names[@]}"; do
             oidc=$(curl -fsS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value)
             echo "::add-mask::$oidc"
             body=$(jq -n --argjson id "$ARTIFACT_ID" --arg v "$name" --arg t "$oidc" '{artifact_id: $id, pages_build_version: $v, oidc_token: $t}')
@@ -119,17 +113,12 @@ jobs:
               echo "::warning::Pages refused a deployment named $name (HTTP $code): $(head -c 300 "$reply" 2> /dev/null)"
               continue
             fi
-            if [[ " ${used[*]} " == *" $name "* ]]; then
-              echo "::warning::$name was used before: Pages may hang or skip it. The next commit or data snapshot gets a new name."
-            fi
-            created=1
             id=$(jq -r '.id // empty' "$reply")
             id=${id:-$name}
             page_url=$(jq -r '.page_url // empty' "$reply")
             echo "Created Pages deployment $id"
             status=""
-            # Two tries fit in the job's 15 minutes.
-            deadline=$((SECONDS + 390))
+            deadline=$((SECONDS + 600))
             while [ "$SECONDS" -lt "$deadline" ]; do
               sleep 15
               status=$(curl -fsS -H "$auth" -H "$accept" "$api/$id" | jq -r '.status // empty') || status=""
@@ -144,6 +133,8 @@ jobs:
             done
             echo "::warning::Pages deployment $id did not finish (last status: ${status:-unknown}); cancelling it"
             curl -fsS -X POST -H "$auth" -H "$accept" "$api/$id/cancel" > /dev/null || true
+            # Not the commit next: its name is used, and Pages may skip a used name while reporting success.
+            break
           done
           echo "::error::Not deployed. The next commit or data snapshot deploys under a new name; see the runbook."
           exit 1
