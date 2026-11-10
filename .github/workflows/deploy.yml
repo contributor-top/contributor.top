@@ -25,6 +25,7 @@ jobs:
       contents: read
     outputs:
       artifact_id: ${{ steps.upload.outputs.artifact_id }}
+      data_sha: ${{ steps.snapshot.outputs.sha }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -45,6 +46,10 @@ jobs:
           ref: data
           path: .data
           persist-credentials: false
+      # Every collector update makes a new snapshot commit: the deploy job uses it to name a deployment.
+      - if: steps.data.outputs.exists == 'true'
+        id: snapshot
+        run: echo "sha=$(git -C ../.data rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: site/.nvmrc
@@ -77,36 +82,57 @@ jobs:
       run:
         working-directory: .
     steps:
-      # The Pages API called directly instead of actions/deploy-pages, which names every deployment after the commit
-      # SHA: once a deployment hung in syncing_files, every retry of that commit hung too, until a new commit landed.
-      # Here each attempt gets its own name (commit, run, run attempt, try), and a hung try is cancelled and made once
-      # more under a new name. Runbook: docs/runbook.md, "A deploy hangs in syncing_files".
+      # The Pages API called directly instead of actions/deploy-pages. A deployment is named after a commit (Pages
+      # rejects other names), and the action always takes the workflow's commit, so the collector's hourly deploys
+      # reused one name: after a hang every one of them hung too, and after a success some were skipped. Here a
+      # deployment takes a name not used before: the commit for a push, the data snapshot for a collector deploy.
+      # Runbook: docs/runbook.md, "A deploy hangs in syncing_files".
       - id: deployment
         env:
           GH_TOKEN: ${{ github.token }}
           ARTIFACT_ID: ${{ needs.build.outputs.artifact_id }}
+          DATA_SHA: ${{ needs.build.outputs.data_sha }}
         run: |
           set -euo pipefail
           api="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pages/deployments"
           auth="Authorization: Bearer $GH_TOKEN"
-          for try in 1 2; do
-            version="$GITHUB_SHA-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-$try"
+          accept="Accept: application/vnd.github+json"
+          # Names Pages has not seen go first; a used one only if no new one can be created.
+          fresh=()
+          used=()
+          for name in "$GITHUB_SHA" "$DATA_SHA"; do
+            if [ -z "$name" ] || [[ " ${fresh[*]} ${used[*]} " == *" $name "* ]]; then continue; fi
+            code=$(curl -sS -o /dev/null -w "%{http_code}" -H "$auth" -H "$accept" "$api/$name") || code=000
+            if [ "$code" = 404 ]; then fresh+=("$name"); else used+=("$name"); fi
+          done
+          echo "New names: ${fresh[*]:-none}. Used before: ${used[*]:-none}."
+          created=0
+          for name in "${fresh[@]}" "${used[@]}"; do
+            # After a try under a new name, a used one is not worth it: Pages may skip it while reporting success.
+            if [ "$created" = 1 ] && [[ " ${used[*]} " == *" $name "* ]]; then break; fi
             oidc=$(curl -fsS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r .value)
             echo "::add-mask::$oidc"
-            body=$(jq -n --argjson id "$ARTIFACT_ID" --arg v "$version" --arg t "$oidc" '{artifact_id: $id, pages_build_version: $v, oidc_token: $t}')
-            if ! created=$(curl -fsS -X POST -H "$auth" -H "Accept: application/vnd.github+json" -d "$body" "$api"); then
-              echo "::warning::Could not create Pages deployment $version"
+            body=$(jq -n --argjson id "$ARTIFACT_ID" --arg v "$name" --arg t "$oidc" '{artifact_id: $id, pages_build_version: $v, oidc_token: $t}')
+            reply="$RUNNER_TEMP/created.json"
+            code=$(curl -sS -o "$reply" -w "%{http_code}" -X POST -H "$auth" -H "$accept" -H "Content-Type: application/json" -d "$body" "$api") || code=000
+            if [ "$code" != 200 ] && [ "$code" != 201 ]; then
+              echo "::warning::Pages refused a deployment named $name (HTTP $code): $(head -c 300 "$reply" 2> /dev/null)"
               continue
             fi
-            id=$(jq -r '.id // empty' <<< "$created")
-            id=${id:-$version}
-            page_url=$(jq -r '.page_url // empty' <<< "$created")
+            if [[ " ${used[*]} " == *" $name "* ]]; then
+              echo "::warning::$name was used before: Pages may hang or skip it. The next commit or data snapshot gets a new name."
+            fi
+            created=1
+            id=$(jq -r '.id // empty' "$reply")
+            id=${id:-$name}
+            page_url=$(jq -r '.page_url // empty' "$reply")
             echo "Created Pages deployment $id"
             status=""
-            deadline=$((SECONDS + 360))
+            # Two tries fit in the job's 15 minutes.
+            deadline=$((SECONDS + 390))
             while [ "$SECONDS" -lt "$deadline" ]; do
               sleep 15
-              status=$(curl -fsS -H "$auth" -H "Accept: application/vnd.github+json" "$api/$id" | jq -r '.status // empty') || status=""
+              status=$(curl -fsS -H "$auth" -H "$accept" "$api/$id" | jq -r '.status // empty') || status=""
               echo "Status: ${status:-unknown}"
               case "$status" in
                 succeed)
@@ -117,7 +143,7 @@ jobs:
               esac
             done
             echo "::warning::Pages deployment $id did not finish (last status: ${status:-unknown}); cancelling it"
-            curl -fsS -X POST -H "$auth" -H "Accept: application/vnd.github+json" "$api/$id/cancel" > /dev/null || true
+            curl -fsS -X POST -H "$auth" -H "$accept" "$api/$id/cancel" > /dev/null || true
           done
-          echo "::error::Both tries failed. A rerun or the next deploy starts under new names; see the runbook."
+          echo "::error::Not deployed. The next commit or data snapshot deploys under a new name; see the runbook."
           exit 1
