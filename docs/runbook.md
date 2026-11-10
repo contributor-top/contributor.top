@@ -41,15 +41,15 @@ A local run without publishing: `OPTOUT_KEY=<any 32+ characters> COUNTRIES=eston
 
 ## A deploy hangs in `syncing_files`
 
-The **deploy** job waits on `actions/deploy-pages`, the log repeats `Current status: syncing_files` (or an empty status)
-until the timeout, and the deployment is cancelled. Usually the step takes 10–50 seconds. The site holds about 370,000
-files (mostly badges in `u/`), and GitHub Pages sometimes does not finish syncing them; githubstatus.com may show no
-incident.
+The **deploy** job's log repeats `Status: syncing_files` (or `unknown`) for six minutes, then warns that it cancels the
+deployment. Usually a deployment takes 10 seconds to 2 minutes. The site holds about 340,000 files (mostly badges in
+`u/`), and GitHub Pages sometimes does not finish syncing them; githubstatus.com may show no incident.
 
-- Do not rerun the job or dispatch **deploy** for the same commit: the Pages deployment ID is the commit SHA, and after
-  one hang every retry of that commit hangs as well (seen 2026-11-09).
-- Get a new commit onto `main` (any merged pull request) and its deploy goes through. Until then the collector's own
-  deploys, which run on the same commit, hang too.
+- The job already handles it: it cancels the hung deployment and tries once more. Each try is a new Pages deployment
+  named after the commit, the run, the run attempt and the try, because a deployment that hung once stays hung, and so
+  did every retry under the same name (seen 2026-11-09 and 2026-11-10, when the name was the commit SHA).
+- If both tries fail, rerun the job or wait for the collector's next deploy: both use new names. The site keeps serving
+  the last successful deployment meanwhile.
 
 ## Bad data was published _(planned)_
 
