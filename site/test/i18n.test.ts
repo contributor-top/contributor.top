@@ -19,6 +19,15 @@ describe("translations", () => {
     expect(others.length).toBeGreaterThan(0);
   });
 
+  // Other languages name a country by its ISO code; a preset without one needs its name as a message.
+  it("names every country that has no ISO code", () => {
+    const noIso = readdirSync("../presets")
+      .filter((f) => /^iso: null$/m.test(readFileSync(join("../presets", f), "utf8")))
+      .map((f) => f.replace(/\.yml$/, ""));
+    expect(noIso.length).toBeGreaterThan(0);
+    for (const slug of noIso) expect(Object.keys(en), slug).toContain(`country.name.${slug}`);
+  });
+
   describe.each(others)("%s", (lang) => {
     const dict = load(lang);
     const code = String(dict["lang.code"]);

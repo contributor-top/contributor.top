@@ -46,6 +46,7 @@
   },
   "country.top": ": {logins} và những người khác",
   "country.collectingDescription": "Bảng xếp hạng người dùng GitHub tích cực nhất tại {country} đang được thu thập.",
+  "country.name.kurdistan": "Kurdistan",
   "country.updated": "Cập nhật {date}",
   "country.users": {
     "other": "{n} người dùng có vị trí phù hợp"

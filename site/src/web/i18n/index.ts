@@ -37,6 +37,10 @@ export const unprefixed = (path: string): string => {
 /** Splits a message on its remaining placeholders: "See {link}." → ["See ", "{link}", "."]. */
 export const parts = (message: string): string[] => message.split(/(\{\w+\})/).filter(Boolean);
 
+// Regions whose full name is an administrative one ("中国香港特别行政区", "Palästinensische Autonomiegebiete"): the
+// short name is what people say, as in the presets' English titles. Not for every region: the short US is "É.-U.".
+const SHORT_NAMED = new Set(["HK", "MO", "PS"]);
+
 const made = new Map<string, I18n>();
 /** Everything a page needs to speak one language: made once per language (every component of every page asks). */
 export function i18n(lang: string | undefined): I18n {
@@ -54,6 +58,7 @@ function make(current: string) {
   const plural = new Intl.PluralRules(locale);
   const number = new Intl.NumberFormat(locale);
   const regions = new Intl.DisplayNames([locale], { type: "region", fallback: "none" });
+  const shortRegions = new Intl.DisplayNames([locale], { type: "region", style: "short", fallback: "none" });
   const dateTime = new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "short",
@@ -85,9 +90,15 @@ function make(current: string) {
     number: (n: number) => number.format(n),
     dateTime: (iso: string) => `${dateTime.format(new Date(iso))} UTC`,
     day: (iso: string) => day.format(new Date(iso)),
-    /** A country's name: the preset's title in English, the ISO name in other languages ("Беларусь"). */
-    country: (entry: { title: string; iso: string | null }) =>
-      current === DEFAULT_LANG || !entry.iso ? entry.title : (regions.of(entry.iso) ?? entry.title),
+    /**
+     * A country's name: the preset's title in English; in other languages the ISO name ("Беларусь"), or for a
+     * preset without an ISO code its message country.name.<slug> ("Курдистан").
+     */
+    country: (entry: { slug: string; title: string; iso: string | null }) => {
+      if (current === DEFAULT_LANG) return entry.title;
+      if (!entry.iso) return String(dict[`country.name.${entry.slug}`] ?? entry.title);
+      return (SHORT_NAMED.has(entry.iso) ? shortRegions : regions).of(entry.iso) ?? entry.title;
+    },
     /** The plural forms of a message, for the browser (ranking.js localizes the rows it inserts). */
     forms: (key: Key): Message => dict[key] ?? en[key],
   };

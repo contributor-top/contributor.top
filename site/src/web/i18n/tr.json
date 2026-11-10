@@ -47,6 +47,7 @@
   },
   "country.top": ": {logins} ve diğerleri",
   "country.collectingDescription": "{country}: en aktif GitHub kullanıcılarının sıralaması hâlâ hazırlanıyor.",
+  "country.name.kurdistan": "Kürdistan",
   "country.updated": "Güncellendi: {date}",
   "country.users": {
     "one": "konumu eşleşen {n} kullanıcı",

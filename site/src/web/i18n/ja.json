@@ -46,6 +46,7 @@
   },
   "country.top": "：{logins}ほか",
   "country.collectingDescription": "{country}：最もアクティブなGitHubユーザーのランキングを収集中です。",
+  "country.name.kurdistan": "クルディスタン",
   "country.updated": "更新日：{date}",
   "country.users": {
     "other": "所在地が一致するユーザー{n}人"

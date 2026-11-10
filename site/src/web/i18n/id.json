@@ -46,6 +46,7 @@
   },
   "country.top": ": {logins} dan lainnya",
   "country.collectingDescription": "Peringkat pengguna GitHub paling aktif di {country} sedang dikumpulkan.",
+  "country.name.kurdistan": "Kurdistan",
   "country.updated": "Diperbarui {date}",
   "country.users": {
     "other": "{n} pengguna dengan lokasi yang cocok"
