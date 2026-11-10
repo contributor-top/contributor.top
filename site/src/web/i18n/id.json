@@ -42,7 +42,7 @@
   "country.what.all": "kontribusi publik dan privat",
   "country.what.commits": "commit",
   "country.description": {
-    "other": "{n} developer teratas di {country}, diurutkan berdasarkan {what} di GitHub selama 12 bulan terakhir{top}. Diperbarui {date}."
+    "other": "{n} pengembang teratas di {country}, diurutkan berdasarkan {what} di GitHub selama 12 bulan terakhir{top}. Diperbarui {date}."
   },
   "country.top": ": {logins} dan lainnya",
   "country.collectingDescription": "Peringkat pengguna GitHub paling aktif di {country} sedang dikumpulkan.",
@@ -70,7 +70,7 @@
 
   "table.showTop": "Tampilkan top",
   "table.sizes": "Jumlah orang yang ditampilkan",
-  "table.developer": "Developer",
+  "table.developer": "Pengembang",
   "table.contributions": "Kontribusi",
   "table.noscript": "Ditampilkan {first} teratas dari {n}; sisanya memerlukan JavaScript.",
   "row.commits": { "other": "{n} commit publik" },
@@ -99,9 +99,9 @@
   "badge.note": "Ganti {placeholder} dengan nama pengguna Anda jika belum mengisinya. Badge menampilkan peringkat Anda setelah Anda masuk ke peringkat tersebut (lihat {link}). Jika Anda ada di peringkat lain, sampai saat itu badge bertuliskan “unranked”; jika Anda belum ada di peringkat mana pun, shields.io menampilkannya sebagai tidak ditemukan. Tautan membuka peringkat negara Anda (atau peringkat dunia) dengan baris Anda disorot.",
   "badge.who": "siapa yang dipertimbangkan",
 
-  "find.title": "Cari developer",
+  "find.title": "Cari pengembang",
   "find.looking": "Mencari…",
-  "find.notFound": "Developer ini belum ada di peringkat ini.",
+  "find.notFound": "Pengembang ini belum ada di peringkat ini.",
   "find.see": "Lihat siapa yang dipertimbangkan.",
 
   "notFound.title": "Tidak ditemukan",
