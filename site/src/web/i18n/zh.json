@@ -46,6 +46,7 @@
   },
   "country.top": "：{logins} 等",
   "country.collectingDescription": "{country}：最活跃 GitHub 用户的排名正在收集中。",
+  "country.name.kurdistan": "库尔德斯坦",
   "country.updated": "更新于 {date}",
   "country.users": {
     "other": "{n} 位所在地匹配的用户"

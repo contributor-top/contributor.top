@@ -46,6 +46,7 @@
   },
   "country.top": ": {logins} 외",
   "country.collectingDescription": "{country}: 가장 활발한 GitHub 사용자 순위를 수집하고 있습니다.",
+  "country.name.kurdistan": "쿠르디스탄",
   "country.updated": "{date} 업데이트",
   "country.users": {
     "other": "위치가 일치하는 사용자 {n}명"

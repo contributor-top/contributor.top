@@ -48,6 +48,7 @@
   },
   "country.top": " : {logins} et d'autres",
   "country.collectingDescription": "{country} : le classement des utilisateurs GitHub les plus actifs est en cours de collecte.",
+  "country.name.kurdistan": "Kurdistan",
   "country.updated": "Mis à jour le {date}",
   "country.users": {
     "one": "{n} utilisateur avec une localisation correspondante",

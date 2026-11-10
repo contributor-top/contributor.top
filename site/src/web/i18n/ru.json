@@ -49,6 +49,7 @@
   },
   "country.top": ": {logins} и другие",
   "country.collectingDescription": "{country}: рейтинг самых активных пользователей GitHub ещё собирается.",
+  "country.name.kurdistan": "Курдистан",
   "country.updated": "Обновлено {date}",
   "country.users": {
     "one": "{n} пользователь с подходящим местоположением",
