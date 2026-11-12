@@ -61,6 +61,18 @@
   "country.inList": "Sei in lista?",
   "country.addBadge": "Aggiungi un badge al tuo profilo GitHub →",
   "country.collecting": "Raccolta dati… Il primo aggiornamento di un paese può richiedere un giorno o due.",
+  "summary.podium": "{first} è in testa per {what} con {n1}, davanti a {second} ({n2}) e {third} ({n3}).",
+  "summary.cutoff": "Per entrare nella top {top} servono {n}.",
+  "summary.world": {
+    "one": "{n} persona di questo paese è nella top {top} mondiale.",
+    "many": "{n} di persone di questo paese sono nella top {top} mondiale.",
+    "other": "{n} persone di questo paese sono nella top {top} mondiale."
+  },
+  "summary.countries": {
+    "one": "La top {top} mondiale viene da {n} paese; i più rappresentati: {list}.",
+    "many": "La top {top} mondiale viene da {n} di paesi; i più rappresentati: {list}.",
+    "other": "La top {top} mondiale viene da {n} paesi; i più rappresentati: {list}."
+  },
 
   "tab.public": "Contributi pubblici",
   "tab.public.short": "Pubblici",

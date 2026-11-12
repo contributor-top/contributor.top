@@ -59,6 +59,16 @@
   "country.inList": "Listede misiniz?",
   "country.addBadge": "GitHub profilinize rozet ekleyin →",
   "country.collecting": "Veriler toplanıyor… Bir ülkenin ilk güncellemesi bir iki gün sürebilir.",
+  "summary.podium": "“{what}” ölçütüne göre {first} {n1} ile ilk sırada; onu {second} ({n2}) ve {third} ({n3}) izliyor.",
+  "summary.cutoff": "İlk {top} için baraj: {n}.",
+  "summary.world": {
+    "one": "Bu ülkeden {n} kişi dünya ilk {top} listesinde.",
+    "other": "Bu ülkeden {n} kişi dünya ilk {top} listesinde."
+  },
+  "summary.countries": {
+    "one": "Dünya ilk {top} listesi {n} ülkeden; en çok: {list}.",
+    "other": "Dünya ilk {top} listesi {n} ülkeden; en çok: {list}."
+  },
 
   "tab.public": "Herkese açık katkılar",
   "tab.public.short": "Herkese açık",

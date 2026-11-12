@@ -59,6 +59,16 @@
   "country.inList": "In the list?",
   "country.addBadge": "Add a badge to your GitHub profile →",
   "country.collecting": "Collecting data… The first update of a country can take a day or two.",
+  "summary.podium": "{first} leads by {what} with {n1}, ahead of {second} ({n2}) and {third} ({n3}).",
+  "summary.cutoff": "It takes {n} to make the top {top}.",
+  "summary.world": {
+    "one": "{n} person from this country is in the world top {top}.",
+    "other": "{n} people from this country are in the world top {top}."
+  },
+  "summary.countries": {
+    "one": "The world top {top} comes from {n} country; the most represented: {list}.",
+    "other": "The world top {top} comes from {n} countries; the most represented: {list}."
+  },
 
   "tab.public": "Public contributions",
   "tab.public.short": "Public",

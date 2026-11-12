@@ -57,6 +57,14 @@
   "country.inList": "Có trong danh sách?",
   "country.addBadge": "Thêm huy hiệu vào hồ sơ GitHub của bạn →",
   "country.collecting": "Đang thu thập dữ liệu… Lần cập nhật đầu tiên của một quốc gia có thể mất một hai ngày.",
+  "summary.podium": "Theo {what}, {first} dẫn đầu với {n1}, tiếp theo là {second} ({n2}) và {third} ({n3}).",
+  "summary.cutoff": "Ngưỡng vào top {top} là {n}.",
+  "summary.world": {
+    "other": "{n} người từ quốc gia này có mặt trong top {top} thế giới."
+  },
+  "summary.countries": {
+    "other": "Top {top} thế giới đến từ {n} quốc gia; nhiều nhất: {list}."
+  },
 
   "tab.public": "Đóng góp công khai",
   "tab.public.short": "Công khai",

@@ -1,14 +1,27 @@
 ---
 import RankingHead from "../components/RankingHead.astro";
+import RankingSummary from "../components/RankingSummary.astro";
 import RankingTable from "../components/RankingTable.astro";
 import { i18n, parts } from "../i18n/index.ts";
 import Base from "../layouts/Base.astro";
-import { rowsBase, updates, worldRows } from "../lib/site.ts";
+import { countryByTitle, rowsBase, updates, worldRows } from "../lib/site.ts";
 
 const rows = worldRows();
-const { t, href } = i18n(Astro.currentLocale);
+const { t, href, list, number, country } = i18n(Astro.currentLocale);
 const title = t("world.title");
 const description = t("world.description");
+// Where the world ranking comes from: how many countries, and the three with the most people in it.
+const perCountry = new Map<string, number>();
+for (const r of rows) perCountry.set(r.country, (perCountry.get(r.country) ?? 0) + 1);
+const most = [...perCountry].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "en")).slice(0, 3);
+const origin =
+  perCountry.size > 0
+    ? t("summary.countries", {
+        top: rows.length,
+        n: perCountry.size,
+        list: list(most.map(([title, n]) => `${country(countryByTitle(title))} (${number(n)})`)),
+      })
+    : undefined;
 // As on a country page: Dataset for Google Dataset Search, ItemList for the page itself. Updated with the latest country.
 const jsonLd =
   rows.length > 0
@@ -62,7 +75,10 @@ const jsonLd =
   </p>
   {
     rows.length > 0 ? (
-      <RankingTable rows={rows} more={rowsBase("world")} />
+      <>
+        <RankingSummary rows={rows} what={t("country.what.public")} extra={origin} />
+        <RankingTable rows={rows} more={rowsBase("world")} />
+      </>
     ) : (
       <p class="muted">{t("world.empty")}</p>
     )

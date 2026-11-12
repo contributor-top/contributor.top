@@ -57,6 +57,14 @@
   "country.inList": "在榜上吗？",
   "country.addBadge": "在 GitHub 个人资料中添加徽章 →",
   "country.collecting": "正在收集数据… 一个国家的首次更新可能需要一两天。",
+  "summary.podium": "按{what}，{first} 以 {n1} 位居第一，其后是 {second}（{n2}）和 {third}（{n3}）。",
+  "summary.cutoff": "进入前 {top} 名需要 {n}。",
+  "summary.world": {
+    "other": "该国有 {n} 人进入全球前 {top} 名。"
+  },
+  "summary.countries": {
+    "other": "全球前 {top} 名来自 {n} 个国家，最多的是：{list}。"
+  },
 
   "tab.public": "公开贡献",
   "tab.public.short": "公开",

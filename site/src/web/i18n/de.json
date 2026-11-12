@@ -59,6 +59,16 @@
   "country.inList": "In der Liste?",
   "country.addBadge": "Badge zum GitHub-Profil hinzufügen →",
   "country.collecting": "Daten werden gesammelt… Die erste Aktualisierung eines Landes kann ein bis zwei Tage dauern.",
+  "summary.podium": "{first} führt nach „{what}“ mit {n1}, vor {second} ({n2}) und {third} ({n3}).",
+  "summary.cutoff": "Für die Top {top} braucht es {n}.",
+  "summary.world": {
+    "one": "{n} Person aus diesem Land ist in den weltweiten Top {top}.",
+    "other": "{n} Personen aus diesem Land sind in den weltweiten Top {top}."
+  },
+  "summary.countries": {
+    "one": "Die weltweiten Top {top} kommen aus {n} Land; am stärksten vertreten: {list}.",
+    "other": "Die weltweiten Top {top} kommen aus {n} Ländern; am stärksten vertreten: {list}."
+  },
 
   "tab.public": "Öffentliche Beiträge",
   "tab.public.short": "Öffentlich",

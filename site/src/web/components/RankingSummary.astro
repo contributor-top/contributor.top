@@ -1,0 +1,40 @@
+---
+// A ranking in a few sentences, written from its data: who leads, what it takes to make the default size, and one
+// more fact the page passes in. Search engines read the ranking itself as a list of logins and numbers; this is text
+// of the page's own about it, different on every page.
+import type { Row } from "../../collector/country-data.ts";
+import { i18n } from "../i18n/index.ts";
+import { config } from "../lib/site.ts";
+
+type Props = {
+  rows: Row[];
+  /** What the ranking counts, as country.what.* says it. */
+  what: string;
+  /** A sentence about this page in particular, if it has one. */
+  extra?: string | undefined;
+};
+const { rows, what, extra } = Astro.props;
+const { lang, t } = i18n(Astro.currentLocale);
+const [first, second, third] = rows;
+const top = config.ranking.default_top;
+const last = rows[top - 1];
+const sentences = [
+  first && second && third
+    ? t("summary.podium", {
+        what,
+        first: first.login,
+        n1: first.contributions,
+        second: second.login,
+        n2: second.contributions,
+        third: third.login,
+        n3: third.contributions,
+      })
+    : undefined,
+  last ? t("summary.cutoff", { n: last.contributions, top }) : undefined,
+  extra,
+].filter((s) => s !== undefined);
+// Chinese and Japanese put no space between sentences.
+const gap = lang === "zh" || lang === "ja" ? "" : " ";
+---
+
+{sentences.length > 0 && <p class="summary">{sentences.join(gap)}</p>}

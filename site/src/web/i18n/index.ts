@@ -57,6 +57,7 @@ function make(current: string) {
   const locale = current === DEFAULT_LANG ? "en-GB" : code;
   const plural = new Intl.PluralRules(locale);
   const number = new Intl.NumberFormat(locale);
+  const list = new Intl.ListFormat(locale, { type: "conjunction" });
   const regions = new Intl.DisplayNames([locale], { type: "region", fallback: "none" });
   const shortRegions = new Intl.DisplayNames([locale], { type: "region", style: "short", fallback: "none" });
   const dateTime = new Intl.DateTimeFormat(locale, {
@@ -88,6 +89,8 @@ function make(current: string) {
     /** The same page in this language: "/belarus/" → "/ru/belarus/". */
     href: (path: string) => prefixOf(current) + path,
     number: (n: number) => number.format(n),
+    /** Items joined the language's way: "A, B and C", "A, B и C". */
+    list: (items: string[]) => list.format(items),
     dateTime: (iso: string) => `${dateTime.format(new Date(iso))} UTC`,
     day: (iso: string) => day.format(new Date(iso)),
     /**

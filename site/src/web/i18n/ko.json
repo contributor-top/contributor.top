@@ -57,6 +57,14 @@
   "country.inList": "목록에 있나요?",
   "country.addBadge": "GitHub 프로필에 배지 추가하기 →",
   "country.collecting": "데이터 수집 중… 국가의 첫 업데이트에는 하루나 이틀이 걸릴 수 있습니다.",
+  "summary.podium": "{what} 기준 1위는 {first}({n1}), 2위는 {second}({n2}), 3위는 {third}({n3})입니다.",
+  "summary.cutoff": "상위 {top}위 진입 기준은 {n}입니다.",
+  "summary.world": {
+    "other": "이 국가에서 {n}명이 세계 상위 {top}위에 올라 있습니다."
+  },
+  "summary.countries": {
+    "other": "세계 상위 {top}위는 {n}개국 출신이며, 가장 많은 국가는 {list}입니다."
+  },
 
   "tab.public": "공개 기여",
   "tab.public.short": "공개",

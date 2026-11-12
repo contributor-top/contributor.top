@@ -57,6 +57,14 @@
   "country.inList": "Ada di daftar?",
   "country.addBadge": "Tambahkan badge ke profil GitHub Anda →",
   "country.collecting": "Mengumpulkan data… Pembaruan pertama suatu negara bisa memakan waktu satu atau dua hari.",
+  "summary.podium": "{first} memimpin berdasarkan {what} dengan {n1}, di depan {second} ({n2}) dan {third} ({n3}).",
+  "summary.cutoff": "Untuk masuk top {top} dibutuhkan {n}.",
+  "summary.world": {
+    "other": "{n} orang dari negara ini masuk top {top} dunia."
+  },
+  "summary.countries": {
+    "other": "Top {top} dunia berasal dari {n} negara; terbanyak: {list}."
+  },
 
   "tab.public": "Kontribusi publik",
   "tab.public.short": "Publik",

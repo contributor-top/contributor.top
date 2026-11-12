@@ -63,6 +63,20 @@
   "country.inList": "Jesteś na liście?",
   "country.addBadge": "Dodaj odznakę do profilu GitHub →",
   "country.collecting": "Zbieranie danych… Pierwsza aktualizacja kraju może potrwać dzień lub dwa.",
+  "summary.podium": "Według kryterium „{what}” prowadzi {first} z wynikiem {n1}, przed {second} ({n2}) i {third} ({n3}).",
+  "summary.cutoff": "Próg wejścia do top {top} to {n}.",
+  "summary.world": {
+    "one": "{n} osoba z tego kraju jest w światowym top {top}.",
+    "few": "{n} osoby z tego kraju są w światowym top {top}.",
+    "many": "{n} osób z tego kraju jest w światowym top {top}.",
+    "other": "{n} osoby z tego kraju jest w światowym top {top}."
+  },
+  "summary.countries": {
+    "one": "Światowe top {top} pochodzi z {n} kraju; najliczniej reprezentowane: {list}.",
+    "few": "Światowe top {top} pochodzi z {n} krajów; najliczniej reprezentowane: {list}.",
+    "many": "Światowe top {top} pochodzi z {n} krajów; najliczniej reprezentowane: {list}.",
+    "other": "Światowe top {top} pochodzi z {n} kraju; najliczniej reprezentowane: {list}."
+  },
 
   "tab.public": "Publiczne kontrybucje",
   "tab.public.short": "Publiczne",

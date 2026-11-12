@@ -57,6 +57,14 @@
   "country.inList": "ランキングに載っていますか？",
   "country.addBadge": "GitHubプロフィールにバッジを追加 →",
   "country.collecting": "データ収集中… 国の初回更新には1〜2日かかることがあります。",
+  "summary.podium": "{what}の1位は{first}（{n1}）、2位は{second}（{n2}）、3位は{third}（{n3}）です。",
+  "summary.cutoff": "トップ{top}入りのラインは{n}です。",
+  "summary.world": {
+    "other": "この国から{n}人が世界トップ{top}に入っています。"
+  },
+  "summary.countries": {
+    "other": "世界トップ{top}は{n}か国から。特に多い国：{list}。"
+  },
 
   "tab.public": "公開コントリビューション",
   "tab.public.short": "公開",

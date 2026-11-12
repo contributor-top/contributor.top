@@ -333,6 +333,21 @@ describe("site built from hostile data", () => {
     }
   });
 
+  it("sums up each ranking in a few sentences of its own, in the page's language", () => {
+    const summary = (path: string) =>
+      readFileSync(join(out, path, "index.html"), "utf8").match(/<p class="summary"[^>]*>([^<]*)<[/]p>/)?.[1];
+    expect(summary("big_land")).toMatch(
+      /^big-1 leads by public contributions with 30, ahead of big-2 [(]30[)] and big-3 [(]29[)][.] 60 people from this country are in the world top [0-9]+[.]$/,
+    );
+    expect(summary("big_land/commits")).toMatch(/^big-1 leads by commits with 30,/);
+    expect(summary("ru/big_land")).toMatch(/60 человек из этой страны входят в мировой топ-[0-9]+[.]$/);
+    expect(summary("world")).toMatch(
+      /The world top [0-9]+ comes from 3 countries; the most represented: Big Land [(]60[)], /,
+    );
+    // Fewer than three people: nothing to sum up but the world.
+    expect(summary("congo_kinshasa")).toBe("1 person from this country is in the world top 62.");
+  });
+
   it("describes the pages for search: a descriptive home title, the world ranking as a dataset", () => {
     expect(readFileSync(join(out, "index.html"), "utf8")).toContain(
       "<title>Most active GitHub users by country | contributor.top</title>",

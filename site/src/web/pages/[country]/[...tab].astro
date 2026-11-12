@@ -2,10 +2,20 @@
 import type { GetStaticPaths } from "astro";
 import type { Tab } from "../../../collector/rank.ts";
 import RankingHead from "../../components/RankingHead.astro";
+import RankingSummary from "../../components/RankingSummary.astro";
 import RankingTable from "../../components/RankingTable.astro";
 import { i18n, parts } from "../../i18n/index.ts";
 import Base from "../../layouts/Base.astro";
-import { type CountryEntry, config, countryEntries, rowsBase, TAB_PATHS, TABS, tabHref } from "../../lib/site.ts";
+import {
+  type CountryEntry,
+  config,
+  countryEntries,
+  rowsBase,
+  TAB_PATHS,
+  TABS,
+  tabHref,
+  worldRows,
+} from "../../lib/site.ts";
 
 export const getStaticPaths = (() =>
   countryEntries.flatMap((entry) =>
@@ -35,6 +45,9 @@ const description = data
   : t("country.collectingDescription", { country });
 const url = new URL(href(tabHref(entry.slug, tab)), Astro.site).href;
 const more = rowsBase(`${entry.slug}/${tab}`);
+// How many people from here the world ranking has (it names each person's country by its English title).
+const inWorld = data ? worldRows().filter((r) => r.country === entry.title).length : 0;
+const worldNote = inWorld > 0 ? t("summary.world", { n: inWorld, top: worldRows().length }) : undefined;
 // Dataset helps Google Dataset Search; ItemList and breadcrumbs describe the page itself.
 const jsonLd = data
   ? {
@@ -104,6 +117,7 @@ const jsonLd = data
             JSON
           </a>
         </nav>
+        <RankingSummary rows={data.tabs[tab]} what={what} extra={worldNote} />
         <p class="muted">
           {t(`tab.${tab}.note`, { n: Math.round(config.ranking.min_public_share * 100) })} {t("country.inList")} <a href={href("/badge/")}>{t("country.addBadge")}</a>
         </p>
