@@ -30,7 +30,7 @@
 
   "world.title": "Najaktywniejsi użytkownicy GitHuba na świecie",
   "world.description": "Najaktywniejsi użytkownicy GitHuba z całego świata: wspólny ranking wszystkich krajów według publicznych kontrybucji z ostatnich 12 miesięcy.",
-  "world.h1": "Świat",
+  "world.pageTitle": "Ranking użytkowników GitHuba na świecie, {month}",
   "world.json": "Ranking światowy w formacie JSON",
   "world.intro": "Połączony z rankingów wszystkich krajów (publiczne kontrybucje). Obejmuje tylko osoby, których lokalizacja pasuje do któregoś kraju, więc nie jest to pełny ranking światowy; konta, których aktywność wygląda na zautomatyzowaną, są pominięte. Szczegóły: {link}.",
   "world.methodology": "metodologia",
@@ -38,6 +38,8 @@
 
   "country.title": "{country}: najaktywniejsi użytkownicy GitHuba",
   "country.titleBy": "{country}: najaktywniejsi użytkownicy GitHuba – {what}",
+  "country.pageTitle": "{country}: ranking użytkowników GitHuba, {month}",
+  "country.pageTitleBy": "{country}: ranking użytkowników GitHuba – {what}, {month}",
   "country.what.public": "publiczne kontrybucje",
   "country.what.all": "publiczne i prywatne kontrybucje",
   "country.what.commits": "commity",

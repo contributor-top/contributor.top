@@ -30,7 +30,7 @@
 
   "world.title": "Gli utenti GitHub più attivi del mondo",
   "world.description": "Gli utenti GitHub più attivi di tutto il mondo, dall'unione delle classifiche di ogni paese per contributi pubblici negli ultimi 12 mesi.",
-  "world.h1": "Mondo",
+  "world.pageTitle": "Top utenti GitHub del mondo, {month}",
   "world.json": "Classifica mondiale in JSON",
   "world.intro": "Unione delle classifiche di tutti i paesi (contributi pubblici). Sono incluse solo le persone la cui località corrisponde a un paese, quindi non è una classifica mondiale completa; gli account con attività che sembra automatizzata sono esclusi. Vedi la {link}.",
   "world.methodology": "metodologia",
@@ -38,6 +38,8 @@
 
   "country.title": "{country}: gli utenti GitHub più attivi",
   "country.titleBy": "{country}: gli utenti GitHub più attivi per {what}",
+  "country.pageTitle": "{country}: top utenti GitHub, {month}",
+  "country.pageTitleBy": "{country}: top utenti GitHub per {what}, {month}",
   "country.what.public": "contributi pubblici",
   "country.what.all": "contributi pubblici e privati",
   "country.what.commits": "commit",

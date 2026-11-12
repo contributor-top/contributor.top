@@ -30,7 +30,7 @@
 
   "world.title": "Dünyanın en aktif GitHub kullanıcıları",
   "world.description": "Dünya genelindeki en aktif GitHub kullanıcıları: son 12 aydaki herkese açık katkılara göre tüm ülke sıralamalarından birleştirildi.",
-  "world.h1": "Dünya",
+  "world.pageTitle": "Dünya GitHub kullanıcı sıralaması, {month}",
   "world.json": "Dünya sıralaması (JSON)",
   "world.intro": "Tüm ülke sıralamalarından (herkese açık katkılar) birleştirildi. Yalnızca konumu bir ülkeyle eşleşen kişiler dahil edildiği için bu eksiksiz bir dünya sıralaması değildir; etkinliği otomatik görünen hesaplar da dışarıda bırakılır. Ayrıntılar: {link}.",
   "world.methodology": "metodoloji",
@@ -38,6 +38,8 @@
 
   "country.title": "{country}: en aktif GitHub kullanıcıları",
   "country.titleBy": "{country}: en aktif GitHub kullanıcıları — {what}",
+  "country.pageTitle": "{country}: GitHub kullanıcı sıralaması, {month}",
+  "country.pageTitleBy": "{country}: GitHub kullanıcı sıralaması — {what}, {month}",
   "country.what.public": "herkese açık katkılar",
   "country.what.all": "herkese açık ve özel katkılar",
   "country.what.commits": "commit'ler",
