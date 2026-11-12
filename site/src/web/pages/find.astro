@@ -2,7 +2,7 @@
 import { i18n, prefixOf } from "../i18n/index.ts";
 import Base from "../layouts/Base.astro";
 import { inlineScript } from "../lib/inline.ts";
-import { config, countryEntries } from "../lib/site.ts";
+import { chunkStarts, config, countryEntries } from "../lib/site.ts";
 import findSource from "../scripts/find.js?raw";
 
 // Badge links point here: /find/?login=…&tab=… opens that person's row in their best country ranking,
@@ -12,6 +12,8 @@ const { lang, t } = i18n(Astro.currentLocale);
 const data = {
   slugs: Object.fromEntries(countryEntries.map((c) => [c.title, c.slug])),
   sizes: config.ranking.top_choices,
+  // Where the fragments of a ranking start (the page carries the rows before the first one).
+  steps: chunkStarts(Number.POSITIVE_INFINITY),
   base: prefixOf(lang),
   text: { notFound: t("find.notFound"), see: t("find.see") },
 };
