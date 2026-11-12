@@ -4,9 +4,9 @@
 // jumping once the bundled modules arrive. The client router runs it again after every page switch
 // (data-astro-rerun).
 //
-// The page carries only the smallest size. Further rows are static fragments, one per step between the sizes
-// (data-more, data-starts), inserted only when the chosen size or a #login link needs them; ranking-early.js has
-// usually fetched them already.
+// The page carries the default size; a smaller chosen one hides the rows past it. Further rows are static fragments,
+// one per step between the larger sizes (data-more, data-starts), inserted only when the chosen size or a #login link
+// needs them; ranking-early.js has usually fetched them already.
 (() => {
   // LOGIN from src/collector/patterns.ts (a test keeps them equal): a plain script cannot import it.
   const LOGIN = /^[A-Za-z0-9][A-Za-z0-9-]{0,38}$/;
@@ -147,6 +147,8 @@
       if (history.state) history.replaceState({ ...history.state, scrollX, scrollY }, "");
     });
 
+  // The table is parsed: ranking-early.js no longer needs to hide rows past a smaller size as they arrive.
+  window.rankingRows?.hide?.disconnect();
   const table = document.querySelector("table.ranking");
   if (!table) return reveal();
   for (const b of document.querySelectorAll("[data-top-switch] button")) {

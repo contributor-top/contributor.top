@@ -3,7 +3,7 @@ import type { CountryData, Row } from "../../collector/country-data.ts";
 import type { Tab } from "../../collector/rank.ts";
 import { DEFAULT_LANG, i18n, type Key } from "../i18n/index.ts";
 import { inlineScript } from "../lib/inline.ts";
-import { chunkStarts, countryByTitle, FIRST_ROWS, sizesFor } from "../lib/site.ts";
+import { chunkStarts, countryByTitle, EAGER_ROWS, FIRST_ROWS, sizesFor } from "../lib/site.ts";
 import rankingSource from "../scripts/ranking.js?raw";
 import RankingRows from "./RankingRows.astro";
 
@@ -69,7 +69,7 @@ const words =
     </tr>
   </thead>
   <tbody>
-    <RankingRows rows={rows.slice(0, FIRST_ROWS)} breakdown={breakdown} tab={tab} eager />
+    <RankingRows rows={rows.slice(0, FIRST_ROWS)} breakdown={breakdown} tab={tab} eager={EAGER_ROWS} />
   </tbody>
 </table>
 {

@@ -88,9 +88,9 @@ beforeAll(() => {
   writeFileSync(join(dataDir, "countries", "cote_divoire.json"), JSON.stringify(ci));
   writeFileSync(join(dataDir, "countries", "congo_kinshasa.json"), JSON.stringify(cd));
   writeFileSync(join(dataDir, "countries", "empty_land.json"), JSON.stringify(country("empty_land", "Empty Land", [])));
-  // More rows than the smallest size: the page carries 10, the rest are fragments loaded on demand.
+  // More rows than the default size: the page carries 100, the rest are fragments loaded on demand.
   writeFileSync(join(presetsDir, "big_land.yml"), "{ title: Big Land, iso: null, include: [bigtown], exclude: [] }");
-  const big = Array.from({ length: 60 }, (_, i) => row(i + 1, `big-${i + 1}`, 1000 + i, 30 - Math.floor(i / 2)));
+  const big = Array.from({ length: 300 }, (_, i) => row(i + 1, `big-${i + 1}`, 1000 + i, 30 - Math.floor(i / 20)));
   writeFileSync(join(dataDir, "countries", "big_land.json"), JSON.stringify(country("big_land", "Big Land", big)));
   // Data left over from a removed preset: no page, so no badge may link to it.
   writeFileSync(
@@ -246,6 +246,7 @@ describe("site built from hostile data", () => {
     expect(html.indexOf('<meta name="find-data"')).toBeLessThan(script);
     const data = JSON.parse(meta.replaceAll("&quot;", '"').replaceAll("&#39;", "'").replaceAll("&amp;", "&"));
     expect(data.sizes).toEqual([10, 50, 100, 256, 512]);
+    expect(data.steps).toEqual([100, 256, 512]);
     expect(data.slugs).toEqual({
       "Big Land": "big_land",
       "Congo (Kinshasa)": "congo_kinshasa",
@@ -263,25 +264,26 @@ describe("site built from hostile data", () => {
     expect(readFileSync("src/web/scripts/ranking.js", "utf8")).toContain(`const LOGIN = ${LOGIN};`);
   });
 
-  it("puts only the smallest size in the page and the rest in fragments, one per step", () => {
+  it("puts the default size in the page and the larger ones in fragments, one per step", () => {
     const html = readFileSync(join(out, "big_land", "index.html"), "utf8");
-    expect(html.match(/<tr id=/g)).toHaveLength(10);
+    expect(html.match(/<tr id=/g)).toHaveLength(100);
     expect(html).toContain('data-more="/rows/big_land/public/"');
-    expect(html).toContain('data-starts="10,50"');
+    expect(html).toContain('data-starts="100,256"');
     const step = (n: number) => readFileSync(join(out, "rows", "big_land", "public", String(n), "index.html"), "utf8");
     const ranks = (fragment: string) => [...fragment.matchAll(/data-rank="([0-9]+)"/g)].map((m) => Number(m[1]));
-    expect(ranks(step(11))).toEqual(Array.from({ length: 40 }, (_, i) => 11 + i));
-    expect(ranks(step(51))).toEqual(Array.from({ length: 10 }, (_, i) => 51 + i));
-    for (const fragment of [step(11), step(51)]) {
+    expect(ranks(step(101))).toEqual(Array.from({ length: 156 }, (_, i) => 101 + i));
+    expect(ranks(step(257))).toEqual(Array.from({ length: 44 }, (_, i) => 257 + i));
+    for (const fragment of [step(101), step(257)]) {
       expect(fragment.trimStart().startsWith("<tr")).toBe(true);
       expect(fragment).not.toMatch(/<html|<head|<script/);
       expect(fragment).toContain('loading="lazy"');
     }
-    // The page's own rows are always at the top: their avatars do not wait for layout.
-    expect(html).toContain('loading="eager"');
-    expect(html).not.toContain('loading="lazy"');
-    expect(existsSync(join(out, "rows", "big_land", "public", "101"))).toBe(false);
-    // A ranking that fits its smallest size has no fragments and fetches nothing.
+    // The first screen of rows loads its avatars at once, without waiting for layout; the rest when in view.
+    expect(html.match(/loading="eager"/g)).toHaveLength(10);
+    expect(html.match(/loading="lazy"/g)).toHaveLength(90);
+    expect(existsSync(join(out, "rows", "big_land", "public", "11"))).toBe(false);
+    expect(existsSync(join(out, "rows", "big_land", "public", "51"))).toBe(false);
+    // A ranking that fits its default size has no fragments and fetches nothing.
     expect(existsSync(join(out, "rows", "cote_divoire"))).toBe(false);
     expect(readFileSync(join(out, "cote_divoire", "index.html"), "utf8")).not.toMatch(
       /data-more="|<meta name="ranking"/,
@@ -392,7 +394,7 @@ describe("site built from hostile data", () => {
     expect(words.locale).toBe("ru");
     expect(Object.keys(words.messages)).toContain("row.commits");
     // Fragments are the same for every language: English, with the raw numbers for ranking.js.
-    const fragment = readFileSync(join(out, "rows", "big_land", "public", "11", "index.html"), "utf8");
+    const fragment = readFileSync(join(out, "rows", "big_land", "public", "101", "index.html"), "utf8");
     expect(fragment).toMatch(/data-k="row.commits" data-n="1"/);
     expect(readFileSync(join(out, "big_land", "index.html"), "utf8")).not.toContain("data-i18n=");
   });

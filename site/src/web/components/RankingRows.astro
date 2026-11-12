@@ -14,10 +14,13 @@ type Props = {
   rows: (Row & { country?: string })[];
   breakdown?: CountryData["breakdown"] | undefined;
   tab?: Tab;
-  /** The rows in the page itself, always at the top: their avatars load at once instead of waiting for layout. */
-  eager?: boolean;
+  /**
+   * How many of these rows load their avatars at once instead of waiting for layout: the first screen of the rows in
+   * the page itself. Fragments come further down and pass none.
+   */
+  eager?: number;
 };
-const { rows, breakdown, tab = "public", eager = false } = Astro.props;
+const { rows, breakdown, tab = "public", eager = 0 } = Astro.props;
 
 const { t, number, country } = i18n(Astro.currentLocale);
 /** Compact always-visible breakdown: label, value, the message of its tooltip. */
@@ -56,7 +59,7 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
 ---
 
 {
-  rows.map((row) => {
+  rows.map((row, i) => {
     const b = breakdown?.[String(row.id)];
     const flagged =
       tab === "all" && b !== undefined && isMostlyPrivate(publicOf(b), b.private, config.ranking.private_flag_share);
@@ -69,7 +72,7 @@ const medal = (rank: number) => (rank === 1 ? "gold" : rank === 2 ? "silver" : r
         <td>
           <div class="who">
             {row.id > 0 ? (
-              <img loading={eager ? "eager" : "lazy"} width="28" height="28" alt="" src={`https://avatars.githubusercontent.com/u/${row.id}?s=56`} />
+              <img loading={i < eager ? "eager" : "lazy"} width="28" height="28" alt="" src={`https://avatars.githubusercontent.com/u/${row.id}?s=56`} />
             ) : (
               <span class="avatar-placeholder" aria-hidden="true">{row.login.slice(0, 1).toUpperCase()}</span>
             )}

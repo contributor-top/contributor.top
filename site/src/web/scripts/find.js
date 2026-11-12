@@ -6,10 +6,11 @@
   // LOGIN and SLUG from src/collector/patterns.ts (a test keeps them equal): a plain script cannot import them.
   const LOGIN = /^[A-Za-z0-9][A-Za-z0-9-]{0,38}$/;
   const SLUG = /^[a-z][a-z0-9_]{1,40}$/;
-  // Written by this page's own build: country titles to slugs, and the sizes a ranking offers.
+  // Written by this page's own build: country titles to slugs, the sizes a ranking offers and where its fragments start.
   const data = JSON.parse(document.querySelector('meta[name="find-data"]')?.getAttribute("content") || "{}");
   const titles = data.slugs || {};
   const sizes = data.sizes || [];
+  const steps = data.steps || [];
   // This page's language: its prefix ("" or "/ru") and texts.
   const base = typeof data.base === "string" ? data.base : "";
   const text = data.text || {};
@@ -63,7 +64,7 @@
        * alongside the page, instead of once the page has arrived: a prefetch outlives this page.
        */
       const open = (rows, page) => {
-        for (const start of sizes.filter((s) => s < size)) {
+        for (const start of steps.filter((s) => s < size)) {
           const link = document.createElement("link");
           link.rel = "prefetch";
           link.href = `/rows/${rows}/${start + 1}/`;

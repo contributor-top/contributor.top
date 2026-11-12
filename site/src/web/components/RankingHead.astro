@@ -1,7 +1,8 @@
 ---
 import { inlineScript } from "../lib/inline.ts";
 // For a ranking page's <head>: what ranking-early.js needs to fetch the rows the chosen size needs while the page is
-// still arriving (its CSP hash is in astro.config.mjs). Nothing for a ranking that fits its smallest size.
+// still arriving, and to hide the table until the size is set (its CSP hash is in astro.config.mjs). Nothing for a
+// ranking that offers one size.
 import { chunkStarts, sizesFor } from "../lib/site.ts";
 import earlySource from "../scripts/ranking-early.js?raw";
 
@@ -12,7 +13,7 @@ const { choices, defaultTop } = sizesFor(count);
 ---
 
 {
-  starts.length > 0 && (
+  choices.length > 1 && (
     <>
       <meta name="ranking" content={JSON.stringify({ more, starts, choices, top: defaultTop })} />
       <script is:inline data-astro-rerun set:html={inlineScript("ranking-early", earlySource)} />

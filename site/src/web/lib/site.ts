@@ -39,13 +39,17 @@ export function sizesFor(count: number): { choices: number[]; defaultTop: number
 }
 
 /**
- * A ranking page carries only its smallest size, FIRST_ROWS rows. The rest are fragments, one per step between the
- * sizes (rows 11–50, 51–100, …), at `${rowsBase(key)}${start + 1}/`, fetched only when the chosen size or a
- * #login link needs them.
+ * A ranking page carries its default size, FIRST_ROWS rows: what a visitor sees first, and all a search engine reads
+ * (robots.txt keeps the fragments out). A smaller chosen size hides the rows past it. Larger sizes are fragments, one
+ * per step between them (rows 101–256, 257–512), at `${rowsBase(key)}${start + 1}/`, fetched only when the chosen
+ * size or a #login link needs them.
  */
-export const FIRST_ROWS = config.ranking.top_choices[0] ?? 10;
-/** Where each fragment of a ranking of `count` rows starts (0-based): at every size smaller than the count. */
-export const chunkStarts = (count: number): number[] => config.ranking.top_choices.filter((c) => c < count);
+export const FIRST_ROWS = config.ranking.default_top;
+/** Rows whose avatars load at once (the first screen); the rest wait until they come into view. */
+export const EAGER_ROWS = config.ranking.top_choices[0] ?? 10;
+/** Where each fragment of a ranking of `count` rows starts (0-based): at every size from FIRST_ROWS below the count. */
+export const chunkStarts = (count: number): number[] =>
+  config.ranking.top_choices.filter((c) => c >= FIRST_ROWS && c < count);
 export const rowsBase = (key: string): string => `/rows/${key}/`;
 /** The fragments of a ranking: each step after the first rows, with where it starts. */
 export function rowSteps<T>(rows: readonly T[]): { start: number; rows: T[] }[] {
