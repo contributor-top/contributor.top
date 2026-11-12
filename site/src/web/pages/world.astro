@@ -8,7 +8,7 @@ import { rowsBase, updates, worldRows } from "../lib/site.ts";
 const rows = worldRows();
 const { t, href, month } = i18n(Astro.currentLocale);
 const title = t("world.title");
-// As on a country page: the heading says what the list is, the window title how people search for it.
+// As on a country page: the window title says it the way people search for it, with the month of the data.
 const newest = updates.at(-1);
 const pageTitle = newest ? t("world.pageTitle", { month: month(newest) }) : title;
 const description = t("world.description");
@@ -47,7 +47,7 @@ const jsonLd =
 <Base title={pageTitle} description={description} jsonLd={jsonLd}>
   <RankingHead slot="head" count={rows.length} more={rowsBase("world")} />
   <div class="head">
-    <h1>{title}</h1>
+    <h1>{t("world.h1")}</h1>
     {
       rows.length > 0 && (
         <a class="json" href="/api/world.json" aria-label={t("world.json")}>

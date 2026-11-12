@@ -30,6 +30,7 @@
 
   "world.title": "Most active GitHub users in the world",
   "world.description": "The most active GitHub users worldwide, merged from every country ranking by public contributions over the last 12 months.",
+  "world.h1": "World",
   "world.pageTitle": "Top GitHub users in the world, {month}",
   "world.json": "World ranking as JSON",
   "world.intro": "Merged from all country rankings (public contributions). Only people whose location matches a country are included, so this is not an exhaustive world ranking, and accounts whose activity looks automated are left out. See the {link}.",

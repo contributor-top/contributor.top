@@ -30,6 +30,7 @@
 
   "world.title": "Người dùng GitHub tích cực nhất thế giới",
   "world.description": "Những người dùng GitHub tích cực nhất trên toàn thế giới, gộp từ bảng xếp hạng của mọi quốc gia theo đóng góp công khai trong 12 tháng qua.",
+  "world.h1": "Thế giới",
   "world.pageTitle": "Top người dùng GitHub thế giới, {month}",
   "world.json": "Bảng xếp hạng thế giới dạng JSON",
   "world.intro": "Gộp từ bảng xếp hạng của tất cả quốc gia (đóng góp công khai). Chỉ những người có vị trí khớp với một quốc gia mới được đưa vào, nên đây không phải là bảng xếp hạng đầy đủ của thế giới; các tài khoản có hoạt động trông như tự động cũng bị loại. Xem {link}.",

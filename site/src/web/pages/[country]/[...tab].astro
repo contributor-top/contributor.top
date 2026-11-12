@@ -22,11 +22,9 @@ const data = entry.data;
 const country = nameOf(entry);
 
 const what = t(`country.what.${tab}`);
-// The heading says what the list is ("Most active GitHub users in Belarus"), the same on every tab, whose name is
-// right under it. The window title, which search results show, names the tab and says it the way people search for
-// it, with the month of the data ("Top GitHub users in Belarus by commits, November 2026").
-const heading = t("country.title", { country });
-const title = tab === "public" ? heading : t("country.titleBy", { country, what });
+// The window title, which search results show, says it the way people search for it, with the month of the data
+// ("Top GitHub users in Belarus by commits, November 2026"); the dataset keeps the plain name.
+const title = tab === "public" ? t("country.title", { country }) : t("country.titleBy", { country, what });
 const pageTitle = !data
   ? title
   : tab === "public"
@@ -85,7 +83,7 @@ const jsonLd = data
 
 <Base title={pageTitle} description={description} noindex={!data} jsonLd={jsonLd}>
   <RankingHead slot="head" count={data?.tabs[tab].length ?? 0} more={more} />
-  <h1>{heading}</h1>
+  <h1>{country}</h1>
   {
     data ? (
       <>
