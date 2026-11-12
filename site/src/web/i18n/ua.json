@@ -31,6 +31,7 @@
   "world.title": "Найактивніші користувачі GitHub у світі",
   "world.description": "Найактивніші користувачі GitHub з усього світу: спільний рейтинг усіх країн за публічним внеском за останні 12 місяців.",
   "world.h1": "Світ",
+  "world.pageTitle": "Топ користувачів GitHub у світі, {month}",
   "world.json": "Світовий рейтинг у JSON",
   "world.intro": "Зібраний з рейтингів усіх країн (публічний внесок). До нього потрапляють лише ті, чия локація збігається з якоюсь країною, тож це не вичерпний світовий рейтинг; акаунти, активність яких схожа на автоматичну, виключено. Докладніше — у {link}.",
   "world.methodology": "методології",
@@ -38,6 +39,8 @@
 
   "country.title": "{country}: найактивніші користувачі GitHub",
   "country.titleBy": "{country}: найактивніші користувачі GitHub — {what}",
+  "country.pageTitle": "{country}: топ користувачів GitHub, {month}",
+  "country.pageTitleBy": "{country}: топ користувачів GitHub — {what}, {month}",
   "country.what.public": "публічний внесок",
   "country.what.all": "публічний і приватний внесок",
   "country.what.commits": "коміти",

@@ -31,6 +31,7 @@
   "world.title": "Pengguna GitHub paling aktif di dunia",
   "world.description": "Pengguna GitHub paling aktif di seluruh dunia, gabungan peringkat semua negara berdasarkan kontribusi publik selama 12 bulan terakhir.",
   "world.h1": "Dunia",
+  "world.pageTitle": "Top pengguna GitHub di dunia, {month}",
   "world.json": "Peringkat dunia dalam JSON",
   "world.intro": "Gabungan peringkat semua negara (kontribusi publik). Hanya orang yang lokasinya cocok dengan suatu negara yang disertakan, jadi ini bukan peringkat dunia yang lengkap, dan akun yang aktivitasnya tampak otomatis tidak dimasukkan. Lihat {link}.",
   "world.methodology": "metodologi",
@@ -38,6 +39,8 @@
 
   "country.title": "Pengguna GitHub paling aktif di {country}",
   "country.titleBy": "Pengguna GitHub paling aktif di {country} berdasarkan {what}",
+  "country.pageTitle": "Top pengguna GitHub di {country}, {month}",
+  "country.pageTitleBy": "Top pengguna GitHub di {country} berdasarkan {what}, {month}",
   "country.what.public": "kontribusi publik",
   "country.what.all": "kontribusi publik dan privat",
   "country.what.commits": "commit",

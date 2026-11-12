@@ -349,6 +349,23 @@ describe("site built from hostile data", () => {
     expect(list.itemListElement[0].position).toBe(1);
   });
 
+  it("titles a ranking the way people search for it, with the month of its data", () => {
+    const page = (path: string) => readFileSync(join(out, path, "index.html"), "utf8");
+    expect(page("big_land")).toContain("<title>Top GitHub users in Big Land, October 2026 | contributor.top</title>");
+    expect(page("big_land/commits")).toContain(
+      "<title>Top GitHub users in Big Land by commits, October 2026 | contributor.top</title>",
+    );
+    expect(page("ru/big_land")).toContain(
+      "<title>Big Land: топ пользователей GitHub, октябрь 2026 г. | contributor.top</title>",
+    );
+    expect(page("world")).toContain("<title>Top GitHub users in the world, October 2026 | contributor.top</title>");
+    // Only the window title changes: the headings stay as they are.
+    expect(page("big_land")).toMatch(/<h1[^>]*>Big Land<[/]h1>/);
+    expect(page("world")).toMatch(/<h1[^>]*>World<[/]h1>/);
+    // A country still collecting is out of search results and has no month to name.
+    expect(page("no_data")).toContain("<title>Most active GitHub users in No Data | contributor.top</title>");
+  });
+
   it("states the rules of Methodology with the numbers the collector uses, in every language", () => {
     const en = readFileSync(join(out, "methodology", "index.html"), "utf8");
     expect(en).toContain("1,000 most-followed users");

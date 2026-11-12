@@ -31,6 +31,7 @@
   "world.title": "全球最活跃的 GitHub 用户",
   "world.description": "全球最活跃的 GitHub 用户，汇总自各国按过去 12 个月公开贡献的排名。",
   "world.h1": "全球",
+  "world.pageTitle": "全球 GitHub 用户排行榜（{month}）",
   "world.json": "全球排名（JSON）",
   "world.intro": "汇总自所有国家的排名（公开贡献）。只包含所在地与某个国家匹配的用户，因此这并不是完整的全球排名；活动看起来是自动化的账号也不包括在内。详见{link}。",
   "world.methodology": "方法说明",
@@ -38,6 +39,8 @@
 
   "country.title": "{country}：最活跃的 GitHub 用户",
   "country.titleBy": "{country}：最活跃的 GitHub 用户（按{what}）",
+  "country.pageTitle": "{country} GitHub 用户排行榜（{month}）",
+  "country.pageTitleBy": "{country} GitHub 用户排行榜（按{what}，{month}）",
   "country.what.public": "公开贡献",
   "country.what.all": "公开和私有贡献",
   "country.what.commits": "提交",
