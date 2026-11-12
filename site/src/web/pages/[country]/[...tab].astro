@@ -17,19 +17,19 @@ export const getStaticPaths = (() =>
 
 type Props = { entry: CountryEntry; tab: Tab };
 const { entry, tab } = Astro.props;
-const { t, href, dateTime, month, country: nameOf } = i18n(Astro.currentLocale);
+const { t, href, dateTime, country: nameOf } = i18n(Astro.currentLocale);
 const data = entry.data;
 const country = nameOf(entry);
 
 const what = t(`country.what.${tab}`);
-// The window title, which search results show, says it the way people search for it, with the month of the data
-// ("Top GitHub users in Belarus by commits, November 2026"); the dataset keeps the plain name.
+// The window title, which search results show, says it the way people search for it ("Top GitHub users in Belarus
+// by commits"); the dataset keeps the plain name.
 const title = tab === "public" ? t("country.title", { country }) : t("country.titleBy", { country, what });
 const pageTitle = !data
   ? title
   : tab === "public"
-    ? t("country.pageTitle", { country, month: month(data.updatedAt) })
-    : t("country.pageTitleBy", { country, what, month: month(data.updatedAt) });
+    ? t("country.pageTitle", { country })
+    : t("country.pageTitleBy", { country, what });
 const top3 = data?.tabs[tab].slice(0, 3).map((r) => r.login) ?? [];
 const description = data
   ? t("country.description", {

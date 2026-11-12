@@ -68,7 +68,6 @@ function make(current: string) {
     timeZone: "UTC",
   });
   const day = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
-  const month = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" });
 
   /** The message for `key` (English if a translation lacks it), with its placeholders filled in. */
   const t = (key: Key, vars: Vars = {}): string => {
@@ -91,8 +90,6 @@ function make(current: string) {
     number: (n: number) => number.format(n),
     dateTime: (iso: string) => `${dateTime.format(new Date(iso))} UTC`,
     day: (iso: string) => day.format(new Date(iso)),
-    /** The month of a ranking, for page titles: "November 2026", "ноябрь 2026 г.". */
-    month: (iso: string) => month.format(new Date(iso)),
     /**
      * A country's name: the preset's title in English; in other languages the ISO name ("Беларусь"), or for a
      * preset without an ISO code its message country.name.<slug> ("Курдистан").
