@@ -52,6 +52,14 @@ describe("circuit breaker", () => {
     ]);
   });
 
+  it("expects the drop when a country outgrows the candidate limit", () => {
+    const before = country(range(200), { minFollowers: 0 });
+    expect(breakerReasons(before, country(range(90), { minFollowers: 1 }), limits)).toEqual([]);
+    expect(breakerReasons(before, country(range(90), { minFollowers: 0 }), limits)).toEqual([
+      "candidates dropped from 200 to 90",
+    ]);
+  });
+
   it("does not judge a reshuffle on a handful of rows", () => {
     expect(breakerReasons(country(range(5)), country(range(5, 100)), limits)).toEqual([]);
   });

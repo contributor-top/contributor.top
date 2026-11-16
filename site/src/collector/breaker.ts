@@ -22,7 +22,10 @@ export function breakerReasons(
 
   if (next.tabs.public.length === 0 && previous.tabs.public.length > 0) reasons.push("the ranking came back empty");
 
-  if (previous.considered > 0) {
+  // A country that outgrows the candidate limit gets its first follower threshold, and everyone without followers
+  // stops being a candidate: that drop is expected, so only an unchanged threshold of 0 is compared here.
+  const outgrewLimit = previous.minFollowers === 0 && next.minFollowers > 0;
+  if (previous.considered > 0 && !outgrewLimit) {
     const drop = (previous.considered - next.considered) / previous.considered;
     if (drop > limits.max_candidate_drop) {
       reasons.push(`candidates dropped from ${previous.considered} to ${next.considered}`);
