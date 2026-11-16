@@ -43,19 +43,33 @@ export class BranchStore {
     return env;
   }
 
-  /** Runs git and returns its exit code. */
-  private async run(args: string[]): Promise<number> {
+  /**
+   * Runs git and returns its exit code and what it said on stderr, without hints and the "To <url>" line:
+   * for a rejected push that keeps the "! [rejected] ... (reason)" line, which says why.
+   */
+  private async exec(args: string[]): Promise<{ code: number; reason: string }> {
     try {
-      execFileSync("git", ["-C", this.dir, ...args], { env: await this.env(), stdio: "ignore" });
-      return 0;
+      execFileSync("git", ["-C", this.dir, ...args], { env: await this.env(), stdio: ["ignore", "ignore", "pipe"] });
+      return { code: 0, reason: "" };
     } catch (e) {
-      return (e as { status?: number }).status ?? 1;
+      const { status, stderr } = e as { status?: number; stderr?: Buffer };
+      const reason = String(stderr ?? "")
+        .split("\n")
+        .map((line) => line.replace(/ +/g, " ").trim())
+        .filter((line) => line && !line.startsWith("hint:") && !line.startsWith("To "))
+        .join(" · ")
+        .slice(0, 300);
+      return { code: status ?? 1, reason };
     }
   }
 
+  private async run(args: string[]): Promise<number> {
+    return (await this.exec(args)).code;
+  }
+
   private async git(args: string[]): Promise<void> {
-    const code = await this.run(args);
-    if (code !== 0) throw new Error(`git ${args[0]} failed (${code}) on ${this.branch}`);
+    const { code, reason } = await this.exec(args);
+    if (code !== 0) throw new Error(`git ${args[0]} failed (${code}) on ${this.branch}${reason ? `: ${reason}` : ""}`);
   }
 
   private head(): string {
