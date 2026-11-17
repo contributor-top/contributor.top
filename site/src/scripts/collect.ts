@@ -55,7 +55,7 @@ delete env["OPTOUT_KEY"];
 const appToken = app ? installationToken({ ...app, repo }) : null;
 const token: () => Promise<string> =
   appToken ?? (async () => env["GITHUB_TOKEN"] || execFileSync("gh", ["auth", "token"], { encoding: "utf8" }).trim());
-const identity: Identity | null = app ? await appBotIdentity(app) : null;
+const identity: Identity | null = app ? await appBotIdentity(app, token) : null;
 if (publish && !appToken) throw new Error("PUBLISH needs the GitHub App credentials");
 
 const store = (dir: string, branch: string) => new BranchStore(dir, branch, repo, publish ? token : null, identity);

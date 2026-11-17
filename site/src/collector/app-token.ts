@@ -81,12 +81,18 @@ export function installationToken(auth: AppAuth & { repo: string }): () => Promi
   };
 }
 
-/** The App's bot identity for commits: "<slug>[bot]" and its noreply address. */
-export async function appBotIdentity(auth: AppAuth): Promise<{ name: string; email: string }> {
+/**
+ * The App's bot identity for commits: "<slug>[bot]" and its noreply address. The user lookup does not accept the
+ * App JWT, and without a token it shares the runner IP's limit of 60 an hour with other jobs (#178), so it uses
+ * the installation token.
+ */
+export async function appBotIdentity(
+  auth: AppAuth,
+  token: () => Promise<string>,
+): Promise<{ name: string; email: string }> {
   const clock = auth.clock ?? systemClock;
   const { slug } = await rest<{ slug: string }>(auth, "GET", "/app", appJwt(auth.appId, auth.privateKey, clock.now()));
   const name = `${slug}[bot]`;
-  // A public endpoint: it does not accept the App JWT.
-  const { id } = await rest<{ id: number }>(auth, "GET", `/users/${encodeURIComponent(name)}`, null);
+  const { id } = await rest<{ id: number }>(auth, "GET", `/users/${encodeURIComponent(name)}`, await token());
   return { name, email: `${id}+${name}@users.noreply.github.com` };
 }
