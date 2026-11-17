@@ -171,7 +171,7 @@ describe("GitHub App token", () => {
       }
       if (url.endsWith("/app")) return response(json({ slug: "contributors-top-collector" }));
       if (url.includes("/users/")) {
-        expect(init.headers["Authorization"]).toBeUndefined();
+        expect(init.headers["Authorization"]).toBe("Bearer ghs_test");
         return response(json({ id: 777 }));
       }
       return response(json({ message: "Not Found" }, 404));
@@ -228,9 +228,9 @@ describe("GitHub App token", () => {
     expect(error).not.toBeInstanceOf(AuthError);
   });
 
-  it("knows its bot identity for commits", async () => {
+  it("knows its bot identity for commits, looking the bot up with the installation token", async () => {
     const { clock, fetch } = api(0);
-    expect(await appBotIdentity({ appId: "1", privateKey: pem, fetch, clock })).toEqual({
+    expect(await appBotIdentity({ appId: "1", privateKey: pem, fetch, clock }, async () => "ghs_test")).toEqual({
       name: "contributors-top-collector[bot]",
       email: "777+contributors-top-collector[bot]@users.noreply.github.com",
     });
