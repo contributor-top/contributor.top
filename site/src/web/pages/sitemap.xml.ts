@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { LANGS, prefixOf } from "../i18n/index.ts";
-import { collected, SITE, TABS, tabHref, updates } from "../lib/site.ts";
+import { collected, SITE, tabHref, updates } from "../lib/site.ts";
 
 /**
  * All indexable pages, in every language; country pages carry their own update time as lastmod. The pages name
@@ -15,10 +15,10 @@ export const GET: APIRoute = () => {
     { loc: "/methodology/" },
     { loc: "/privacy/" },
   ];
-  // "Collecting" pages are thin; they join the sitemap once they have data.
-  for (const { slug, data } of collected) {
-    for (const tab of TABS) pages.push({ loc: tabHref(slug, tab), lastmod: data.updatedAt });
-  }
+  // "Collecting" pages are thin; they join the sitemap once they have data. Only the main ranking of a country is
+  // listed: the other tabs rank the same people differently, so they would ask a young site's small crawl budget for
+  // near-duplicates (#180). They stay indexable and reachable through the tab links on every page.
+  for (const { slug, data } of collected) pages.push({ loc: tabHref(slug, "public"), lastmod: data.updatedAt });
   const body = LANGS.flatMap((lang) =>
     pages.map(
       ({ loc, lastmod }) =>
