@@ -394,6 +394,13 @@ describe("site built from hostile data", () => {
     expect(readFileSync(join(out, "sitemap.xml"), "utf8")).toContain("<loc>https://contributor.top/ru/world/</loc>");
   });
 
+  it("lists only the main ranking of a country in the sitemap", () => {
+    const sitemap = readFileSync(join(out, "sitemap.xml"), "utf8");
+    expect(sitemap).toContain("<loc>https://contributor.top/ru/big_land/</loc>");
+    expect(sitemap).not.toContain("/big_land/all/");
+    expect(sitemap).not.toContain("/big_land/commits/");
+  });
+
   it("links each page to itself in every language, and puts each in its own canonical URL", () => {
     const html = readFileSync(join(out, "ru", "cote_divoire", "index.html"), "utf8");
     expect(html).toContain('<link rel="canonical" href="https://contributor.top/ru/cote_divoire/">');
